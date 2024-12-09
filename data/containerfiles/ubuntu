@@ -1,0 +1,15 @@
+FROM ubuntu:24.04
+ENV container=podman
+
+RUN apt-get update
+RUN apt-get upgrade
+RUN apt-get install -y systemd systemd-sysv dbus dbus-user-session sudo less vim
+
+# disable systemd-resolved
+RUN rm -f /etc/systemd/system/sysinit.target.wants/systemd-resolved.service
+
+STOPSIGNAL RTMIN+3
+
+VOLUME ["/sys/fs/cgroup"]
+
+CMD ["/sbin/init"]

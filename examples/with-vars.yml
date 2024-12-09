@@ -1,0 +1,27 @@
+---
+lab_name: with-vars
+ipa_deployments:
+  - name: cluster
+    domain: ipa.test
+    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities:
+            - CA   # optional, first server is always CA
+            - DNS
+          vars:
+            ipaserver_no_hbac_allow: true
+      clients:
+        vars:   # Apply to all client hosts
+          ipaclient_mkhomedir: true
+        hosts:
+          - name: cli-01
+            vars:  # Apply onnly to cli-01
+              ipaclient_install_packages: true
+          - name: cli-02
+          - name: cli-03
+          - name: cli-04
+          - name: cli-05

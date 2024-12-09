@@ -1,0 +1,26 @@
+---
+lab_name: full-hidden-replica
+ipa_deployments:
+  - name: cluster
+    domain: ipa.test
+    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities:
+            - CA
+            - DNS
+            - AD
+            - KRA
+        - name: rep01
+          capabilities:
+            - CA
+            - DNS
+            - AD
+            - KRA
+            - HIDDEN
+        - name: rep02
+      clients:
+        - name: client

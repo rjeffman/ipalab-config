@@ -1,0 +1,27 @@
+# Configuration for a cluster with two servers and a client.
+#
+# The initial server always have CA renewal role, and, in
+# this example, DNS nameserver was added.
+#
+# The replica has no special role assigned.
+#
+# Client has no special settings.
+#
+# By default, the ditro used is 'fedora-latest'.
+---
+lab_name: simple-cluster
+ipa_deployments:
+  - name: cluster
+    domain: ipa.test
+    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities:
+            - CA   # optional, first server is always CA
+            - DNS
+        - name: replica
+      clients:
+        - name: client

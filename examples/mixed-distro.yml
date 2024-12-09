@@ -1,0 +1,21 @@
+# By default, the ditro used is 'fedora-latest'.
+---
+lab_name: mixed-distro
+ipa_deployments:
+  - name: cluster
+    domain: ipa.test
+    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          distro: c10s
+          capabilities:
+            - CA   # optional, first server is always CA
+            - DNS
+      clients:
+        - name: cli-01
+          distro: fedora-latest
+        - name: cli-02
+          distro: ubuntu

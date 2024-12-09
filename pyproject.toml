@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ipalab-config"
+dynamic = ["version"]
+authors = [
+    {name = "Rafael Guterres Jeffman", email = "rjeffman@redhat.com"},
+]
+description = ""
+readme = "README.md"
+requires-python = ">=3.6"
+keywords = ["freeipa", "ansible"]
+license = {file = "COPYING"}
+
+dependencies = ["ruamel.yaml"]
+
+[project.scripts]
+ipalab-config = "ipalab_config:main"
+
+[project.optional-dependencies]
+dev = ["black", "pre-commit", "pylint", "yamllint"]
+
+[tool.setuptools]
+py-modules = ["ipalab_config"]
+
+[tool.setuptools.package-data]
+ipalab_config = ["data/*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ipalab_config.__version__"}
+
+[tool.black]
+line-length = 80
+target-version = ['py312']
+include = '\.pyi?$'
+
+[tool.pylint.'FORMAT']
+max-line-length = 80
+

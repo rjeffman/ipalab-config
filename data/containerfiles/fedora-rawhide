@@ -1,0 +1,41 @@
+FROM fedora:rawhide
+ENV container=podman
+
+RUN rm -fv /var/cache/dnf/metadata_lock.pid; \
+dnf makecache; \
+dnf --assumeyes install \
+    /usr/bin/python3 \
+    /usr/bin/python3-config \
+    python3-libdnf5 \
+    sudo \
+    bash \
+    systemd \
+    procps-ng \
+    iproute; \
+dnf clean all; \
+rm -rf /var/cache/dnf/;
+
+RUN (cd /lib/systemd/system/; \
+    if [ -e dbus-broker.service ] && [ ! -e dbus.service ]; then \
+       ln -s dbus-broker.service dbus.service; \
+    fi \
+)
+COPY system-service/container-ipa.target /lib/systemd/system/
+RUN systemctl set-default container-ipa.target
+RUN (cd /etc/systemd/system/; \
+    rm -rf multi-user.target.wants \
+	&& mkdir container-ipa.target.wants \
+	&& ln -s container-ipa.target.wants multi-user.target.wants \
+)
+
+COPY system-service/fixnet.sh /root/
+COPY system-service/fixipaip.sh /root/
+COPY system-service/fixnet.service /etc/systemd/system/
+COPY system-service/fixipaip.service /etc/systemd/system/
+RUN chmod +x /root/fixnet.sh /root/fixipaip.sh
+
+STOPSIGNAL RTMIN+3
+
+VOLUME ["/sys/fs/cgroup"]
+
+CMD ["/usr/sbin/init"]
