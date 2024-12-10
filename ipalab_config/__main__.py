@@ -13,6 +13,10 @@ from ruamel.yaml import YAML
 from ipalab_config import __version__
 
 
+# The global ip address generator.
+IP_GENERATOR = iter(range(10, 255))
+
+
 def die(msg, err=1):
     """Display message to stderr stream and exit program with error."""
     print(msg, file=sys.stderr)
@@ -40,7 +44,9 @@ def parse_arguments():
     return opt_parser.parse_args()
 
 
-def get_compose_config(containers, domain, networkname, subnet, ips):
+def get_compose_config(
+    containers, domain, networkname, subnet, ips=IP_GENERATOR
+):
     """Create config for all containers in the list."""
     result = {}
     if isinstance(containers, dict):
@@ -74,16 +80,12 @@ def compose_servers(servers, domain, networkname, subnet):
     if not servers:
         print(f"Warning: No servers defined for domain '{domain}'")
         return {}
-    return get_compose_config(
-        servers, domain, networkname, subnet, range(10, 10 + len(servers))
-    )
+    return get_compose_config(servers, domain, networkname, subnet)
 
 
 def compose_clients(clients, domain, networkname, subnet):
     """Generate service compose configuration for IPA clents."""
-    return get_compose_config(
-        clients, domain, networkname, subnet, range(250, 10, -1)
-    )
+    return get_compose_config(clients, domain, networkname, subnet)
 
 
 def gen_compose_file(lab_config, subnet):
