@@ -164,6 +164,7 @@ def get_server_inventory(config, domain, subnet):
             "ipaclient_no_ntp": False,
             "ipaserver_setup_firewalld": False,
             "ipaserver_no_host_dns": True,
+            "ipaserver_remove_from_domain": True,
         }
     )
     options.update(config.get("vars", {}))
@@ -205,6 +206,7 @@ def get_replicas_inventory(config, domain, subnet, server):
         "ipaclient_no_ntp": False,
         "ipareplica_setup_firewalld": False,
         "ipareplica_no_host_dns": True,
+        "ipareplica_remove_from_domain": True,
     }
     if server:
         common["ipareplica_servers"] = server["ipaserver_hostname"]
