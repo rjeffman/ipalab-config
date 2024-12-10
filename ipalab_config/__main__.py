@@ -246,6 +246,8 @@ def get_clients_inventory(config, domain, subnet, server):
                 result["vars"].update(host_vars)
     else:
         client_list = config
+    if not client_list:
+        return {}
     clients = result.setdefault("hosts", {})
     for client in client_list or []:
         name = client["name"]
