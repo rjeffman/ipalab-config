@@ -57,7 +57,7 @@ def get_compose_config(containers, domain, networkname, subnet, ips):
             "restart": "never",
             "cap_add": ["SYS_ADMIN"],
             "security_opt": ["label:disable"],
-            "hostname": container.get("hostname", f"{name}.{domain}"),
+            "hostname": get_hostname(container, name, domain),
             "networks": {networkname: {"ipv4_address": f"{subnet}.{ipaddr}"}},
             "image": f"localhost/{distro}",
             "build": {
@@ -136,6 +136,14 @@ def gen_compose_file(lab_config, subnet):
     return config
 
 
+def get_hostname(config, name, domain):
+    """Ensure hostname from config is FQDN."""
+    hostname = config.get("hostname", f"{name}.{domain}")
+    if not "." in hostname:
+        hostname = f"{hostname}.{domain}"
+    return hostname
+
+
 def get_server_inventory(config, domain, subnet):
     """Get inventory configuration for the ipaserver"""
     cap_opts = {
@@ -155,7 +163,7 @@ def get_server_inventory(config, domain, subnet):
     }
 
     name = config["name"]
-    hostname = config.get("hostname", f"{name}.{domain}")
+    hostname = get_hostname(config, name, domain)
     options = {"ipaserver_hostname": hostname}
     for cap in config.get("capabilities", []):
         options.update(cap_opts.get(cap, {}))
@@ -220,7 +228,7 @@ def get_replicas_inventory(config, domain, subnet, server):
     replicas = result.setdefault("hosts", {})
     for replica in config:
         name = replica["name"]
-        hostname = replica.get("hostname", f"{name}.{domain}")
+        hostname = get_hostname(replica, name, domain)
         options = {"ipareplica_hostname": hostname}
         for cap in replica.get("capabilities", []):
             options.update(cap_opts.get(cap, {}))
@@ -254,7 +262,7 @@ def get_clients_inventory(config, domain, subnet, server):
     clients = result.setdefault("hosts", {})
     for client in client_list or []:
         name = client["name"]
-        hostname = client.get("hostname", f"{name}.{domain}")
+        hostname = get_hostname(client, name, domain)
         clients[name] = {"ipaclient_hostname": hostname}
         clients[name].update(client.get("vars", {}))
     return result
