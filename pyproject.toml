@@ -12,12 +12,12 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.6"
 keywords = ["freeipa", "ansible"]
-license = {file = "COPYING"}
+license = {text = "0BSD"}
 
 dependencies = ["ruamel.yaml"]
 
 [project.scripts]
-ipalab-config = "ipalab_config:main"
+ipalab-config = "ipalab_config.__main__:main"
 
 [project.optional-dependencies]
 dev = ["black", "pre-commit", "pylint", "yamllint"]
@@ -26,7 +26,11 @@ dev = ["black", "pre-commit", "pylint", "yamllint"]
 py-modules = ["ipalab_config"]
 
 [tool.setuptools.package-data]
-ipalab_config = ["data/*"]
+ipalab_config = [
+    "data/containerfiles/*",
+    "data/playbooks/*.yml",
+    "data/containerfiles/system-service/*",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "ipalab_config.__version__"}
