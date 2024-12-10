@@ -15,6 +15,12 @@ The tool can be installed through `pip`:
 pip install ipalab-config
 ```
 
+To experiment with the latest branch:
+
+```
+pip install git+https://github.com/rjeffman/ipalab-config
+```
+
 Usage of Python's virtual environment is encouraged.
 
 The only dependency for the tool is [ruamel.yaml](https://pypi.org/project/ruamel.yaml), but `ansible-core` will be required to run ansible-freeipa playbooks.
