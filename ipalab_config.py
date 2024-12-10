@@ -11,7 +11,7 @@ from random import randint
 from ruamel.yaml import YAML
 
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def die(msg, err=1):
