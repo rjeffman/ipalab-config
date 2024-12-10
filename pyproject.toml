@@ -23,7 +23,7 @@ ipalab-config = "ipalab_config.__main__:main"
 dev = ["black", "pre-commit", "pylint", "yamllint"]
 
 [tool.setuptools]
-py-modules = ["ipalab_config"]
+packages = ["ipalab_config"]
 
 [tool.setuptools.package-data]
 ipalab_config = [

@@ -10,8 +10,7 @@ from random import randint
 
 from ruamel.yaml import YAML
 
-
-__version__ = "0.1.1"
+from ipalab_config import __version__
 
 
 def die(msg, err=1):
@@ -248,7 +247,7 @@ def get_clients_inventory(config, domain, subnet, server):
     else:
         client_list = config
     clients = result.setdefault("hosts", {})
-    for client in client_list:
+    for client in client_list or []:
         name = client["name"]
         hostname = client.get("hostname", f"{name}.{domain}")
         clients[name] = {"ipaclient_hostname": hostname}
