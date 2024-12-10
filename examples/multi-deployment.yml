@@ -1,0 +1,35 @@
+# This example creates two IPA deployments, with one server each.
+#
+# Note that the hostnames are the same on each deployment, but the domain
+# is different, and the name of the servers is also different.
+#
+# The network is still the same network with mask 255.255.255.0, randomly
+# defined as 192.168.X.0/24 (where x is 1-254), and the IP numbers for the
+# hosts are in the range 192.168.X.10 to 192.168.x.254.
+---
+lab_name: multi-deployment
+ipa_deployments:
+  - name: origin
+    domain: origin.ipa.test
+    realm: ORIGIN.IPA.TEST  # optional, by defaul it is domain in uppercase
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: origin_server
+          hostname: server
+          capabilities:
+            - CA   # optional, first server is always CA
+            - DNS
+  - name: target
+    domain: target.ipa.test
+    realm: TARGET.IPA.TEST  # optional, by defaul it is domain in uppercase
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: target_server
+          hostname: server
+          capabilities:
+            - CA   # optional, first server is always CA
+            - DNS
