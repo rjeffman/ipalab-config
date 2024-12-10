@@ -151,6 +151,7 @@ def get_server_inventory(config, domain, subnet):
             "ipaserver_setup_dns": True,
         },
         "AD": {"ipaserver_setup_adtrust": True},
+        "RSN": {"ipaserver_random_serial_numbers": True},
     }
 
     name = config["name"]

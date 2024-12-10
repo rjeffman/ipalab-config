@@ -115,7 +115,7 @@ These are the available options to configure the first server and the replicas:
 | `name`     | The name of the server. | yes | - |
 | `hostname` | The server hostname. | no | _<server name>_._<domain>_ |
 | `distro`   | The Linux distribution to use. | no | `fedora-latest` |
-| `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust) and `HIDDEN` (only for replicas). | no | For the first server `CA` is set. |
+| `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
 | `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check (ansible-freeipa roles documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles] for valid values | no | - |
 
 
