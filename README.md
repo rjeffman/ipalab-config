@@ -55,17 +55,17 @@ ipa_deployments:
 
 The output is a directory `simple-cluster` (defined by the attribute `lab_name`) containing a compose configuration file (`compose.yml`), compatible with Docker and Podman, an inventory file (`inventory.yml`), customized for the created environment, a `containerfiles` directory with the container files recipes to allow FreeIPA deployment in containers, and a `playbooks` directory with a `install-cluster.yml` playbook that can be used to deploy the whole cluster.
 
-To bring up the compose, use:
+To bring up the compose, use podman compose tool. Native `podman-compose` is provided in a separate package (`podman-compose` on Fedora) which needs to be installed in advance. Once the package is available, run:
 
 ```
 podman-compose up -d
 ```
 
-To run the deployment playbook you'll need Ansible and the ansible-freeipa collection (again, a virtual environment is encouraged):
+To run the deployment playbook you'll need Ansible and the two collections: containers.podman, to communicate with podman, and ansible-freeipa collection (again, a virtual environment is encouraged):
 
 ```
 pip install ansible-core
-ansible-galaxy collection install freeipa.ansible_freeipa
+ansible-galaxy collection install containers.podman freeipa.ansible_freeipa
 ```
 
 Deploy the cluster with:
