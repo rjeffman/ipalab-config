@@ -46,6 +46,14 @@ def copy_helper_files(base_dir, directory):
     shutil.copytree(origin, target_dir, dirs_exist_ok=True)
 
 
+def save_data(yaml, base_dir, filename, yamldata):
+    """Save YAML data as a YAML file."""
+    os.makedirs(base_dir, exist_ok=True)
+    # pylint: disable=unspecified-encoding
+    with open(os.path.join(base_dir, filename), "w") as out:
+        yaml.dump(yamldata, out)
+
+
 def generate_ipalab_configuration():
     """Generate compose and inventory."""
     args = parse_arguments()
@@ -59,21 +67,17 @@ def generate_ipalab_configuration():
         die(str(fnfe))
 
     labname = data.get("lab_name", "ipa-lab")
-
     base_dir = args.OUTPUT or labname
-    for helper in ["containerfiles", "playbooks"]:
-        copy_helper_files(base_dir, helper)
 
     subnet = f"192.168.{randint(0, 255)}"
     compose_config = gen_compose_data(data, subnet)
-    # pylint: disable=unspecified-encoding
-    with open(os.path.join(base_dir, f"compose.yml"), "w") as out:
-        yaml.dump(compose_config, out)
+    save_data(yaml, base_dir, "compose.yml", compose_config)
 
     inventory_config = gen_inventory_data(data, subnet)
-    # pylint: disable=unspecified-encoding
-    with open(os.path.join(base_dir, f"inventory.yml"), "w") as out:
-        yaml.dump(inventory_config, out)
+    save_data(yaml, base_dir, "inventory.yml", inventory_config)
+
+    for helper in ["containerfiles", "playbooks"]:
+        copy_helper_files(base_dir, helper)
 
 
 def main():
