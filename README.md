@@ -99,6 +99,7 @@ Each entry in the `ipa-deployments` list define a FreeIPA cluster. All defined h
 | `realm`    | The realm for the cluster. | no | Uppercase `domain` |
 | `admin_password` | The FreeIPA admin password. | no | "SomeADMINpassword" |
 | `dm_password` | The FreeIPA LDAP Directory Manager password. | no | "SomeDMpassword" |
+| `distro`   | The containerfile/image to use by default, on this deployment. | no | `fedora-latest` |
 | `cluster`  | A _dict_ with the configuration for the nodes of the cluster. (See `Cluster Nodes`.) | yes | - |
 
 
@@ -114,7 +115,7 @@ These are the available options to configure the first server and the replicas:
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The name of the server. | yes | - |
 | `hostname` | The server hostname. | no | _<server name>_._<domain>_ |
-| `distro`   | The Linux distribution to use. | no | `fedora-latest` |
+| `distro`   | The containerfile/image to use. | no | `fedora-latest` |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
 | `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check (ansible-freeipa roles documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles] for valid values | no | - |
 
@@ -133,7 +134,7 @@ To configure the clients, these are the available attributes:
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The name of the client node. | yes | - |
 | `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
-| `distro`   | The Linux distribution to use. | no | `fedora-latest` |
+| `distro`   | The containerfile/image to use. | no | `fedora-latest` |
 | `vars` | _Dict_ of variables to use in the deployment of this client node. Check (ansible-freeipa ipaclient documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient] for valid values | no | - |
 
 

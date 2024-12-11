@@ -8,7 +8,7 @@ IP_GENERATOR = iter(range(10, 255))
 
 
 def get_compose_config(
-    containers, domain, networkname, subnet, ips=IP_GENERATOR
+    containers, domain, networkname, subnet, distro, ips=IP_GENERATOR
 ):
     """Create config for all containers in the list."""
     result = {}
@@ -18,7 +18,7 @@ def get_compose_config(
         return {}
     for container, ipaddr in zip(containers, ips):
         name = container["name"]
-        distro = container.get("distro", "fedora-latest")
+        node_distro = container.get("distro", distro)
         config = {
             "container_name": name,
             "systemd": True,
@@ -28,27 +28,27 @@ def get_compose_config(
             "security_opt": ["label:disable"],
             "hostname": get_hostname(container, name, domain),
             "networks": {networkname: {"ipv4_address": f"{subnet}.{ipaddr}"}},
-            "image": f"localhost/{distro}",
+            "image": f"localhost/{node_distro}",
             "build": {
                 "context": "containerfiles",
-                "dockerfile": f"{distro}",
+                "dockerfile": f"{node_distro}",
             },
         }
         result[name] = config
     return result
 
 
-def compose_servers(servers, domain, networkname, subnet):
+def compose_servers(servers, domain, networkname, subnet, distro):
     """Generate service compose configuration for IPA servers."""
     if not servers:
         print(f"Warning: No servers defined for domain '{domain}'")
         return {}
-    return get_compose_config(servers, domain, networkname, subnet)
+    return get_compose_config(servers, domain, networkname, subnet, distro)
 
 
-def compose_clients(clients, domain, networkname, subnet):
+def compose_clients(clients, domain, networkname, subnet, distro):
     """Generate service compose configuration for IPA clents."""
-    return get_compose_config(clients, domain, networkname, subnet)
+    return get_compose_config(clients, domain, networkname, subnet, distro)
 
 
 def gen_compose_data(lab_config, subnet):
@@ -74,6 +74,7 @@ def gen_compose_data(lab_config, subnet):
     ipa_deployments = lab_config.get("ipa_deployments")
     for deployment in ipa_deployments:
         domain = deployment.get("domain", "ipa.test")
+        distro = deployment.get("distro", "fedora-latest")
         cluster_config = deployment.get("cluster")
         if not cluster_config:
             die(f"Cluster not defined for domain '{domain}'")
@@ -84,6 +85,7 @@ def gen_compose_data(lab_config, subnet):
                 domain,
                 networkname,
                 subnet,
+                distro,
             )
         )
         clients = cluster_config.get("clients")
@@ -93,6 +95,7 @@ def gen_compose_data(lab_config, subnet):
                 domain,
                 networkname,
                 subnet,
+                distro,
             )
         )
         if not servers and not clients:

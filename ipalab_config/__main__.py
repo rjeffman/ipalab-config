@@ -32,6 +32,18 @@ def parse_arguments():
         default=None,
         help="Output directory",
     )
+    opt_parser.add_argument(
+        "-f",
+        "--file",
+        dest="RECIPES",
+        metavar="CONTAINERFILE",
+        action="append",
+        default=[],
+        help=(
+            "Containerfile to use for creating images. "
+            "May be used more than once for multiple files."
+        ),
+    )
 
     return opt_parser.parse_args()
 
@@ -78,6 +90,11 @@ def generate_ipalab_configuration():
 
     for helper in ["containerfiles", "playbooks"]:
         copy_helper_files(base_dir, helper)
+
+    target_dir = os.path.join(base_dir, "containerfiles")
+    for containerfile in args.RECIPES or []:
+        filename = os.path.basename(containerfile)
+        shutil.copyfile(containerfile, os.path.join(target_dir, filename))
 
 
 def main():
