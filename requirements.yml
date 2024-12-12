@@ -1,0 +1,4 @@
+---
+collections:
+  - name: freeipa.ansible_freeipa
+  - name: containers.podman
