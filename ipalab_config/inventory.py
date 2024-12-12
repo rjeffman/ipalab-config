@@ -15,7 +15,7 @@ def get_server_inventory(config, domain, subnet):
             "ipaserver_auto_reverse": True,
         },
         "KRA": {
-            "ipaserver_setup_dns": True,
+            "ipaserver_setup_kra": True,
         },
         "AD": {"ipaserver_setup_adtrust": True},
         "RSN": {"ipaserver_random_serial_numbers": True},
