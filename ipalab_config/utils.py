@@ -1,6 +1,7 @@
 """ipalab_config utility functions."""
 
 import sys
+import socket
 
 
 def die(msg, err=1):
@@ -9,9 +10,23 @@ def die(msg, err=1):
     sys.exit(err)
 
 
+def ensure_fqdn(hostname, domain):
+    """Ensure hostame is a FQDN."""
+    return hostname if "." in hostname else f"{hostname}.{domain}"
+
+
 def get_hostname(config, name, domain):
     """Ensure hostname from config is FQDN."""
-    hostname = config.get("hostname", f"{name}.{domain}")
-    if not "." in hostname:
-        hostname = f"{hostname}.{domain}"
-    return hostname
+    hostname = config.get("hostname", name)
+    return ensure_fqdn(hostname, domain)
+
+
+def is_ip_address(addr):
+    try:
+        socket.inet_pton(socket.AF_INET, addr)
+    except OSError:
+        try:
+            socket.inet_pton(socket.AF_INET6, addr)
+        except OSError:
+            return False
+    return True

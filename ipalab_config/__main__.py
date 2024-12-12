@@ -82,10 +82,10 @@ def generate_ipalab_configuration():
     base_dir = args.OUTPUT or labname
 
     subnet = f"192.168.{randint(0, 255)}"
-    compose_config = gen_compose_data(data, subnet)
+    compose_config, deployment_dns = gen_compose_data(data, subnet)
     save_data(yaml, base_dir, "compose.yml", compose_config)
 
-    inventory_config = gen_inventory_data(data, subnet)
+    inventory_config = gen_inventory_data(data, subnet, deployment_dns)
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
 
     for helper in ["containerfiles", "playbooks"]:
