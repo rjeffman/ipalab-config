@@ -3,7 +3,7 @@
 from ipalab_config.utils import die, get_hostname
 
 
-def get_server_inventory(config, domain, subnet):
+def get_server_inventory(config, domain, subnet, default_config):
     """Get inventory configuration for the ipaserver"""
     cap_opts = {
         "DNS": {
@@ -23,7 +23,7 @@ def get_server_inventory(config, domain, subnet):
 
     name = config["name"]
     hostname = get_hostname(config, name, domain)
-    options = {"ipaserver_hostname": hostname}
+    options = {"ipaserver_hostname": hostname, **default_config}
     for cap in config.get("capabilities", []):
         options.update(cap_opts.get(cap, {}))
     options.update(
@@ -45,7 +45,9 @@ def gen_dns_resolver_fix_vars(subnet, nameserver=None):
     }
 
 
-def get_replicas_inventory(config, domain, subnet, server, nameserver):
+def get_replicas_inventory(
+    config, domain, subnet, server, nameserver, default_config
+):
     """Get inventory configuration for the ipaserver"""
     result = {}
     if not config:
@@ -72,6 +74,7 @@ def get_replicas_inventory(config, domain, subnet, server, nameserver):
         "ipaclient_no_ntp": False,
         "ipareplica_setup_firewalld": False,
         "ipareplica_no_host_dns": True,
+        **default_config,
     }
     if server:
         common["ipareplica_servers"] = server["ipaserver_hostname"]
@@ -102,16 +105,9 @@ def get_clients_inventory(config, domain, subnet, server, nameserver):
         common["ipaclient_servers"] = server["ipaserver_hostname"]
         if nameserver is None and server.get("ipaserver_setup_dns", False):
             common.update(gen_dns_resolver_fix_vars(subnet, nameserver))
-    if common:
-        result["vars"] = common
     if isinstance(config, dict):
         client_list = config.get("hosts", [])
-        host_vars = config.get("vars", {})
-        if host_vars:
-            if "vars" not in result:
-                result["vars"] = host_vars
-            else:
-                result["vars"].update(host_vars)
+        common.update(config.get("vars", {}))
     else:
         client_list = config
     if not client_list:
@@ -120,7 +116,7 @@ def get_clients_inventory(config, domain, subnet, server, nameserver):
     for client in client_list or []:
         name = client["name"]
         hostname = get_hostname(client, name, domain)
-        clients[name] = {"ipaclient_hostname": hostname}
+        clients[name] = {"ipaclient_hostname": hostname, **common}
         clients[name].update(client.get("vars", {}))
     return result
 
@@ -128,28 +124,24 @@ def get_clients_inventory(config, domain, subnet, server, nameserver):
 def gen_inventory_data(lab_config, subnet, deployment_dns):
     """Generate inventory file based on provided configuration"""
     labname = lab_config.get("lab_name", "ipa-lab")
-    lab = {}
+    lab = {"vars": {"ansible_connection": "podman"}}
+    lab_deployments = lab.setdefault("children", {})
     ipa_deployments = lab_config.get("ipa_deployments")
     for deployment, nameserver in zip(ipa_deployments, deployment_dns):
         name = deployment["name"].replace(".", "_")
         domain = deployment["domain"]
-        config = {
-            "vars": {
-                "ansible_connection": "podman",
-                "ipaadmin_password": deployment.get(
-                    "admin_password", "SomeADMINpassword"
-                ),
-                "ipadm_password": deployment.get(
-                    "dm_password", "SomeDMpassword"
-                ),
-                "ipaserver_domain": domain,
-                "ipaserver_realm": deployment.get("realm", domain).upper(),
-                "ipaclient_no_ntp": True,
-                **deployment.get("vars", {}),
-            },
-            "children": {},
+        config = {"children": {}}
+        lab_deployments[name] = config
+        default_config = {
+            "ipaadmin_password": deployment.get(
+                "admin_password", "SomeADMINpassword"
+            ),
+            "ipadm_password": deployment.get("dm_password", "SomeDMpassword"),
+            "ipaserver_domain": domain,
+            "ipaserver_realm": deployment.get("realm", domain).upper(),
+            "ipaclient_no_ntp": True,
+            **deployment.get("vars", {}),
         }
-        lab[name] = config
         cluster_config = deployment.get("cluster")
         if not cluster_config:
             die(f"Cluster not defined for domain '{domain}'")
@@ -159,12 +151,19 @@ def gen_inventory_data(lab_config, subnet, deployment_dns):
         if not servers:
             server_data = {}
         else:
-            server = get_server_inventory(servers[0], domain, subnet)
+            server = get_server_inventory(
+                servers[0], domain, subnet, default_config
+            )
             config["children"]["ipaserver"] = {"hosts": server}
             server_data = next(iter(server.values()))
             # parse replicas
             replicas = get_replicas_inventory(
-                servers[1:], domain, subnet, server_data, nameserver
+                servers[1:],
+                domain,
+                subnet,
+                server_data,
+                nameserver,
+                default_config,
             )
             if replicas:
                 config["children"]["ipareplicas"] = replicas
@@ -176,4 +175,4 @@ def gen_inventory_data(lab_config, subnet, deployment_dns):
         if clients:
             config["children"]["ipaclients"] = clients
 
-    return {labname.replace("-", "_"): {"children": lab}}
+    return {labname.replace("-", "_"): lab}
