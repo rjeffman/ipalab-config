@@ -136,10 +136,10 @@ def gen_inventory_data(lab_config, subnet, deployment_dns):
         config = {
             "vars": {
                 "ansible_connection": "podman",
-                "ipaadmin_password": lab_config.get(
+                "ipaadmin_password": deployment.get(
                     "admin_password", "SomeADMINpassword"
                 ),
-                "ipadm_password": lab_config.get(
+                "ipadm_password": deployment.get(
                     "dm_password", "SomeDMpassword"
                 ),
                 "ipaserver_domain": domain,
