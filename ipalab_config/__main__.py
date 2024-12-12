@@ -88,6 +88,19 @@ def generate_ipalab_configuration():
     inventory_config = gen_inventory_data(data, subnet, deployment_dns)
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
 
+    # add Ansible Galaxy requirements.yml
+    save_data(
+        yaml,
+        base_dir,
+        "requirements.yml",
+        {
+            "collections": [
+                {"name": "containers.podman"},
+                {"name": "freeipa.ansible_freeipa"},
+            ]
+        },
+    )
+
     for helper in ["containerfiles", "playbooks"]:
         copy_helper_files(base_dir, helper)
 
