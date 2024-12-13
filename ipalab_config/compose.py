@@ -56,16 +56,6 @@ def get_compose_config(containers, network, distro, ips=IP_GENERATOR):
     return nodes, result
 
 
-def compose_servers(servers, network):
-    """Generate service compose configuration for IPA servers."""
-    return get_compose_config(servers, network)
-
-
-def compose_clients(clients, network):
-    """Generate service compose configuration for IPA clents."""
-    return get_compose_config(clients, network)
-
-
 def gen_compose_data(lab_config, subnet):
     """Generate podamn compose file based on provided configuration."""
     Network = namedtuple("Network", ["domain", "networkname", "subnet", "dns"])
