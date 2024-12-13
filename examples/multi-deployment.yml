@@ -21,11 +21,13 @@ ipa_deployments:
           capabilities:
             - CA   # optional, first server is always CA
             - DNS
+      clients:
+        - name: cli-01
   - name: target
     domain: target.ipa.test
     realm: TARGET.IPA.TEST  # optional, by defaul it is domain in uppercase
-    admin_password: SomeADMINpassword
-    dm_password: SomeDMpassword
+    admin_password: SomeOtherADMINpassword
+    dm_password: SomeOtherDMpassword
     cluster:
       servers:
         - name: target_server
@@ -33,3 +35,5 @@ ipa_deployments:
           capabilities:
             - CA   # optional, first server is always CA
             - DNS
+      clients:
+        - name: cli-01

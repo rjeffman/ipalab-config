@@ -102,6 +102,7 @@ def get_clients_inventory(config, domain, subnet, server, nameserver):
     result = {}
     common = {}
     if server:
+        common["ipaadmin_password"] = server["ipaadmin_password"]
         common["ipaclient_servers"] = server["ipaserver_hostname"]
         if nameserver is None and server.get("ipaserver_setup_dns", False):
             common.update(gen_dns_resolver_fix_vars(subnet, nameserver))
