@@ -18,10 +18,11 @@
 ---
 lab_name: custom-containerfile-with-dns
 containerfiles: ["examples/containerfiles/custom_distro"]
+container_fqdn: true  # required to deploy replicas on multiple doamins
 ipa_deployments:
   - name: origin
     distro: custom_distro # Set default distro for the deployment.
-    domain: ipa.test
+    domain: origin.ipa.test
     admin_password: SomeADMINpassword
     dm_password: SomeDMpassword
     dns: m1   # will use the 'm1' IP address as '--dns'
@@ -31,17 +32,16 @@ ipa_deployments:
           capabilities:
             - DNS
           dns: 1.1.1.1   # This will be removed and NOT used
-        # Replica deployment is not supported whent 'dns' is used
-        # - name: replica
-        #   capabilities:
-        #     - DNS
-        #   dns: m1   # not needed as it uses the same deployment value
+        - name: replica
+          capabilities:
+            - DNS
+          dns: m1   # not needed as it uses the same deployment value
       clients:
         hosts:
           - name: cli-01  # will use deployment 'dns'
             distro: fedora-latest  # will override the deployment distro
           - name: cli-02
-            # dns: replica  # overrides deployment dns (replica is not working)
+            dns: replica  # overrides deployment dns (replica is not working)
   - name: target
     distro: custom_distro # Set default distro for the deployment.
     domain: target.ipa.test
