@@ -105,7 +105,8 @@ def generate_ipalab_configuration():
         copy_helper_files(base_dir, helper)
 
     target_dir = os.path.join(base_dir, "containerfiles")
-    for containerfile in args.RECIPES or []:
+    container_files = data.get("containerfiles", []) + args.RECIPES
+    for containerfile in container_files:
         filename = os.path.basename(containerfile)
         shutil.copyfile(containerfile, os.path.join(target_dir, filename))
 

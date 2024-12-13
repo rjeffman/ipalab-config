@@ -1,14 +1,16 @@
-# To use this configuratio, the configuration tool should be invoked as
+# To use this configuration, the configuration tool must be invoked as
 #
 #   $ ipalab-config -f MyContainerFile custom-containerfile.yml
 #
+# or the 'containerfiles' attribute must be uncommented.
 ---
 lab_name: custom-containerfile
+# containerfiles: ["examples/containerfiles/custom-distro"]
 ipa_deployments:
   - name: cluster
-    distro: MyContainerfile  # Set default distro for the deployment.
+    distro: custom-distro # Set default distro for the deployment.
     domain: ipa.test
-    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
+    realm: IPA.TEST
     admin_password: SomeADMINpassword
     dm_password: SomeDMpassword
     cluster:
@@ -17,6 +19,6 @@ ipa_deployments:
           capabilities:
             - DNS
       clients:
-        - name: cli-01  # will use deployment 'dns'
-          distro: fedora-latest  # will override the deployment distro
+        - name: cli-01  # wil use deployment distro
         - name: cli-02
+          distro: fedora-latest  # will override the deployment distro

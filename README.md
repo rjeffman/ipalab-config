@@ -85,7 +85,8 @@ The configuration file is a YAML file with attributes used to set both the compo
 | Name       | Description                  | Required | Default |
 | :--------- | :--------------------------- | :------: | :------ |
 | `lab_name` | The name of the cluster, used as the name of the target directory and to derive some other names in the compose file, for example, the _pod_ name. | yes | - |
-| `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`) | yes | - |
+| `containerfiles` | A list of file relative or absolute paths to container files. | no | - |
+| `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
 
 
 **ipa_deployments**

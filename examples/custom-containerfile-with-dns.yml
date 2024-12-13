@@ -15,19 +15,13 @@
 # Note that as the first server will usually need to have access outside
 # of the container network, the 'dns' setting for the deployment will be
 # ignored, and it will only apply to it if explicitly defined.
-#
-# To test this examples use:
-#   $ ipalab-config \
-#        -f examples/containerfiles/custom_distro \
-#        examples/custom-containerfile-with-dns.yml
-#
 ---
 lab_name: custom-containerfile-with-dns
+containerfiles: ["examples/containerfiles/custom_distro"]
 ipa_deployments:
   - name: origin
     distro: custom_distro # Set default distro for the deployment.
     domain: ipa.test
-    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
     admin_password: SomeADMINpassword
     dm_password: SomeDMpassword
     dns: m1   # will use the 'm1' IP address as '--dns'
@@ -51,7 +45,6 @@ ipa_deployments:
   - name: target
     distro: custom_distro # Set default distro for the deployment.
     domain: target.ipa.test
-    realm: target.IPA.TEST  # optional, by defaul it is domain in uppercase
     admin_password: SomeADMINpassword
     dm_password: SomeDMpassword
     dns: m2    # will use the 'm2' IP address as '--dns'
