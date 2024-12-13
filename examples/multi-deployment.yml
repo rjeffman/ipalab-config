@@ -8,16 +8,15 @@
 # hosts are in the range 192.168.X.10 to 192.168.x.254.
 ---
 lab_name: multi-deployment
+container_fqdn: true
 ipa_deployments:
   - name: origin
     domain: origin.ipa.test
-    realm: ORIGIN.IPA.TEST  # optional, by defaul it is domain in uppercase
     admin_password: SomeADMINpassword
     dm_password: SomeDMpassword
     cluster:
       servers:
-        - name: origin_server
-          hostname: server
+        - name: server
           capabilities:
             - CA   # optional, first server is always CA
             - DNS
@@ -25,13 +24,11 @@ ipa_deployments:
         - name: cli-01
   - name: target
     domain: target.ipa.test
-    realm: TARGET.IPA.TEST  # optional, by defaul it is domain in uppercase
     admin_password: SomeOtherADMINpassword
     dm_password: SomeOtherDMpassword
     cluster:
       servers:
-        - name: target_server
-          hostname: server
+        - name: server
           capabilities:
             - CA   # optional, first server is always CA
             - DNS

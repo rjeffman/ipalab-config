@@ -1,6 +1,13 @@
 """Helper functions to generate an Ansible YAML inventory file."""
 
-from ipalab_config.utils import die, get_hostname
+from ipalab_config.utils import die, get_hostname, ensure_fqdn
+
+
+def get_node_name(name, deployment):
+    """Return the proper name to use for the node."""
+    if deployment["container_fqdn"]:
+        return ensure_fqdn(name, deployment["domain"])
+    return name
 
 
 def get_server_inventory(config, default_config, deployment):
@@ -21,7 +28,7 @@ def get_server_inventory(config, default_config, deployment):
         "RSN": {"ipaserver_random_serial_numbers": True},
     }
 
-    name = config["name"]
+    name = get_node_name(config["name"], deployment)
     hostname = get_hostname(config, name, deployment["domain"])
     options = {"ipaserver_hostname": hostname, **default_config}
     for cap in config.get("capabilities", []):
@@ -71,7 +78,7 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
     replicas = result.setdefault("hosts", {})
     domain = deployment["domain"]
     for replica in replicas_config:
-        name = replica["name"]
+        name = get_node_name(replica["name"], deployment)
         hostname = get_hostname(replica, name, domain)
         options = {"ipareplica_hostname": hostname, **common}
         for cap in replica.get("capabilities", []):
@@ -98,7 +105,7 @@ def get_clients_inventory(config, default_config, deployment):
         return {}
     clients = result.setdefault("hosts", {})
     for client in client_list or []:
-        name = client["name"]
+        name = get_node_name(client["name"], deployment)
         hostname = get_hostname(client, name, deployment["domain"])
         clients[name] = {"ipaclient_hostname": hostname, **common}
         clients[name].update(client.get("vars", {}))
@@ -116,6 +123,7 @@ def gen_inventory_data(lab_config):
         name = deployment["name"].replace(".", "_")
         domain = deployment.setdefault("domain", "ipa.test")
         deployment.setdefault("subnet", lab_config["subnet"])
+        deployment.setdefault("container_fqdn", lab_config["container_fqdn"])
         config = {"children": {}}
         lab_deployments[name] = config
         default_config = {
@@ -162,6 +170,7 @@ def gen_inventory_data(lab_config):
             for key, value in default_config.items()
             if not any(map(key.startswith, ["ipaserver_", "ipadm_"]))
         }
+        client_base_config.update({"ipaserver_domain": domain})
         clients = get_clients_inventory(
             clients_config, client_base_config, deployment
         )

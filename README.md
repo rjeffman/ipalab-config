@@ -86,6 +86,7 @@ The configuration file is a YAML file with attributes used to set both the compo
 | :--------- | :--------------------------- | :------: | :------ |
 | `lab_name` | The name of the cluster, used as the name of the target directory and to derive some other names in the compose file, for example, the _pod_ name. | yes | - |
 | `containerfiles` | A list of file relative or absolute paths to container files. | no | - |
+| `container_fqdn` | Convert container names to FQDN using deployment domain name. | no | false |
 | `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
 
 
@@ -160,7 +161,7 @@ Known Issues
 
 When deploying the cluster, most of the time is spent with package downloading. To speed things up the `distro` attribute can be defined to a local distro with the packages pre-installed.
 
-When using a custom containerfile, often you'll have to set `dns` due to the way container name resolution is performed, and in this case, replica deployment will not work. (See [issue #2](https://github.com/rjeffman/ipalab-config/issues/2).)
+When using a custom containerfile or using multiple FreeIPA deployments, often you'll have to set `dns` due to the way container name resolution is performed, and in this case, replica deployment will not work. To circunvent this issue, use `container_fqdn: true`. (See [issue #2](https://github.com/rjeffman/ipalab-config/issues/2).)
 
 
 License
