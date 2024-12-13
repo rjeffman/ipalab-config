@@ -56,10 +56,11 @@ def get_compose_config(containers, network, distro, ips=IP_GENERATOR):
     return nodes, result
 
 
-def gen_compose_data(lab_config, subnet):
+def gen_compose_data(lab_config):
     """Generate podamn compose file based on provided configuration."""
     Network = namedtuple("Network", ["domain", "networkname", "subnet", "dns"])
-    labname = lab_config.get("lab_name", "ipa-lab")
+    labname = lab_config["lab_name"]
+    subnet = lab_config["subnet"]
     config = {"name": labname}
     networkname = f"ipanet-{labname}"
     config["networks"] = {
@@ -119,5 +120,6 @@ def gen_compose_data(lab_config, subnet):
         for service in services.values():
             if "dns" in service:
                 service["dns"] = service["dns"].format(**nodes)
-
-    return config, deployment_dns
+    # Update configuration with the deployment nameservers
+    lab_config["deployment_nameservers"] = deployment_dns
+    return config

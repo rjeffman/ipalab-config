@@ -78,14 +78,15 @@ def generate_ipalab_configuration():
     except FileNotFoundError as fnfe:
         die(str(fnfe))
 
-    labname = data.get("lab_name", "ipa-lab")
+    labname = data.setdefault("lab_name", "ipa-lab")
     base_dir = args.OUTPUT or labname
 
-    subnet = f"192.168.{randint(0, 255)}"
-    compose_config, deployment_dns = gen_compose_data(data, subnet)
+    data.setdefault("subnet", f"192.168.{randint(0, 255)}")
+
+    compose_config = gen_compose_data(data)
     save_data(yaml, base_dir, "compose.yml", compose_config)
 
-    inventory_config = gen_inventory_data(data, subnet, deployment_dns)
+    inventory_config = gen_inventory_data(data)
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
 
     # add Ansible Galaxy requirements.yml
