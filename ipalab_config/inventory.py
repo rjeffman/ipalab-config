@@ -84,12 +84,11 @@ def get_replicas_inventory(
                     **gen_dns_resolver_fix_vars(subnet, nameserver),
                 }
             )
-    result["vars"] = common
     replicas = result.setdefault("hosts", {})
     for replica in config:
         name = replica["name"]
         hostname = get_hostname(replica, name, domain)
-        options = {"ipareplica_hostname": hostname}
+        options = {"ipareplica_hostname": hostname, **common}
         for cap in replica.get("capabilities", []):
             options.update(cap_opts.get(cap, {}))
         options.update(replica.get("vars", {}))
