@@ -1,0 +1,63 @@
+---
+name: Run Linters
+on:
+  - push
+  - pull_request
+jobs:
+  yamllint:
+    name: Verify yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5.1.0
+        with:
+          python-version: "3.x"
+      - name: Run yaml-lint
+        uses: ibiqlik/action-yamllint@v3.1.1
+
+  flake8:
+    name: Verify flake8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5.1.0
+        with:
+          python-version: "3.x"
+      - name: Run flake8
+        run: |
+            pip install flake8 flake8-bugbear
+            flake8
+
+  pylint:
+    name: Verify pylint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5.1.0
+        with:
+          python-version: "3.x"
+      - name: Run pylint
+        run: |
+            pip install 'pylint>=3.0'
+            pylint ipalab_config --disable=import-error
+
+  black:
+    name: Verify black formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5.1.0
+        with:
+          python-version: "3.x"
+      - name: Run black
+        run: |
+            pip install 'black'
+            black --diff --check .
