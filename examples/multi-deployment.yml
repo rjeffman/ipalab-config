@@ -8,7 +8,7 @@
 # hosts are in the range 192.168.X.10 to 192.168.x.254.
 ---
 lab_name: multi-deployment
-container_fqdn: true
+container_fqdn: true  # required to have replicas with multiple deployment
 ipa_deployments:
   - name: origin
     domain: origin.ipa.test
@@ -18,8 +18,10 @@ ipa_deployments:
       servers:
         - name: server
           capabilities:
-            - CA   # optional, first server is always CA
             - DNS
+        - name: replica
+          capabilities:
+            - CA
       clients:
         - name: cli-01
   - name: target
@@ -30,7 +32,9 @@ ipa_deployments:
       servers:
         - name: server
           capabilities:
-            - CA   # optional, first server is always CA
             - DNS
+        - name: replica
+          capabilities:
+            - CA
       clients:
         - name: cli-01
