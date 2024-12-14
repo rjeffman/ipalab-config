@@ -22,6 +22,7 @@ def get_hostname(config, name, domain):
 
 
 def is_ip_address(addr):
+    """Check if a given string represents an IP address."""
     try:
         socket.inet_pton(socket.AF_INET, addr)
     except OSError:

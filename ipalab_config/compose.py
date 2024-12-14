@@ -9,6 +9,14 @@ from ipalab_config.utils import die, get_hostname, is_ip_address, ensure_fqdn
 IP_GENERATOR = iter(range(10, 255))
 
 
+def get_effective_nameserver(nameserver, domain):
+    """Return the effective nameserver."""
+    if nameserver and not (is_ip_address(nameserver) or "{" in nameserver):
+        # pylint: disable=consider-using-f-string
+        return "{{{0}}}".format(ensure_fqdn(nameserver, domain))
+    return nameserver
+
+
 def get_compose_config(
     containers, network, distro, container_fqdn, ips=IP_GENERATOR
 ):
@@ -17,11 +25,11 @@ def get_compose_config(
     def node_dns_key(hostname):
         return hostname.replace(".", "_")
 
-    result = {}
     if isinstance(containers, dict):
         containers = containers.get("hosts", [])
     if not containers:
         return {}, {}
+    result = {}
     nodes = {}
     for container, ipaddr in zip(containers, ips):
         name = container["name"]
@@ -30,13 +38,6 @@ def get_compose_config(
         node_distro = container.get("distro", distro)
         ip_address = f"{network.subnet}.{ipaddr}"
         hostname = get_hostname(container, name, network.domain)
-        effective_dns = container.get("dns", network.dns)
-        if effective_dns and not (
-            is_ip_address(effective_dns) or "{" in effective_dns
-        ):
-            effective_dns = "{{{0}}}".format(
-                ensure_fqdn(effective_dns, network.domain)
-            )
         nodes[node_dns_key(hostname)] = ip_address
         config = {
             "container_name": name,
@@ -53,6 +54,9 @@ def get_compose_config(
                 "dockerfile": f"{node_distro}",
             },
         }
+        effective_dns = get_effective_nameserver(
+            container.get("dns"), network.domain
+        )
         if effective_dns:
             config["dns"] = node_dns_key(effective_dns)
             config["dns_search"] = network.domain
@@ -90,8 +94,14 @@ def gen_compose_data(lab_config):
         distro = deployment.get("distro", "fedora-latest")
         dns = deployment.get("dns")
         if dns and not is_ip_address(dns):
+            # pylint: disable=consider-using-f-string
             dns = "{{{0}}}".format(ensure_fqdn(dns, domain))
-        network = Network(domain, networkname, subnet, dns)
+        network = Network(
+            domain,
+            networkname,
+            subnet,
+            get_effective_nameserver(deployment.get("dns"), domain),
+        )
         cluster_config = deployment.get("cluster")
         if not cluster_config:
             die(f"Cluster not defined for domain '{domain}'")
@@ -131,6 +141,8 @@ def gen_compose_data(lab_config):
         for service in services.values():
             if "dns" in service:
                 service["dns"] = service["dns"].format(**nodes)
+            else:
+                service.pop("dns_search", None)
     # Update configuration with the deployment nameservers
     lab_config["deployment_nameservers"] = deployment_dns
     return config

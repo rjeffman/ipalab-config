@@ -40,6 +40,8 @@ line-length = 80
 target-version = ['py312']
 include = '\.pyi?$'
 
-[tool.pylint.'FORMAT']
+[tool.pylint]
 max-line-length = 80
-
+disable = [
+    "too-many-locals",
+]
