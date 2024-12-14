@@ -24,6 +24,7 @@ def parse_arguments():
         ),
     )
     opt_parser.add_argument("CONFIG", help="Lab description")
+    opt_parser.add_argument("--version", action="version", version=__version__)
     opt_parser.add_argument(
         "-o",
         "--output",
