@@ -81,7 +81,9 @@ def generate_ipalab_configuration():
     labname = data.setdefault("lab_name", "ipa-lab")
     base_dir = args.OUTPUT or labname
 
+    # set default values
     data.setdefault("subnet", f"192.168.{randint(0, 255)}")
+    data.setdefault("container_fqdn", False)
 
     compose_config = gen_compose_data(data)
     save_data(yaml, base_dir, "compose.yml", compose_config)
