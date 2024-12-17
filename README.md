@@ -164,6 +164,15 @@ When deploying the cluster, most of the time is spent with package downloading. 
 When using a custom containerfile or using multiple FreeIPA deployments, often you'll have to set `dns` due to the way container name resolution is performed, and in this case, replica deployment will not work. To circunvent this issue, use `container_fqdn: true`. (See [issue #2](https://github.com/rjeffman/ipalab-config/issues/2).)
 
 
+Networking
+----------
+
+A bridge network is set for the pod and shared with all containers using a `255.255,255.0` network, and the IP adrresses are assingned from _net_.10 to _net_.250. This limits the environment to 240 nodes (containers), which seem to be much more than enough for testing purposes, but may limit the way tests are executed (e.g. different networks).
+
+Another issue that arises in the way that the network is assigned is that the network CIDR is recreated each time the configuration files are created (each time `ipalab-config` is execute). If the configuration files do not change, `podman-compose up` and `podman-compose down` will work, but if the configuration changes and the `lab_name` does not change, `podman-compose` will try to create a network with the same name as the network used before, but with a different CIDR, and will fail. In this case, use `podman network prune` to remove unused networks and completely rebuild the environment.
+
+
+
 License
 -------
 
