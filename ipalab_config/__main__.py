@@ -45,6 +45,20 @@ def parse_arguments():
             "May be used more than once for multiple files."
         ),
     )
+    opt_parser.add_argument(
+        "-p",
+        "--playbook",
+        dest="PLAYBOOKS",
+        metavar="PLAYBOOKS",
+        action="append",
+        default=[],
+        help=(
+            "Add playbook to the resulting configuration 'playbooks' "
+            "directory. When adding a directory, all 'yml' or 'yaml' "
+            "files in the directory, searched recursively will be copied. "
+            "May be used more than once for multiple files."
+        ),
+    )
 
     return opt_parser.parse_args()
 
@@ -65,6 +79,13 @@ def save_data(yaml, base_dir, filename, yamldata):
     # pylint: disable=unspecified-encoding
     with open(os.path.join(base_dir, filename), "w") as out:
         yaml.dump(yamldata, out)
+
+
+def copy_extra_files(files, target_dir):
+    """Copy files to the target directory."""
+    for source in files:
+        filename = os.path.basename(source)
+        shutil.copyfile(source, os.path.join(target_dir, filename))
 
 
 def generate_ipalab_configuration():
@@ -108,11 +129,27 @@ def generate_ipalab_configuration():
     for helper in ["containerfiles", "playbooks"]:
         copy_helper_files(base_dir, helper)
 
-    target_dir = os.path.join(base_dir, "containerfiles")
-    container_files = data.get("containerfiles", []) + args.RECIPES
-    for containerfile in container_files:
-        filename = os.path.basename(containerfile)
-        shutil.copyfile(containerfile, os.path.join(target_dir, filename))
+    # Copy containerfiles to result directory
+    copy_extra_files(
+        data.get("containerfiles", []) + args.RECIPES,
+        os.path.join(base_dir, "containerfiles"),
+    )
+
+    plays = []
+    for play in args.PLAYBOOKS:
+        if os.path.isfile(play):
+            plays.append(play)
+        if os.path.isdir(play):
+            plays.extend(
+                [
+                    os.path.join(dirname, name)
+                    for dirname, _, filenames in os.walk(play)
+                    for name in filenames
+                    if name.endswith(".yml") or name.endswith(".yaml")
+                ]
+            )
+
+    copy_extra_files(plays, os.path.join(base_dir, "playbooks"))
 
 
 def main():

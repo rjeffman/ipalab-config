@@ -149,6 +149,16 @@ To configure the clients, these are the available attributes:
 See the available [examples](examples).
 
 
+Playbooks
+---------
+
+It is possible to provide a set of Ansible playbooks along with the configurations files by using the `-p/--playbook` command line option. This will a any file to the output `playbooks` directory.
+
+If pass a directory as argument to `-p` the directory will be searched recursively for `*.yml` and `*.yaml` files and add them to the `playbooks` directory.
+
+Note that the `playbooks` directory is flat, so if your files share the same file name, the last file will overwrite the other files with the same name.
+
+
 Contributing
 ------------
 
