@@ -1,0 +1,18 @@
+---
+lab_name: memory_limited
+ipa_deployments:
+  - name: cluster
+    domain: ipa.test
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          memory: 3Gb
+        - name: replica
+          memory: 3Gb
+      clients:
+        - name: cli-01
+          memory: 500Mb
+        - name: cli-02
+          memory: 500Mb

@@ -54,6 +54,10 @@ def get_compose_config(
                 "dockerfile": f"{node_distro}",
             },
         }
+        if "memory" in container:
+            config.update(
+                {"mem_limit": container["memory"].lower(), "memory_swap": -1}
+            )
         effective_dns = get_effective_nameserver(
             container.get("dns"), network.domain
         )

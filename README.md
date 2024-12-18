@@ -124,6 +124,7 @@ These are the available options to configure the first server and the replicas:
 | `distro`   | The containerfile/image to use. | no | `fedora-latest` |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
+| `memory`   | The maximum amount of memory to use defined as an integer number and a unit. The unit can be `b`, `k` or `kb`, `m` or `mb`, or `g` or `gb` (case insensitive). | no |
 | `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check (ansible-freeipa roles documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles] for valid values | no | - |
 
 
