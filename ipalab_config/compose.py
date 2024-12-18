@@ -2,11 +2,16 @@
 
 from collections import namedtuple
 
-from ipalab_config.utils import die, get_hostname, is_ip_address, ensure_fqdn
+from ipalab_config.utils import (
+    die,
+    get_hostname,
+    is_ip_address,
+    ensure_fqdn,
+    get_ip_address_generator,
+)
 
 
-# The global ip address generator.
-IP_GENERATOR = iter(range(10, 255))
+IP_GENERATOR = get_ip_address_generator()
 
 
 def get_effective_nameserver(nameserver, domain):
@@ -36,9 +41,8 @@ def get_compose_config(
         if container_fqdn:
             name = ensure_fqdn(name, network.domain)
         node_distro = container.get("distro", distro)
-        ip_address = f"{network.subnet}.{ipaddr}"
         hostname = get_hostname(container, name, network.domain)
-        nodes[node_dns_key(hostname)] = ip_address
+        nodes[node_dns_key(hostname)] = str(ipaddr)
         config = {
             "container_name": name,
             "systemd": True,
@@ -47,7 +51,7 @@ def get_compose_config(
             "cap_add": ["SYS_ADMIN"],
             "security_opt": ["label:disable"],
             "hostname": hostname,
-            "networks": {network.networkname: {"ipv4_address": ip_address}},
+            "networks": {network.networkname: {"ipv4_address": str(ipaddr)}},
             "image": f"localhost/{node_distro}",
             "build": {
                 "context": "containerfiles",
@@ -70,23 +74,17 @@ def get_compose_config(
 
 def gen_compose_data(lab_config):
     """Generate podamn compose file based on provided configuration."""
-    Network = namedtuple("Network", ["domain", "networkname", "subnet", "dns"])
+    Network = namedtuple("Network", ["domain", "networkname", "dns"])
     labname = lab_config["lab_name"]
     subnet = lab_config["subnet"]
+    ip_generator = get_ip_address_generator(subnet)
     container_fqdn = lab_config["container_fqdn"]
     config = {"name": labname}
     networkname = f"ipanet-{labname}"
     config["networks"] = {
         networkname: {
             "driver": "bridge",
-            "ipam": {
-                "config": [
-                    {
-                        "subnet": f"{subnet}.0/24",
-                        "gateway": f"{subnet}.1",
-                    }
-                ]
-            },
+            "ipam": {"config": [{"subnet": subnet}]},
         }
     }
     services = config.setdefault("services", {})
@@ -103,7 +101,6 @@ def gen_compose_data(lab_config):
         network = Network(
             domain,
             networkname,
-            subnet,
             get_effective_nameserver(deployment.get("dns"), domain),
         )
         cluster_config = deployment.get("cluster")
@@ -115,7 +112,7 @@ def gen_compose_data(lab_config):
         if servers:
             # First server must not have 'dns' set
             ips, servers_cfg = get_compose_config(
-                [servers[0]], network, distro, container_fqdn
+                [servers[0]], network, distro, container_fqdn, ip_generator
             )
             deployment_dns.append(next(iter(ips.values())))
             first_server_data = next(iter(servers_cfg.values()))
@@ -124,7 +121,7 @@ def gen_compose_data(lab_config):
             nodes.update(ips)
             # Replicas may have all settings
             ips, servers_cfg = get_compose_config(
-                servers[1:], network, distro, container_fqdn
+                servers[1:], network, distro, container_fqdn, ip_generator
             )
             services.update(servers_cfg)
             nodes.update(ips)
@@ -134,7 +131,7 @@ def gen_compose_data(lab_config):
         # Get clients configuration
         clients = cluster_config.get("clients")
         ips, clients_cfg = get_compose_config(
-            clients, network, distro, container_fqdn
+            clients, network, distro, container_fqdn, ip_generator
         )
         services.update(clients_cfg)
         nodes.update(ips)

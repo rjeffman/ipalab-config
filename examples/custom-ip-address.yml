@@ -1,0 +1,15 @@
+---
+lab_name: custom-ip-address
+subnet: "192.168.123.0/24"
+ipa_deployments:
+  - name: cluster
+    domain: ipa.test
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    dns: server
+    cluster:
+      servers:
+        - name: server
+        - name: replica
+      clients:
+        - name: cli-01

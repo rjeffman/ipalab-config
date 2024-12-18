@@ -2,6 +2,7 @@
 
 import sys
 import socket
+import ipaddress
 
 
 def die(msg, err=1):
@@ -31,3 +32,11 @@ def is_ip_address(addr):
         except OSError:
             return False
     return True
+
+
+def get_ip_address_generator(for_cidr=None):
+    """Create an IP address generator given a network CIDR."""
+    network = ipaddress.IPv4Interface(for_cidr or "192.168.159.0/24").network
+    generator = network.hosts()
+    next(generator)  # assume first IP is the gateway IP address.
+    return generator

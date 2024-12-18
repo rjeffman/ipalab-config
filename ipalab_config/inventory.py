@@ -152,9 +152,7 @@ def gen_inventory_data(lab_config):
                     {
                         "ipaclient_cleanup_dns_resolver": True,
                         "ipaclient_configure_dns_resolver": True,
-                        "ipaclient_dns_servers": [
-                            nameserver or f"{deployment['subnet']}.10"
-                        ],
+                        "ipaclient_dns_servers": [nameserver],
                     }
                 )
             # parse replicas

@@ -5,8 +5,6 @@ import os
 import shutil
 import importlib.resources
 
-from random import randint
-
 from ruamel.yaml import YAML
 
 from ipalab_config import __version__
@@ -104,7 +102,7 @@ def generate_ipalab_configuration():
     base_dir = args.OUTPUT or labname
 
     # set default values
-    data.setdefault("subnet", f"192.168.{randint(0, 255)}")
+    data.setdefault("subnet", "192.168.159.0/24")
     data.setdefault("container_fqdn", False)
 
     compose_config = gen_compose_data(data)
