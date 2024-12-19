@@ -15,9 +15,8 @@ def get_server_inventory(config, default_config, deployment):
     cap_opts = {
         "DNS": {
             "ipaserver_setup_dns": True,
-            "ipaserver_auto_forwarders": False,
+            "ipaserver_auto_forwarders": True,
             "ipaserver_forward_policy": "first",
-            "ipaserver_forwarders": [f"{deployment['subnet']}.1"],
             "ipaserver_no_dnssec_validation": True,
             "ipaserver_auto_reverse": True,
         },
@@ -52,9 +51,8 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
     cap_opts = {
         "DNS": {
             "ipareplica_setup_dns": True,
-            "ipareplica_auto_forwarders": False,
+            "ipareplica_auto_forwarders": True,
             "ipareplica_forward_policy": "first",
-            "ipareplica_forwarders": [f"{deployment['subnet']}.1"],
             "ipareplica_no_dnssec_validation": True,
             "ipareplica_auto_reverse": True,
         },
