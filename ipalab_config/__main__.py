@@ -73,7 +73,6 @@ def copy_helper_files(base_dir, directory):
 
 def save_data(yaml, base_dir, filename, yamldata):
     """Save YAML data as a YAML file."""
-    os.makedirs(base_dir, exist_ok=True)
     # pylint: disable=unspecified-encoding
     with open(os.path.join(base_dir, filename), "w") as out:
         yaml.dump(yamldata, out)
@@ -102,10 +101,13 @@ def generate_ipalab_configuration():
     data.setdefault("subnet", "192.168.159.0/24")
     data.setdefault("container_fqdn", False)
 
+    # generate configuration
     compose_config = gen_compose_data(data)
-    save_data(yaml, base_dir, "compose.yml", compose_config)
-
     inventory_config = gen_inventory_data(data)
+
+    # save configuration
+    os.makedirs(base_dir, exist_ok=True)
+    save_data(yaml, base_dir, "compose.yml", compose_config)
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
 
     # add Ansible Galaxy requirements.yml
