@@ -171,9 +171,7 @@ Use them to report issues or propose changes.
 Known Issues
 ------------
 
-When deploying the cluster, most of the time is spent with package downloading. To speed things up the `distro` attribute can be defined to a local distro with the packages pre-installed.
-
-When using a custom containerfile or using multiple FreeIPA deployments, often you'll have to set `dns` due to the way container name resolution is performed, and in this case, replica deployment will not work. To circunvent this issue, use `container_fqdn: true`. (See [issue #2](https://github.com/rjeffman/ipalab-config/issues/2).)
+See [ISSUES.md](ISSUES.md)
 
 
 License
