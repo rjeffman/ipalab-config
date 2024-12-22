@@ -54,3 +54,4 @@ disable = [
 
 [tool.behave]
 show_multiline = false
+show_timings = false
