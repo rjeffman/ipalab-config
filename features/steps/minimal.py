@@ -108,10 +108,9 @@ def _then_(context, filename):
     assert bool(called), "No files were created!"
     assert (
         called[index] == filename
-    ), f"Data was created in the wrong file: {filename}"
+    ), f"Data was created in the wrong file: {called[index]}"
 
 
-#
 # Modify the test to check for specific files.
 # @then('the "{directory}" directory contains [{file_list}]')
 @then('the "{directory}" directory was copied')  # pylint: disable=E1102
