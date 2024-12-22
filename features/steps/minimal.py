@@ -90,7 +90,9 @@ def _then_output_directory_created_with_correct_name(context, dirname):
 def _then_(context, filename):
     expected = YAML(pure=True).load(context.text)
 
-    for index, call in enumerate(context.patches["yaml_dump"].call_args_list):
+    for index, call in enumerate(  # noqa: B007
+        context.patches["yaml_dump"].call_args_list
+    ):
         diff_keys = set(expected.keys()) - set(call.args[0].keys())
         if not diff_keys:
             deep_diff(expected, call.args[0])
