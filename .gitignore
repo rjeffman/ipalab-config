@@ -3,5 +3,7 @@
 /dist/
 /build/
 
+.coverage
+
 .*.swp
 *.~

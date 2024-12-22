@@ -14,7 +14,13 @@ jobs:
       - uses: actions/setup-python@v5.1.0
         with:
           python-version: "3.x"
+      - name: Install dependencies
+        run: |
+          python3 -m pip install '.[dev]'
+          python3 -m pip install coverage
       - name: Run tests
         run: |
-          python3 -m pip install 'behave>=1.2.7dev6' ruamel.yaml
-          behave
+          python3 -m coverage run -m behave
+      - name: Report test coverage
+        run: |
+          python3 -m coverage report
