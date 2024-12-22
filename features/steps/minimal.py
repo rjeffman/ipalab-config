@@ -31,6 +31,10 @@ def deep_diff(a, b, level=""):
         assert (
             not diff_keys
         ), f"Keys mismatch ({level}): {set(a.keys())} / {set(b.keys())}"
+        diff_keys = set(b.keys()) - set(a.keys())
+        assert (
+            not diff_keys
+        ), f"Keys mismatch ({level}): {set(a.keys())} / {set(b.keys())}"
         for key in a.keys():
             deep_diff(a[key], b[key], f"{level}.{key}" if level else key)
     elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
@@ -93,8 +97,9 @@ def _then_(context, filename):
     for index, call in enumerate(  # noqa: B007
         context.patches["yaml_dump"].call_args_list
     ):
-        diff_keys = set(expected.keys()) - set(call.args[0].keys())
-        if not diff_keys:
+        a_b = set(expected.keys()) - set(call.args[0].keys())
+        b_a = set(expected.keys()) - set(call.args[0].keys())
+        if not a_b or not b_a:
             deep_diff(expected, call.args[0])
             break
     else:
