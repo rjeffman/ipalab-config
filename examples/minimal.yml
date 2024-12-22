@@ -1,0 +1,10 @@
+---
+ipa_deployments:
+  - name: server-only
+    domain: ipa.test
+    realm: IPA.TEST
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server

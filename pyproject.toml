@@ -20,7 +20,13 @@ dependencies = ["ruamel.yaml"]
 ipalab-config = "ipalab_config.__main__:main"
 
 [project.optional-dependencies]
-dev = ["black", "pre-commit", "pylint", "yamllint"]
+dev = [
+    "black",
+    "pre-commit",
+    "pylint",
+    "yamllint",
+    "behave>=1.2.7dev6"
+]
 
 [tool.setuptools]
 packages = ["ipalab_config"]
@@ -45,3 +51,6 @@ max-line-length = 80
 disable = [
     "too-many-locals",
 ]
+
+[tool.behave]
+show_multiline = false
