@@ -17,7 +17,7 @@
 # ignored, and it will only apply to it if explicitly defined.
 ---
 lab_name: custom-containerfile-with-dns
-containerfiles: ["examples/containerfiles/custom_distro"]
+containerfiles: ["containerfiles/custom_distro"]
 container_fqdn: true  # required to deploy replicas on multiple doamins
 ipa_deployments:
   - name: origin

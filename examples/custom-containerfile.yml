@@ -1,11 +1,13 @@
 # To use this configuration, the configuration tool must be invoked as
 #
-#   $ ipalab-config -f MyContainerFile custom-containerfile.yml
+#   $ ipalab-config \
+#         -f examples/containerfiles/custom_distro \
+#         examples/custom-containerfile.yml
 #
 # or the 'containerfiles' attribute must be uncommented.
 ---
 lab_name: custom-containerfile
-# containerfiles: ["examples/containerfiles/custom-distro"]
+# containerfiles: ["containerfiles/custom_distro"]
 ipa_deployments:
   - name: cluster
     distro: custom-distro # Set default distro for the deployment.

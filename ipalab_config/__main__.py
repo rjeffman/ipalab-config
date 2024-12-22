@@ -127,8 +127,21 @@ def generate_ipalab_configuration():
         copy_helper_files(base_dir, helper)
 
     # Copy containerfiles to result directory
+    containerfiles = [
+        (
+            os.path.realpath(
+                os.path.join(
+                    os.path.dirname(os.path.realpath(args.CONFIG)),
+                    containerfile,
+                )
+            )
+            if not containerfile.startswith("/")
+            else containerfile
+        )
+        for containerfile in data.get("containerfiles", [])
+    ]
     copy_extra_files(
-        data.get("containerfiles", []) + args.RECIPES,
+        containerfiles + args.RECIPES,
         os.path.join(base_dir, "containerfiles"),
     )
 
