@@ -55,3 +55,8 @@ disable = [
 [tool.behave]
 show_multiline = false
 show_timings = false
+
+[tool.coverage.run]
+omit = [
+    "features/steps/*"
+]
