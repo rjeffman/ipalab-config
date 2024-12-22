@@ -91,12 +91,9 @@ def generate_ipalab_configuration():
     args = parse_arguments()
     yaml = YAML()
 
-    try:
-        # pylint: disable=unspecified-encoding
-        with open(args.CONFIG, "r") as config_file:
-            data = yaml.load(config_file.read())
-    except FileNotFoundError as fnfe:
-        die(str(fnfe))
+    # pylint: disable=unspecified-encoding
+    with open(args.CONFIG, "r") as config_file:
+        data = yaml.load(config_file.read())
 
     labname = data.setdefault("lab_name", "ipa-lab")
     base_dir = args.OUTPUT or labname
@@ -155,7 +152,8 @@ def main():
     try:
         generate_ipalab_configuration()
     except FileNotFoundError as fnfe:
-        die(str(fnfe))
+        return die(str(fnfe))
+    return 0
 
 
 if __name__ == "__main__":

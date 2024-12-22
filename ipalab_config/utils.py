@@ -8,7 +8,7 @@ import ipaddress
 def die(msg, err=1):
     """Display message to stderr stream and exit program with error."""
     print(msg, file=sys.stderr)
-    sys.exit(err)
+    return err
 
 
 def ensure_fqdn(hostname, domain):
