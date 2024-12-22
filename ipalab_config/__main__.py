@@ -166,10 +166,10 @@ def main():
     """Trap execution exceptions."""
     try:
         generate_ipalab_configuration()
-    except FileNotFoundError as fnfe:
+    except FileNotFoundError as fnfe:  # pragma: no cover
         return die(str(fnfe))
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

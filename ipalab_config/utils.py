@@ -5,7 +5,7 @@ import socket
 import ipaddress
 
 
-def die(msg, err=1):
+def die(msg, err=1):  # pragma: no cover
     """Display message to stderr stream and exit program with error."""
     print(msg, file=sys.stderr)
     return err

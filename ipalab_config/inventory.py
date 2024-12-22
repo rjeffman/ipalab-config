@@ -135,7 +135,7 @@ def gen_inventory_data(lab_config):
             **deployment.get("vars", {}),
         }
         cluster_config = deployment.get("cluster")
-        if not cluster_config:
+        if not cluster_config:  # pragma: no cover
             die(f"Cluster not defined for domain '{domain}'")
         # parse first server
         servers = cluster_config.get("servers")
