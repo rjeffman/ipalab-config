@@ -1,6 +1,6 @@
 Feature: Create minimal configuration
     In order to test FreeIPA using containers
-    As a developer
+    As a developer os sysadmin
     I want to provide minimal configuration in a single file and
     obtain a Podman compose file, an Ansible inventory file, and
     the minimum necessary files to create the deployment.
@@ -17,8 +17,8 @@ Scenario: Minimal single server
           servers:
             - name: server
     """
-     When I run ipalab-config
-     Then the output directory name is "ipa-lab"
+      When I run ipalab-config
+      Then the output directory name is "ipa-lab"
       And the ipa-lab/compose.yml file is
         """
         name: ipa-lab
