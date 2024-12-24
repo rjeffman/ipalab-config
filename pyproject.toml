@@ -60,3 +60,8 @@ show_timings = false
 omit = [
     "features/steps/*"
 ]
+
+[tool.coverage.report]
+skip_empty = true
+skip_covered = true
+show_missing = true
