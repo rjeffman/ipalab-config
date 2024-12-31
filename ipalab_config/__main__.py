@@ -57,6 +57,20 @@ def parse_arguments():
             "May be used more than once for multiple files."
         ),
     )
+    opt_parser.add_argument(
+        "-d",
+        "--distro",
+        dest="DISTRO",
+        metavar="DISTRO",
+        default="fedora-latest",
+        nargs="?",
+        choices=["fedora-latest", "fedora-rawhide", "c10s", "c9s", "c8s"],
+        help=(
+            "Define default distro. Valid values are 'fedora-latest', "
+            "'fedora-rawhide', 'c10s', 'c9s', 'c8s'. Defaults to "
+            "'fedora-latest'."
+        ),
+    )
 
     return opt_parser.parse_args()
 
@@ -98,6 +112,7 @@ def generate_ipalab_configuration():
     base_dir = args.OUTPUT or labname
 
     # set default values
+    data.setdefault("distro", args.DISTRO)
     data.setdefault("subnet", "192.168.159.0/24")
     data.setdefault("container_fqdn", False)
 

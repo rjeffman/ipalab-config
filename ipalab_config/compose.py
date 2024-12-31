@@ -93,7 +93,7 @@ def gen_compose_data(lab_config):
     deployment_dns = []
     for deployment in ipa_deployments:
         domain = deployment.get("domain", "ipa.test")
-        distro = deployment.get("distro", "fedora-latest")
+        distro = deployment.get("distro", lab_config["distro"])
         dns = deployment.get("dns")
         if dns and not is_ip_address(dns):
             # pylint: disable=consider-using-f-string
