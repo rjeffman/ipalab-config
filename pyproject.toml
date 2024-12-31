@@ -8,7 +8,7 @@ dynamic = ["version"]
 authors = [
     {name = "Rafael Guterres Jeffman", email = "rjeffman@redhat.com"},
 ]
-description = ""
+description = "Generates compose and inventory files to create a container based FreeIPA cluster."
 readme = "README.md"
 requires-python = ">=3.6"
 keywords = ["freeipa", "ansible"]
