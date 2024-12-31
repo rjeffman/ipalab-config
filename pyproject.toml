@@ -13,6 +13,13 @@ readme = "README.md"
 requires-python = ">=3.6"
 keywords = ["freeipa", "ansible"]
 license = {text = "0BSD"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Zero-Clause BSD (0BSD)",
+    "Framework :: Ansible",
+]
 
 dependencies = ["ruamel.yaml"]
 
