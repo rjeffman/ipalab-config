@@ -116,9 +116,11 @@ def gen_inventory_data(lab_config):
     lab = {"vars": {"ansible_connection": "podman"}}
     lab_deployments = lab.setdefault("children", {})
     ipa_deployments = lab_config.get("ipa_deployments", [])
+    if any(labname == deployment["name"] for deployment in ipa_deployments):
+        raise ValueError(f"Deployment name must be unique: {labname}")
     deployment_dns = lab_config["deployment_nameservers"]
     for deployment, nameserver in zip(ipa_deployments, deployment_dns):
-        name = deployment["name"].replace(".", "_")
+        name = deployment["name"]
         domain = deployment.setdefault("domain", "ipa.test")
         deployment.setdefault("subnet", lab_config["subnet"])
         deployment.setdefault("container_fqdn", lab_config["container_fqdn"])

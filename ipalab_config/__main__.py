@@ -181,8 +181,8 @@ def main():
     """Trap execution exceptions."""
     try:
         generate_ipalab_configuration()
-    except FileNotFoundError as fnfe:  # pragma: no cover
-        return die(str(fnfe))
+    except (ValueError, FileNotFoundError) as err:  # pragma: no cover
+        return die(str(err))
     return 0
 
 
