@@ -25,6 +25,7 @@ Scenario: Deploy server with custom containerfile
         name: custom_container
         networks:
           ipanet-custom_container:
+            name: ipanet-custom_container
             driver: bridge
             ipam:
               config:
@@ -72,6 +73,7 @@ Scenario: Pass container file through the command line
         name: custom_container
         networks:
           ipanet-custom_container:
+            name: ipanet-custom_container
             driver: bridge
             ipam:
               config:

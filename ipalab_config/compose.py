@@ -83,6 +83,7 @@ def gen_compose_data(lab_config):
     networkname = f"ipanet-{labname}"
     config["networks"] = {
         networkname: {
+            "name": networkname,
             "driver": "bridge",
             "ipam": {"config": [{"subnet": subnet}]},
         }
