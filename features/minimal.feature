@@ -24,6 +24,7 @@ Scenario: Minimal single server
         name: ipa-lab
         networks:
           ipanet-ipa-lab:
+            name: ipanet-ipa-lab
             driver: bridge
             ipam:
               config:
@@ -96,6 +97,7 @@ Scenario: Minimum IPA cluster
         name: ipa-lab
         networks:
           ipanet-ipa-lab:
+            name: ipanet-ipa-lab
             driver: bridge
             ipam:
               config:
@@ -233,6 +235,7 @@ Scenario: FQDN containers and replica capapabilities
         name: ipa-lab
         networks:
           ipanet-ipa-lab:
+            name: ipanet-ipa-lab
             driver: bridge
             ipam:
               config:
