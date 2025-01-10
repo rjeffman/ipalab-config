@@ -51,7 +51,7 @@ def get_compose_config(
             "cap_add": ["SYS_ADMIN"],
             "security_opt": ["label:disable"],
             "hostname": hostname,
-            "networks": {network.networkname: {"ipv4_address": str(ipaddr)}},
+            "networks": {"ipanet": {"ipv4_address": str(ipaddr)}},
             "image": f"localhost/{node_distro}",
             "build": {
                 "context": "containerfiles",
@@ -78,16 +78,15 @@ def get_compose_config(
 
 def gen_compose_data(lab_config):
     """Generate podamn compose file based on provided configuration."""
-    Network = namedtuple("Network", ["domain", "networkname", "dns"])
+    Network = namedtuple("Network", ["domain", "dns"])
     labname = lab_config["lab_name"]
     subnet = lab_config["subnet"]
     ip_generator = get_ip_address_generator(subnet)
     container_fqdn = lab_config["container_fqdn"]
     config = {"name": labname}
-    networkname = f"ipanet-{labname}"
     config["networks"] = {
-        networkname: {
-            "name": networkname,
+        "ipanet": {
+            "name": f"ipanet-{labname}",
             "driver": "bridge",
             "ipam": {"config": [{"subnet": subnet}]},
         }
@@ -105,7 +104,6 @@ def gen_compose_data(lab_config):
             dns = "{{{0}}}".format(ensure_fqdn(dns, domain))
         network = Network(
             domain,
-            networkname,
             get_effective_nameserver(deployment.get("dns"), domain),
         )
         cluster_config = deployment.get("cluster")

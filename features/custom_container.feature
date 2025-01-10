@@ -24,7 +24,7 @@ Scenario: Deploy server with custom containerfile
         """
         name: custom_container
         networks:
-          ipanet-custom_container:
+          ipanet:
             name: ipanet-custom_container
             driver: bridge
             ipam:
@@ -42,7 +42,7 @@ Scenario: Deploy server with custom containerfile
             - label:disable
             hostname: server.ipa.test
             networks:
-              ipanet-custom_container:
+              ipanet:
                 ipv4_address: 192.168.159.2
             image: localhost/my-container
             build:
@@ -72,7 +72,7 @@ Scenario: Pass container file through the command line
         """
         name: custom_container
         networks:
-          ipanet-custom_container:
+          ipanet:
             name: ipanet-custom_container
             driver: bridge
             ipam:
@@ -90,7 +90,7 @@ Scenario: Pass container file through the command line
             - label:disable
             hostname: server.ipa.test
             networks:
-              ipanet-custom_container:
+              ipanet:
                 ipv4_address: 192.168.159.2
             image: localhost/my-container
             build:

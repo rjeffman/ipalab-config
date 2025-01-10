@@ -23,7 +23,7 @@ Scenario: Minimal single server
         """
         name: ipa-lab
         networks:
-          ipanet-ipa-lab:
+          ipanet:
             name: ipanet-ipa-lab
             driver: bridge
             ipam:
@@ -41,7 +41,7 @@ Scenario: Minimal single server
             - label:disable
             hostname: server.ipa.test
             networks:
-              ipanet-ipa-lab:
+              ipanet:
                 ipv4_address: 192.168.159.2
             image: localhost/fedora-latest
             build:
@@ -96,7 +96,7 @@ Scenario: Minimum IPA cluster
         """
         name: ipa-lab
         networks:
-          ipanet-ipa-lab:
+          ipanet:
             name: ipanet-ipa-lab
             driver: bridge
             ipam:
@@ -114,7 +114,7 @@ Scenario: Minimum IPA cluster
             - label:disable
             hostname: server.ipa.test
             networks:
-              ipanet-ipa-lab:
+              ipanet:
                 ipv4_address: 192.168.159.2
             image: localhost/fedora-latest
             build:
@@ -131,7 +131,7 @@ Scenario: Minimum IPA cluster
             - label:disable
             hostname: replica.ipa.test
             networks:
-              ipanet-ipa-lab:
+              ipanet:
                 ipv4_address: 192.168.159.3
             image: localhost/fedora-latest
             build:
@@ -148,7 +148,7 @@ Scenario: Minimum IPA cluster
             - label:disable
             hostname: client.ipa.test
             networks:
-              ipanet-ipa-lab:
+              ipanet:
                 ipv4_address: 192.168.159.4
             image: localhost/fedora-latest
             build:
@@ -234,7 +234,7 @@ Scenario: FQDN containers and replica capapabilities
         """
         name: ipa-lab
         networks:
-          ipanet-ipa-lab:
+          ipanet:
             name: ipanet-ipa-lab
             driver: bridge
             ipam:
@@ -252,7 +252,7 @@ Scenario: FQDN containers and replica capapabilities
             - label:disable
             hostname: server.ipa.test
             networks:
-              ipanet-ipa-lab:
+              ipanet:
                 ipv4_address: 192.168.159.2
             image: localhost/fedora-latest
             build:
@@ -269,7 +269,7 @@ Scenario: FQDN containers and replica capapabilities
             - label:disable
             hostname: replica.ipa.test
             networks:
-              ipanet-ipa-lab:
+              ipanet:
                 ipv4_address: 192.168.159.3
             image: localhost/fedora-latest
             build:
@@ -286,7 +286,7 @@ Scenario: FQDN containers and replica capapabilities
             - label:disable
             hostname: client.ipa.test
             networks:
-              ipanet-ipa-lab:
+              ipanet:
                 ipv4_address: 192.168.159.4
             image: localhost/fedora-latest
             build:
