@@ -1,5 +1,6 @@
 ---
 lab_name: full-hidden-replica
+subnet: "192.168.4.0/24"
 ipa_deployments:
   - name: cluster
     domain: ipa.test

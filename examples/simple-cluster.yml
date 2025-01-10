@@ -10,6 +10,7 @@
 # By default, the ditro used is 'fedora-latest'.
 ---
 lab_name: simple-cluster
+subnet: "192.168.8.0/24"
 ipa_deployments:
   - name: cluster
     domain: ipa.test

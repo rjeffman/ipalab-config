@@ -19,6 +19,7 @@
 lab_name: custom-containerfile-with-dns
 containerfiles: ["containerfiles/custom_distro"]
 container_fqdn: true  # required to deploy replicas on multiple doamins
+subnet: "192.168.1.0/24"
 ipa_deployments:
   - name: origin
     distro: custom_distro # Set default distro for the deployment.

@@ -5,10 +5,11 @@
 #
 # The network is still the same network with mask 255.255.255.0, randomly
 # defined as 192.168.X.0/24 (where x is 1-254), and the IP numbers for the
-# hosts are in the range 192.168.X.10 to 192.168.x.254.
+# hosts are in the range 192.168.X.10 to 192.168.X.254 (in this example, X=7).
 ---
 lab_name: multi-deployment
 container_fqdn: true  # required to have replicas with multiple deployment
+subnet: "192.168.7.0/24"
 ipa_deployments:
   - name: origin
     domain: origin.ipa.test
