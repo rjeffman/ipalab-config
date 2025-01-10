@@ -68,6 +68,10 @@ def get_compose_config(
         if effective_dns:
             config["dns"] = node_dns_key(effective_dns)
             config["dns_search"] = network.domain
+
+        if "volumes" in container:
+            config.update({"volumes": container["volumes"]})
+
         result[name] = config
     return nodes, result
 
