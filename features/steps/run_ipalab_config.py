@@ -56,7 +56,7 @@ def _when_run_ipalab_exception(context):
         except Exception as ex:  # pylint: disable=broad-except
             context.exception = ex
         else:
-            assert False, "An error was expected, but did not occur."
+            raise AssertionError("An error was expected, but did not occur.")
 
 
 @then(  # pylint: disable=E1102
