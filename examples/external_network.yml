@@ -1,0 +1,26 @@
+# The docker compose spec does not allow disabling the internal DNS
+# nameserver for user defined networks, or setting the network DNS
+# resolver. This may cause conflicts when complete control of DNS
+# zones (direct and reverse) is needed.
+#
+# By allowing the usage of a pre-existing network, the network can be
+# created with the required configuration.
+#
+# To use this example, first create a network with:
+#     `podman network create --subnet "192.168.12.0/24" my_external_network
+#
+# Note that 'subnet' must be provided and must match the value used to
+# create the external network.
+---
+network: my_external_network
+subnet: "192.168.12.0/24"
+ipa_deployments:
+  - name: using_external_network
+    domain: ipa.test
+    realm: IPA.TEST
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+        - name: replica

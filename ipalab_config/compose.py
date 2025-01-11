@@ -17,8 +17,7 @@ IP_GENERATOR = get_ip_address_generator()
 def get_effective_nameserver(nameserver, domain):
     """Return the effective nameserver."""
     if nameserver and not (is_ip_address(nameserver) or "{" in nameserver):
-        # pylint: disable=consider-using-f-string
-        return "{{{0}}}".format(ensure_fqdn(nameserver, domain))
+        return f"{{{ensure_fqdn(nameserver, domain)}}}"
     return nameserver
 
 
@@ -51,7 +50,7 @@ def get_compose_config(
             "cap_add": ["SYS_ADMIN"],
             "security_opt": ["label:disable"],
             "hostname": hostname,
-            "networks": {"ipanet": {"ipv4_address": str(ipaddr)}},
+            "networks": {network.name: {"ipv4_address": str(ipaddr)}},
             "image": f"localhost/{node_distro}",
             "build": {
                 "context": "containerfiles",
@@ -76,21 +75,32 @@ def get_compose_config(
     return nodes, result
 
 
+def get_network_config(lab_config, subnet):
+    """Generate the compose "networks" configuration."""
+    if "network" in lab_config:
+        networkname = lab_config["network"]
+        config = {networkname: {"external": True}}
+    else:
+        networkname = "ipanet"
+        config = {
+            "ipanet": {
+                "name": f"ipanet-{lab_config['lab_name']}",
+                "driver": "bridge",
+                "ipam": {"config": [{"subnet": subnet}]},
+            }
+        }
+    return networkname, config
+
+
 def gen_compose_data(lab_config):
     """Generate podamn compose file based on provided configuration."""
-    Network = namedtuple("Network", ["domain", "dns"])
-    labname = lab_config["lab_name"]
+    Network = namedtuple("Network", ["domain", "name", "dns"])
+    container_fqdn = lab_config["container_fqdn"]
+    config = {"name": lab_config["lab_name"]}
+
     subnet = lab_config["subnet"]
     ip_generator = get_ip_address_generator(subnet)
-    container_fqdn = lab_config["container_fqdn"]
-    config = {"name": labname}
-    config["networks"] = {
-        "ipanet": {
-            "name": f"ipanet-{labname}",
-            "driver": "bridge",
-            "ipam": {"config": [{"subnet": subnet}]},
-        }
-    }
+    networkname, config["networks"] = get_network_config(lab_config, subnet)
     services = config.setdefault("services", {})
 
     ipa_deployments = lab_config.get("ipa_deployments")
@@ -104,6 +114,7 @@ def gen_compose_data(lab_config):
             dns = "{{{0}}}".format(ensure_fqdn(dns, domain))
         network = Network(
             domain,
+            networkname,
             get_effective_nameserver(deployment.get("dns"), domain),
         )
         cluster_config = deployment.get("cluster")

@@ -1,17 +1,12 @@
 """Steps for ensuring behavior on minimal configuration usage."""
 
-import sys
 import os
 import importlib.resources
-
-from unittest.mock import patch, mock_open
 
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
-from behave import given, when, then
-
-from ipalab_config.__main__ import main
+from behave import given, then
 
 
 def deep_diff(a, b, level=""):
@@ -54,31 +49,6 @@ def _given_deployment_configuration(context):
     args = getattr(context, "cli_args", ["ipalab-config"])
     args.extend(["input_data"])
     context.cli_args = args
-
-
-@when("I run ipalab-config")  # pylint: disable=E1102
-def _when_run_ipalab(context):
-    sys.argv = context.cli_args
-    with (
-        patch(
-            "builtins.open", mock_open(read_data=context.input_data)
-        ) as input_file,
-        patch("shutil.copytree") as copy_tree,
-        patch("shutil.copyfile") as copy_file,
-        patch("os.makedirs") as make_dirs,
-        patch("ruamel.yaml.YAML.dump") as yaml_dump,
-    ):
-        context.patches = {
-            "input_file": input_file,
-            "copy_tree": copy_tree,
-            "copy_file": copy_file,
-            "make_dirs": make_dirs,
-            "yaml_dump": yaml_dump,
-        }
-        try:
-            context.err_code = main()
-        except Exception as ex:  # pylint: disable=broad-except
-            raise ex from None
 
 
 @then('the output directory name is "{dirname}"')  # pylint: disable=E1102

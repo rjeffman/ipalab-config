@@ -113,7 +113,11 @@ def generate_ipalab_configuration():
 
     # set default values
     data.setdefault("distro", args.DISTRO)
-    data.setdefault("subnet", "192.168.159.0/24")
+    if "network" in data:
+        if "subnet" not in data:
+            raise ValueError("'subnet' is required for 'external' networks")
+    else:
+        data.setdefault("subnet", "192.168.159.0/24")
     data.setdefault("container_fqdn", False)
 
     # generate configuration
