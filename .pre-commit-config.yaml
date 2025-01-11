@@ -6,6 +6,26 @@ repos:
       - id: yamllint
         files: \.(yaml|yml)$
 
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        require_serial: true
+        args:
+          [
+            "-rn", # Only display messages
+            "-sn", # Don't display the score
+          ]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        files: \.py$
+
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 24.10.0
     hooks:
