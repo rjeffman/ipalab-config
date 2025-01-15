@@ -152,6 +152,8 @@ def gen_compose_data(lab_config):
         # We must have at lest one node at the end.
         if not nodes:
             die("At least one server or client must be defined for {domain}.")
+        # update nodes list
+        lab_config.setdefault("nodes", {}).update(nodes)
         # Update 'dns' on each service
         for service in services.values():
             if "dns" in service:

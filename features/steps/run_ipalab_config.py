@@ -20,14 +20,14 @@ def patched_execution(fn):
                 "builtins.open",
                 mock_open(read_data=context.input_data),
                 create=True,
-            ) as input_file,
+            ) as open_file,
             patch("shutil.copytree") as copy_tree,
             patch("shutil.copyfile") as copy_file,
             patch("os.makedirs") as make_dirs,
             patch("ruamel.yaml.YAML.dump") as yaml_dump,
         ):
             context.patches = {
-                "input_file": input_file,
+                "open_file": open_file,
                 "copy_tree": copy_tree,
                 "copy_file": copy_file,
                 "make_dirs": make_dirs,

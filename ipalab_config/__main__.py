@@ -85,6 +85,13 @@ def copy_helper_files(base_dir, directory):
     shutil.copytree(origin, target_dir, dirs_exist_ok=True)
 
 
+def save_file(base_dir, filename, data):
+    """Write data to an output file."""
+    # pylint: disable=unspecified-encoding
+    with open(os.path.join(base_dir, filename), "w") as out:
+        out.write(data)
+
+
 def save_data(yaml, base_dir, filename, yamldata):
     """Save YAML data as a YAML file."""
     # pylint: disable=unspecified-encoding
@@ -128,6 +135,19 @@ def generate_ipalab_configuration():
     os.makedirs(base_dir, exist_ok=True)
     save_data(yaml, base_dir, "compose.yml", compose_config)
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
+
+    # save /etc/hosts file patch
+    save_file(
+        base_dir,
+        "hosts",
+        f"\n# ipalab-config hosts for '{labname}'\n"
+        + "\n".join(
+            [
+                f"{v:18s}{k.replace('_', '.')}"
+                for k, v in data.get("nodes", {}).items()
+            ]
+        ),
+    )
 
     # add Ansible Galaxy requirements.yml
     save_data(
