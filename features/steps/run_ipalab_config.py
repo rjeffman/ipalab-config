@@ -10,53 +10,49 @@ from behave import when, then
 from ipalab_config.__main__ import main, generate_ipalab_configuration
 
 
+def patched_execution(fn):
+    """Add patches for execution of 'when' steps"""
+
+    def run_patched(context, *args, **kwargs):
+        sys.argv = context.cli_args
+        with (
+            patch(
+                "builtins.open",
+                mock_open(read_data=context.input_data),
+                create=True,
+            ) as input_file,
+            patch("shutil.copytree") as copy_tree,
+            patch("shutil.copyfile") as copy_file,
+            patch("os.makedirs") as make_dirs,
+            patch("ruamel.yaml.YAML.dump") as yaml_dump,
+        ):
+            context.patches = {
+                "input_file": input_file,
+                "copy_tree": copy_tree,
+                "copy_file": copy_file,
+                "make_dirs": make_dirs,
+                "yaml_dump": yaml_dump,
+            }
+            fn(context, *args, **kwargs)
+
+    return run_patched
+
+
 @when("I run ipalab-config")  # pylint: disable=E1102
+@patched_execution
 def _when_run_ipalab(context):
-    sys.argv = context.cli_args
-    with (
-        patch(
-            "builtins.open", mock_open(read_data=context.input_data)
-        ) as input_file,
-        patch("shutil.copytree") as copy_tree,
-        patch("shutil.copyfile") as copy_file,
-        patch("os.makedirs") as make_dirs,
-        patch("ruamel.yaml.YAML.dump") as yaml_dump,
-    ):
-        context.patches = {
-            "input_file": input_file,
-            "copy_tree": copy_tree,
-            "copy_file": copy_file,
-            "make_dirs": make_dirs,
-            "yaml_dump": yaml_dump,
-        }
-        context.err_code = main()
+    context.err_code = main()
 
 
 @when("I expect ipalab-config to fail")  # pylint: disable=E1102
+@patched_execution
 def _when_run_ipalab_exception(context):
-    sys.argv = context.cli_args
-    with (
-        patch(
-            "builtins.open", mock_open(read_data=context.input_data)
-        ) as input_file,
-        patch("shutil.copytree") as copy_tree,
-        patch("shutil.copyfile") as copy_file,
-        patch("os.makedirs") as make_dirs,
-        patch("ruamel.yaml.YAML.dump") as yaml_dump,
-    ):
-        context.patches = {
-            "input_file": input_file,
-            "copy_tree": copy_tree,
-            "copy_file": copy_file,
-            "make_dirs": make_dirs,
-            "yaml_dump": yaml_dump,
-        }
-        try:
-            generate_ipalab_configuration()
-        except Exception as ex:  # pylint: disable=broad-except
-            context.exception = ex
-        else:
-            raise AssertionError("An error was expected, but did not occur.")
+    try:
+        generate_ipalab_configuration()
+    except Exception as ex:  # pylint: disable=broad-except
+        context.exception = ex
+    else:
+        raise AssertionError("An error was expected, but did not occur.")
 
 
 @then(  # pylint: disable=E1102
