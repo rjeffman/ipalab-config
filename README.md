@@ -150,6 +150,21 @@ To configure the clients, these are the available attributes:
 See the available [examples](examples).
 
 
+Output Files
+------------
+
+In the output directory the following files and directories are present:
+
+| File  | Usage |
+| :---------- | :--------------------------- |
+| compose.yml | The compose file to use with `podman-compose` |
+| inventory.yml | An Ansible inventory file for the cluster with ansible-freeipa variables |
+| hosts | A list with ip-hostnames pairs no be added to the host `/etc/hosts` so the nodes are accessible by name |
+| requiremenst.yml | The Ansible collection requirements no deploy the cluster |
+| containerfiles | A collection of containerfiles for some Linux images where FreeIPA server and/or client is known to work with this configuration |
+| playbooks | A directory where the 'install-cluster.yml' playbook and any additional playbook is stored |
+
+
 Playbooks
 ---------
 
