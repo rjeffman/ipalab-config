@@ -25,6 +25,10 @@ repos:
     hooks:
       - id: flake8
         files: \.py$
+        args:
+          [
+            "--max-line-length", "80",  # use 80 character lines
+          ]
 
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 24.10.0
