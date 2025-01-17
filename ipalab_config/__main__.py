@@ -2,13 +2,16 @@
 
 import argparse
 import os
-import shutil
-import importlib.resources
 
 from ruamel.yaml import YAML
 
 from ipalab_config import __version__
-from ipalab_config.utils import die
+from ipalab_config.utils import (
+    die,
+    copy_extra_files,
+    copy_helper_files,
+    save_file,
+)
 from ipalab_config.compose import gen_compose_data
 from ipalab_config.inventory import gen_inventory_data
 
@@ -75,35 +78,11 @@ def parse_arguments():
     return opt_parser.parse_args()
 
 
-def copy_helper_files(base_dir, directory):
-    """Copy directory helper files to target directory"""
-    target_dir = os.path.join(base_dir, directory)
-    os.makedirs(target_dir, exist_ok=True)
-    origin = os.path.join(
-        importlib.resources.files("ipalab_config"), "data", directory
-    )
-    shutil.copytree(origin, target_dir, dirs_exist_ok=True)
-
-
-def save_file(base_dir, filename, data):
-    """Write data to an output file."""
-    # pylint: disable=unspecified-encoding
-    with open(os.path.join(base_dir, filename), "w") as out:
-        out.write(data)
-
-
 def save_data(yaml, base_dir, filename, yamldata):
     """Save YAML data as a YAML file."""
     # pylint: disable=unspecified-encoding
     with open(os.path.join(base_dir, filename), "w") as out:
         yaml.dump(yamldata, out)
-
-
-def copy_extra_files(files, target_dir):
-    """Copy files to the target directory."""
-    for source in files:
-        filename = os.path.basename(source)
-        shutil.copyfile(source, os.path.join(target_dir, filename))
 
 
 def generate_ipalab_configuration():

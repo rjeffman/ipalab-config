@@ -1,8 +1,11 @@
 """ipalab_config utility functions."""
 
+import os
+import shutil
 import sys
 import socket
 import ipaddress
+import importlib.resources
 
 
 def die(msg, err=1):  # pragma: no cover
@@ -40,3 +43,28 @@ def get_ip_address_generator(for_cidr=None):
     generator = network.hosts()
     next(generator)  # assume first IP is the gateway IP address.
     return generator
+
+
+def copy_extra_files(files, target_dir):
+    """Copy files to the target directory."""
+    os.makedirs(target_dir, exist_ok=True)
+    for source in files:
+        filename = os.path.basename(source)
+        shutil.copyfile(source, os.path.join(target_dir, filename))
+
+
+def copy_helper_files(base_dir, directory):
+    """Copy directory helper files to target directory"""
+    target_dir = os.path.join(base_dir, directory)
+    os.makedirs(target_dir, exist_ok=True)
+    origin = os.path.join(
+        importlib.resources.files("ipalab_config"), "data", directory
+    )
+    shutil.copytree(origin, target_dir, dirs_exist_ok=True)
+
+
+def save_file(base_dir, filename, data):
+    """Write data to an output file."""
+    # pylint: disable=unspecified-encoding
+    with open(os.path.join(base_dir, filename), "w") as out:
+        out.write(data)
