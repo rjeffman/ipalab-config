@@ -1,0 +1,28 @@
+FROM alpine:latest
+
+RUN apk update
+RUN apk add --no-cache unbound bind-tools iputils
+
+RUN touch /var/log/unbound.log
+RUN chmod 664 /var/log/unbound.log
+RUN chown root:unbound /var/log/unbound.log
+
+RUN mkdir -p /etc/unbound
+RUN chown root:unbound /etc/unbound
+RUN chmod 775 /etc/unbound
+
+
+ADD https://www.internic.net/domain/named.root /etc/root.hints
+RUN chmod -R a+r /etc/root.hints
+
+COPY unbound.conf /etc/unbound/unbound.conf
+COPY zones.conf /etc/unbound/zones.conf
+COPY zones/ /etc/unbound/
+COPY domains /etc/unbound/domains
+COPY access_control /etc/unbound/access_control
+RUN chmod -R a+r /etc/unbound
+RUN chown -R root:unbound /etc/unbound
+
+VOLUME [ "/etc/unbound" ]
+
+ENTRYPOINT ["unbound", "-d"]

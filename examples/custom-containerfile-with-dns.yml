@@ -32,7 +32,7 @@ ipa_deployments:
         - name: m1
           capabilities:
             - DNS
-          dns: 1.1.1.1   # This will be removed and NOT used
+          dns: 1.1.1.1
         - name: replica
           capabilities:
             - DNS

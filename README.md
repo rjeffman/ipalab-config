@@ -89,7 +89,7 @@ The configuration file is a YAML file with attributes used to set both the compo
 | `containerfiles` | A list of file relative or absolute paths to container files. | no | - |
 | `container_fqdn` | Convert container names to FQDN using deployment domain name. | no | false |
 | `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
-
+| `external` | A list of nodes external to the FReeIPA deployment. | no | - |
 
 **ipa_deployments**
 
@@ -98,16 +98,13 @@ Each entry in the `ipa-deployments` list define a FreeIPA cluster. All defined h
 | Name       | Description                  | Required | Default |
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The cluster name, used to identify one cluster in the inventory file. | yes | - |
-| `domain`   | The domain for the cluster. FreeIPA rules for domain names apply. | no | "ipa.test" |
+| `domain`   | The domain for the cluster. FreeIPA rules for domain names apply. | no | "ipalab.local" |
 | `realm`    | The realm for the cluster. | no | Uppercase `domain` |
 | `admin_password` | The FreeIPA admin password. | no | "SomeADMINpassword" |
 | `dm_password` | The FreeIPA LDAP Directory Manager password. | no | "SomeDMpassword" |
 | `distro`   | The containerfile/image to use by default, on this deployment. | no | `fedora-latest` |
 | `cluster`  | A _dict_ with the configuration for the nodes of the cluster. (See `Cluster Nodes`.) | yes | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
-
-
-> Note: The `dns` option will not be used on the first deployed server. This is enforced so that it is harder to end up with a deployment that has no access to external servers, so that, for example, software packages are not accessible.
 
 
 **Cluster Nodes**
@@ -123,6 +120,7 @@ These are the available options to configure the first server and the replicas:
 | `name`     | The name of the server. | yes | - |
 | `hostname` | The server hostname. | no | _<server name>_._<domain>_ |
 | `distro`   | The containerfile/image to use. | no | `fedora-latest` |
+| `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
 | `memory`   | The maximum amount of memory to use defined as an integer number and a unit. The unit can be `b`, `k` or `kb`, `m` or `mb`, or `g` or `gb` (case insensitive). | no |
@@ -144,10 +142,64 @@ To configure the clients, these are the available attributes:
 | `name`     | The name of the client node. | yes | - |
 | `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
 | `distro`   | The containerfile/image to use. | no | `fedora-latest` |
+| `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `vars` | _Dict_ of variables to use in the deployment of this client node. Check (ansible-freeipa ipaclient documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient] for valid values | no | - |
 
 See the available [examples](examples).
+
+**external**
+
+Used to define nodes external to the FreeIPA deployment.
+
+| Name     | Description                  | Required | Default |
+| :------- | :--------------------------- | :------: | :------ |
+| `domain` | The domain for _all_ the external hosts.  | no | "ipalab.local" |
+| `hosts`  | The list of external nodes. (See `External Nodes`) | no | - |
+
+
+**External Nodes**
+
+These are nodes that are not part of the FreeIPA deployment, and may or may not have a specific role in the environment. The following options are available:
+
+| Name       | Description                  | Required | Default |
+| :--------- | :--------------------------- | :------: | :------ |
+| `name`     | The name of the node.        | yes | - |
+| `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
+| `distro`   | The containerfile/image to use. | no | `fedora-latest` |
+| `volumes`   | A list of bind volume specifications. | no | - |
+| `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
+| `role`     | A specific role that will add pre-defined configuration to the node and the environment. Any `role` configuration will overwrite other options. | no | - |
+| `options`  | A dictionary of configurations specific to the available roles. | no | - |
+
+Currently there's only one `role` defined:
+
+_Role `dns`_
+
+The node with `role: dns` provides a nameserver for the whole environment, and all the nodes in the environment will have DNS search set to use this node. The node provides the Unbound nameserver. The container accepts a volume containing the unbound configuration mounted at `/etc/unbound`. Note that the name of the main configuration file must be `unbound.conf`.
+
+The available options for _dns_ is the `zones`, a list of zone configuration that must have a `file` attribute, with the path to a zone file, and a `name` attribute with the zone name. For _arpa zones_ (reverse zones with PTR records), instead of `name` the attribute `reverse_ip` with a network CIDR value can be used and the reverse zone name is automatically generated.
+
+Example using zone files:
+
+```yaml
+- name: nameserver
+  role: dns
+  options:
+    zones:
+    - name: ipa.test
+      file: ipa.zone
+    - reverse_ip: "10.1.2.0/24"
+      file: ipa_PTR.zone
+```
+
+Example using zone volumes:
+
+```yaml
+- name: nameserver
+  role: dns
+  volumes: ["/hostPath:/etc/unbound:Z"]
+```
 
 
 Output Files

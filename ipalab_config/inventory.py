@@ -110,18 +110,30 @@ def get_clients_inventory(config, default_config, deployment):
     return result
 
 
-def gen_inventory_data(lab_config):
-    """Generate inventory file based on provided configuration"""
-    labname = lab_config["lab_name"]
-    lab = {"vars": {"ansible_connection": "podman"}}
+def gen_inventory_external_nodes(lab_config, lab):
+    """Create inventory configuration for IPA external nodes."""
+    external = lab_config.get("external", {})
+    if external:
+        lab.setdefault(
+            "children",
+            {
+                "external": {
+                    "hosts": {
+                        node["name"]: None for node in external.get("hosts", [])
+                    }
+                }
+            },
+        )
+
+
+def gen_inventory_ipa_deployments(lab_config, lab):
+    """Create inventory configuration for IPA deployments."""
     lab_deployments = lab.setdefault("children", {})
-    ipa_deployments = lab_config.get("ipa_deployments", [])
-    if any(labname == deployment["name"] for deployment in ipa_deployments):
-        raise ValueError(f"Deployment name must be unique: {labname}")
+    ipa_deployments = lab_config.setdefault("ipa_deployments", [])
     deployment_dns = lab_config["deployment_nameservers"]
-    for deployment, nameserver in zip(ipa_deployments, deployment_dns):
+    for deployment, nameservers in zip(ipa_deployments, deployment_dns):
         name = deployment["name"]
-        domain = deployment.setdefault("domain", "ipa.test")
+        domain = deployment.setdefault("domain", "ipa.local")
         deployment.setdefault("subnet", lab_config["subnet"])
         deployment.setdefault("container_fqdn", lab_config["container_fqdn"])
         config = {"children": {}}
@@ -152,7 +164,7 @@ def gen_inventory_data(lab_config):
                     {
                         "ipaclient_cleanup_dns_resolver": True,
                         "ipaclient_configure_dns_resolver": True,
-                        "ipaclient_dns_servers": [nameserver],
+                        "ipaclient_dns_servers": nameservers,
                     }
                 )
             # parse replicas
@@ -176,5 +188,21 @@ def gen_inventory_data(lab_config):
         )
         if clients:
             config["children"]["ipaclients"] = clients
+    return ipa_deployments
+
+
+def gen_inventory_data(lab_config):
+    """Generate inventory file based on provided configuration"""
+    labname = lab_config["lab_name"]
+    lab = {"vars": {"ansible_connection": "podman"}}
+    gen_inventory_external_nodes(lab_config, lab)
+    gen_inventory_ipa_deployments(lab_config, lab)
+    node_names = list(lab_config["ipa_deployments"])
+    node_names.extend(list(lab["children"].get("external", {}).keys()))
+    if any(
+        labname == deployment["name"]
+        for deployment in lab_config["ipa_deployments"]
+    ):
+        raise ValueError(f"Deployment name must be unique: {labname}")
 
     return {labname.replace("-", "_"): lab}
