@@ -5,7 +5,7 @@ import re
 
 from unittest.mock import patch, mock_open
 
-from behave import when, then
+from behave import given, when, then
 
 from ipalab_config.__main__ import main, generate_ipalab_configuration
 
@@ -36,6 +36,14 @@ def patched_execution(fn):
             fn(context, *args, **kwargs)
 
     return run_patched
+
+
+@given("the deployment configuration")  # pylint: disable=E1102
+def _given_deployment_configuration(context):
+    context.input_data = context.text
+    args = getattr(context, "cli_args", ["ipalab-config"])
+    args.extend(["input_data"])
+    context.cli_args = args
 
 
 @when("I run ipalab-config")  # pylint: disable=E1102
