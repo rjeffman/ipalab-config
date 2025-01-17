@@ -8,7 +8,7 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from behave import then
 
 
-def deep_diff(a, b, level=""):
+def deep_diff(a, b, ignore=None, level=""):
     """Deep compare two dicts or ruamel.yaml data."""
 
     def convert_ruamel_data(data):
@@ -21,16 +21,14 @@ def deep_diff(a, b, level=""):
     a = convert_ruamel_data(a)
     b = convert_ruamel_data(b)
     if isinstance(a, dict) and isinstance(b, dict):
-        diff_keys = set(a.keys()) - set(b.keys())
-        assert (
-            not diff_keys
-        ), f"Keys mismatch ({level}): {set(a.keys())} / {set(b.keys())}"
-        diff_keys = set(b.keys()) - set(a.keys())
+        diff_keys = (set(a.keys()) ^ set(b.keys())) - set(ignore or [])
         assert (
             not diff_keys
         ), f"Keys mismatch ({level}): {set(a.keys())} / {set(b.keys())}"
         for key in a.keys():
-            deep_diff(a[key], b[key], f"{level}.{key}" if level else key)
+            deep_diff(
+                a[key], b[key], ignore, f"{level}.{key}" if level else key
+            )
     elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
         assert len(a) == len(b), f"List sizes mismatch ({level})."
         for index, (a_v, b_v) in enumerate(zip(a, b)):
