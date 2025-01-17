@@ -1,0 +1,47 @@
+# Ensure you have 'container_fqdn: false', otherwise it feels like
+# cheating.
+#
+# The nameserver uses [Unbound]() and always have IP address set to
+# '{subnet}.254'.
+#
+# The 'zonedb' is a list of files/directories which will be copied
+# to a flat directory, files with the same name will be overwritten.
+#
+# Setting 'autozone: true' will create a zone database including all
+# hosts in the cluster. The zone created supports dynamic update
+# through nsupdate. To also generate the reverse 'in-addr.arpa.' zone
+# set 'autoptr: true'.
+#
+# Note that either 'autozone' is set, or a 'zonedb' must be provided.
+#
+# DNSSEC, DoT and DoH are planed, but still not implemented.
+#
+# Whenever 'external_dns' is used '--dns {subnet}.254' is applied to
+# all hosts in the cluster.
+---
+lab_name: external-dns
+network: external_dns
+subnet: "192.168.53.0/24"
+external:
+  domain: ipa.test
+  hosts:
+  - name: nameserver
+    hostname: unbound.ipa.test
+    role: dns
+    options:
+      zones:
+        - name: ipa.test
+          file: "examples/unbound/ipa.test.zone"
+        - reverse_ip: "192.168.53.0/24"
+          file: "examples/unbound/53.168.192.in-addr.arpa.zone"
+ipa_deployments:
+  - name: ipacluster_external_dns
+    realm: IPA.TEST
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+        - name: replica
+      clients:
+        - name: client

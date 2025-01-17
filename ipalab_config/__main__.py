@@ -14,6 +14,7 @@ from ipalab_config.utils import (
 )
 from ipalab_config.compose import gen_compose_data
 from ipalab_config.inventory import gen_inventory_data
+from ipalab_config.unbound import gen_unbound_config
 
 
 def parse_arguments():
@@ -112,6 +113,18 @@ def generate_ipalab_configuration():
 
     # save configuration
     os.makedirs(base_dir, exist_ok=True)
+
+    # generate config for external nodes
+    for _, node_data in compose_config["services"].items():
+        external_data = node_data.pop("external_node", None)
+        if external_data:
+            if external_data.get("role", "none").lower() == "dns":
+                gen_unbound_config(
+                    external_data.get("options", {}).get("zones", []),
+                    data["subnet"],
+                    base_dir,
+                )
+
     save_data(yaml, base_dir, "compose.yml", compose_config)
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
 

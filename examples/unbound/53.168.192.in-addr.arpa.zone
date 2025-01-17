@@ -1,0 +1,16 @@
+$TTL 3600
+$ORIGIN 53.168.192.in-addr.arpa.
+;
+@     IN  SOA  unbound.ipa.test. hostmaster.unbound.ipa.test. (
+           2025010301  ; serial
+                10800  ; refresh (3 hours)
+                   90  ; retry (15 min)
+               604800  ; expire (1 week)
+                86400  ; minimum (1 day)
+     )
+     IN  NS  unbound.ipa.test.     86400
+;
+2    IN  PTR  server.ipa.test.
+3    IN  PTR  replica.ipa.test.
+4    IN  PTR  client.ipa.test.
+254  IN  PTR  unbound.ipa.test.

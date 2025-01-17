@@ -1,0 +1,16 @@
+$TTL 3600
+$ORIGIN ipa.test.
+;
+@     IN  SOA  unbound.ipa.test. hostmaster.unbound.ipa.test. (
+           2025010301  ; serial
+                10800  ; refresh (3 hours)
+                   90  ; retry (15 min)
+               604800  ; expire (1 week)
+                86400  ; minimum (1 day)
+     )
+     IN  NS  unbound.ipa.test.     86400
+;
+server      IN  A     192.168.53.2     ;
+replica     IN  A     192.168.53.3     ;
+client      IN  A     192.168.53.4     ;
+unbound     IN  A     192.168.53.254   ;
