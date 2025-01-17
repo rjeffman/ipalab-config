@@ -49,13 +49,16 @@ def _then_file_contents(context, filename):
             call.args[1].startswith("w") and not call.args[0].endswith(".yml")
         ):
             try:
-                observed = next(write_calls)[0]  # skip a write call
+                observed = "".join(next(write_calls)[0])  # file data
             except StopIteration:
                 raise AssertionError("Not enough writes to files") from None
             if call.args[0] == filename:
                 assert (
-                    re.match(re.compile(context.text), observed[0]) is not None
-                ), f"Expected:\n{context.text}\nObserved:\n{observed[0]}\n"
+                    re.match(re.compile(context.text), observed) is not None
+                ), f"Expected:\n{context.text}\nObserved:\n{observed}\n"
+                break
+    else:
+        raise AssertionError("File not written.")
 
 
 @then("the {filename} file is")  # pylint: disable=E1102
