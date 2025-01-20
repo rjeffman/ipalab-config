@@ -28,7 +28,7 @@ def get_node_base_config(name, hostname, networkname, ipaddr, node_distro):
         "systemd": True,
         "no_hosts": True,
         "restart": "never",
-        "cap_add": ["SYS_ADMIN"],
+        "cap_add": ["SYS_ADMIN", "DAC_READ_SEARCH"],
         "security_opt": ["label:disable"],
         "hostname": hostname,
         "networks": {networkname: {"ipv4_address": str(ipaddr)}},
