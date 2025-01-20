@@ -32,6 +32,7 @@ Scenario: Use an external network
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: server.ipa.test

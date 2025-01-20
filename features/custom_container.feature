@@ -38,6 +38,7 @@ Scenario: Deploy server with custom containerfile
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: server.ipa.test
@@ -86,6 +87,7 @@ Scenario: Pass container file through the command line
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: server.ipa.test
