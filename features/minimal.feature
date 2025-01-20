@@ -37,6 +37,7 @@ Scenario: Minimal single server
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: server.ipa.test
@@ -110,6 +111,7 @@ Scenario: Minimum IPA cluster
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: server.ipa.test
@@ -127,6 +129,7 @@ Scenario: Minimum IPA cluster
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: replica.ipa.test
@@ -144,6 +147,7 @@ Scenario: Minimum IPA cluster
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: client.ipa.test
@@ -248,6 +252,7 @@ Scenario: FQDN containers and replica capapabilities
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: server.ipa.test
@@ -265,6 +270,7 @@ Scenario: FQDN containers and replica capapabilities
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: replica.ipa.test
@@ -282,6 +288,7 @@ Scenario: FQDN containers and replica capapabilities
             restart: never
             cap_add:
             - SYS_ADMIN
+            - DAC_READ_SEARCH
             security_opt:
             - label:disable
             hostname: client.ipa.test

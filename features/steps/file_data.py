@@ -30,7 +30,7 @@ def deep_diff(a, b, ignore=None, level=""):
                 a[key], b[key], ignore, f"{level}.{key}" if level else key
             )
     elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
-        assert len(a) == len(b), f"List sizes mismatch ({level})."
+        assert len(a) == len(b), f"List sizes mismatch ({level})\n{a}\n{b}"
         for index, (a_v, b_v) in enumerate(zip(a, b)):
             deep_diff(a_v, b_v, f"{level}.{index}")
     else:
