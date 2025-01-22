@@ -9,6 +9,8 @@ dnf --assumeyes install \
     bash \
     systemd \
     procps-ng \
+    iputils \
+    bind-utils \
     iproute; \
 rm -rf /var/cache/dnf/;
 

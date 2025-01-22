@@ -10,6 +10,8 @@ dnf --assumeyes install \
     systemd \
     procps-ng \
     iproute \
+    iputils \
+    bind-utils \
     hostname; \
 rm -rf /var/cache/dnf/;
 
