@@ -89,7 +89,8 @@ The configuration file is a YAML file with attributes used to set both the compo
 | `containerfiles` | A list of file relative or absolute paths to container files. | no | - |
 | `container_fqdn` | Convert container names to FQDN using deployment domain name. | no | false |
 | `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
-| `external` | A list of nodes external to the FReeIPA deployment. | no | - |
+| `external` | A list of nodes external to the FreeIPA deployment. | no | - |
+| `extra_data` | A list of files and folders to copy into the generated target directory. | no | - |
 
 **ipa_deployments**
 
@@ -226,6 +227,15 @@ If pass a directory as argument to `-p` the directory will be searched recursive
 
 Note that the `playbooks` directory is flat, so if your files share the same file name, the last file will overwrite the other files with the same name.
 
+If more complex structure of `playbooks` directory is needed, one can use global `extra_data` option in the cluster definition to copy that:
+
+```yaml
+lab_name: somelab
+extra_data:
+  - playbooks
+```
+
+The target directory then will contain `somelab/playbooks` as a copy of the `playbooks` folder of the source directory.
 
 Contributing
 ------------

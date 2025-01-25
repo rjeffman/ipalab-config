@@ -192,6 +192,11 @@ def generate_ipalab_configuration():
 
     copy_extra_files(plays, os.path.join(base_dir, "playbooks"))
 
+    if "extra_data" in data:
+        cwd = os.getcwd()
+        for helper in data["extra_data"]:
+            copy_helper_files(base_dir, helper, source=cwd)
+
 
 def main():
     """Trap execution exceptions."""

@@ -53,13 +53,16 @@ def copy_extra_files(files, target_dir):
         shutil.copyfile(source, os.path.join(target_dir, filename))
 
 
-def copy_helper_files(base_dir, directory):
+def copy_helper_files(base_dir, directory, source=None):
     """Copy directory helper files to target directory"""
     target_dir = os.path.join(base_dir, directory)
     os.makedirs(target_dir, exist_ok=True)
-    origin = os.path.join(
-        importlib.resources.files("ipalab_config"), "data", directory
-    )
+
+    if source is None:
+        source = os.path.join(
+            importlib.resources.files("ipalab_config"), "data"
+        )
+    origin = os.path.join(source, directory)
     shutil.copytree(origin, target_dir, dirs_exist_ok=True)
 
 
