@@ -35,6 +35,10 @@ dev = [
     "behave>=1.2.7dev6"
 ]
 
+release = [
+    "build"
+]
+
 [tool.setuptools]
 packages = ["ipalab_config"]
 
