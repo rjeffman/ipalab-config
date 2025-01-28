@@ -11,6 +11,7 @@ from ipalab_config.utils import (
     copy_extra_files,
     copy_helper_files,
     save_file,
+    get_service_ip_address,
 )
 from ipalab_config.compose import gen_compose_data
 from ipalab_config.inventory import gen_inventory_data
@@ -86,6 +87,105 @@ def save_data(yaml, base_dir, filename, yamldata):
         yaml.dump(yamldata, out)
 
 
+def gen_external_node_configuration(lab_config, base_dir, compose_config):
+    """Generate configuration for external nodes"""
+    for _, node_data in compose_config["services"].items():
+        external_data = node_data.pop("external_node", None)
+        if external_data:
+            role = external_data.get("role", "none").lower()
+            options = external_data.get("options", {})
+            # update dns on nodes
+            if "dns" in node_data:
+                dns = node_data["dns"]
+                if dns in lab_config["nodes"]:
+                    dns = lab_config["nodes"][dns]
+                elif dns in compose_config["services"]:
+                    dns = get_service_ip_address(
+                        compose_config["services"][dns]
+                    )
+                node_data["dns"] = dns
+                if not node_data.get("dns_search"):
+                    node_data.pop("dns_search", None)
+            else:
+                node_data.pop("dns_search", None)
+            # update roles
+            if role == "dns":
+                gen_unbound_config(options, lab_config["subnet"], base_dir)
+
+
+def gen_optional_files(lab_config, base_dir, yaml):
+    """Save optional 'misc' files."""
+    # save /etc/hosts file patch
+    save_file(
+        base_dir,
+        "hosts",
+        f"\n# ipalab-config hosts for '{lab_config['lab_name']}'\n"
+        + "\n".join(
+            [
+                f"{v:18s}{k.replace('_', '.')}"
+                for k, v in lab_config.get("nodes", {}).items()
+            ]
+        ),
+    )
+
+    # add Ansible Galaxy requirements.yml
+    save_data(
+        yaml,
+        base_dir,
+        "requirements.yml",
+        {
+            "collections": [
+                {"name": "containers.podman"},
+                {"name": "freeipa.ansible_freeipa"},
+            ]
+        },
+    )
+
+
+def save_containers_data(lab_config, base_dir, args):
+    """Copy containerfiles to result directory."""
+    copy_helper_files(base_dir, "containerfiles")
+
+    containerfiles = [
+        (
+            os.path.realpath(
+                os.path.join(
+                    os.path.dirname(os.path.realpath(args.CONFIG)),
+                    containerfile,
+                )
+            )
+            if not containerfile.startswith("/")
+            else containerfile
+        )
+        for containerfile in lab_config.get("containerfiles", [])
+    ]
+    copy_extra_files(
+        containerfiles + args.RECIPES,
+        os.path.join(base_dir, "containerfiles"),
+    )
+
+
+def save_ansible_data(_lab_config, base_dir, args):
+    """Copy Ansible playbooks to result directory."""
+    copy_helper_files(base_dir, "playbooks")
+
+    plays = []
+    for play in args.PLAYBOOKS:
+        if os.path.isfile(play):
+            plays.append(play)
+        if os.path.isdir(play):
+            plays.extend(
+                [
+                    os.path.join(dirname, name)
+                    for dirname, _, filenames in os.walk(play)
+                    for name in filenames
+                    if name.endswith(".yml") or name.endswith(".yaml")
+                ]
+            )
+
+    copy_extra_files(plays, os.path.join(base_dir, "playbooks"))
+
+
 def generate_ipalab_configuration():
     """Generate compose and inventory."""
     args = parse_arguments()
@@ -114,84 +214,16 @@ def generate_ipalab_configuration():
     # save configuration
     os.makedirs(base_dir, exist_ok=True)
 
-    # generate config for external nodes
-    for _, node_data in compose_config["services"].items():
-        external_data = node_data.pop("external_node", None)
-        if external_data:
-            if external_data.get("role", "none").lower() == "dns":
-                gen_unbound_config(
-                    external_data.get("options", {}).get("zones", []),
-                    data["subnet"],
-                    base_dir,
-                )
+    gen_external_node_configuration(data, base_dir, compose_config)
 
     save_data(yaml, base_dir, "compose.yml", compose_config)
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
 
-    # save /etc/hosts file patch
-    save_file(
-        base_dir,
-        "hosts",
-        f"\n# ipalab-config hosts for '{labname}'\n"
-        + "\n".join(
-            [
-                f"{v:18s}{k.replace('_', '.')}"
-                for k, v in data.get("nodes", {}).items()
-            ]
-        ),
-    )
+    save_containers_data(data, base_dir, args)
+    save_ansible_data(data, base_dir, args)
+    gen_optional_files(data, base_dir, yaml)
 
-    # add Ansible Galaxy requirements.yml
-    save_data(
-        yaml,
-        base_dir,
-        "requirements.yml",
-        {
-            "collections": [
-                {"name": "containers.podman"},
-                {"name": "freeipa.ansible_freeipa"},
-            ]
-        },
-    )
-
-    for helper in ["containerfiles", "playbooks"]:
-        copy_helper_files(base_dir, helper)
-
-    # Copy containerfiles to result directory
-    containerfiles = [
-        (
-            os.path.realpath(
-                os.path.join(
-                    os.path.dirname(os.path.realpath(args.CONFIG)),
-                    containerfile,
-                )
-            )
-            if not containerfile.startswith("/")
-            else containerfile
-        )
-        for containerfile in data.get("containerfiles", [])
-    ]
-    copy_extra_files(
-        containerfiles + args.RECIPES,
-        os.path.join(base_dir, "containerfiles"),
-    )
-
-    plays = []
-    for play in args.PLAYBOOKS:
-        if os.path.isfile(play):
-            plays.append(play)
-        if os.path.isdir(play):
-            plays.extend(
-                [
-                    os.path.join(dirname, name)
-                    for dirname, _, filenames in os.walk(play)
-                    for name in filenames
-                    if name.endswith(".yml") or name.endswith(".yaml")
-                ]
-            )
-
-    copy_extra_files(plays, os.path.join(base_dir, "playbooks"))
-
+    # process user extra_data
     if "extra_data" in data:
         cwd = os.getcwd()
         for helper in data["extra_data"]:
@@ -202,7 +234,7 @@ def main():
     """Trap execution exceptions."""
     try:
         generate_ipalab_configuration()
-    except (ValueError, FileNotFoundError) as err:  # pragma: no cover
+    except (ValueError, FileNotFoundError) as err:  # pragma: no cover\
         return die(str(err))
     return 0
 

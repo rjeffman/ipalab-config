@@ -7,7 +7,7 @@ import textwrap
 from ipalab_config.utils import copy_helper_files, copy_extra_files, save_file
 
 
-def gen_unbound_config(zones, subnet, base_dir):
+def gen_unbound_config(options, subnet, base_dir):
     """Generate configuration for external DNS container."""
     domains = []
     networks = [ipaddress.IPv4Interface(subnet).network]
@@ -26,7 +26,7 @@ def gen_unbound_config(zones, subnet, base_dir):
     copy_helper_files(base_dir, "unbound")
 
     zone_data = []
-    for zone in zones:
+    for zone in options.get("zones", []):
         filename = zone["file"]
         zone_files.append(filename)
         if "name" in zone:

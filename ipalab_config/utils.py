@@ -45,6 +45,11 @@ def get_ip_address_generator(for_cidr=None):
     return generator
 
 
+def get_service_ip_address(service):
+    """Return the compose service IP address."""
+    return service["networks"]["ipanet"]["ipv4_address"]
+
+
 def copy_extra_files(files, target_dir):
     """Copy files to the target directory."""
     os.makedirs(target_dir, exist_ok=True)
