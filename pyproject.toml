@@ -48,6 +48,7 @@ ipalab_config = [
     "data/playbooks/*.yml",
     "data/containerfiles/system-service/*",
     "data/unbound/*",
+    "data/samba-addc/*",
 ]
 
 [tool.setuptools.dynamic]
@@ -63,6 +64,13 @@ max-line-length = 80
 disable = [
     "too-many-locals",
 ]
+
+[tool.pylint.similarities]
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = true
+ignore-signatures = true
+min-similarity-lines = 4
 
 [tool.behave]
 show_multiline = false
