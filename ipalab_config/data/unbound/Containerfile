@@ -17,7 +17,7 @@ RUN chmod -R a+r /etc/unbound/root.hints
 
 COPY unbound.conf /etc/unbound/unbound.conf
 COPY zones.conf /etc/unbound/zones.conf
-COPY zones/ /etc/unbound/
+COPY zones/ /etc/unbound/zones/
 COPY domains /etc/unbound/domains
 COPY access_control /etc/unbound/access_control
 RUN chmod -R a+r /etc/unbound
