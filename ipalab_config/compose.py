@@ -247,7 +247,5 @@ def gen_compose_data(lab_config):
     config["services"].update(
         get_ipa_deployments_configuration(lab_config, networkname, ip_generator)
     )
-    # Update configuration with the deployment nameservers - RAFASGJ
-    # lab_config["deployment_nameservers"] = [
 
     return config
