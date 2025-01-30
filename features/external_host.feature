@@ -79,6 +79,8 @@ Scenario: External DNS
               dockerfile: Containerfile
             dns: 192.168.53.254
             dns_search: ipa.test
+            volumes:
+            - ${PWD}/unbound:/etc/unbound:Z
         """
       And the ipa-lab/inventory.yml file is
         """

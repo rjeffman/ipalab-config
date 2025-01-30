@@ -191,6 +191,9 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
         "dns": {
             "image": "localhost/unbound",
             "build": {"context": "unbound", "dockerfile": "Containerfile"},
+            "volumes": [
+                "${PWD}/unbound:/etc/unbound:Z",
+            ],
         },
     }
     Network = namedtuple("Network", ["domain", "name", "dns"])
