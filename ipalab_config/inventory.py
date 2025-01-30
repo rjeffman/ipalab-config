@@ -39,7 +39,7 @@ def get_server_inventory(config, default_config, deployment):
             "ipaserver_no_host_dns": True,
         }
     )
-    options.update(config.get("vars", {}))
+    options.update(dict(config.get("vars", {})))
     return {name: options}
 
 
@@ -81,7 +81,7 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
         options = {"ipareplica_hostname": hostname, **common}
         for cap in replica.get("capabilities", []):
             options.update(cap_opts.get(cap, {}))
-        options.update(replica.get("vars", {}))
+        options.update(dict(replica.get("vars", {})))
         replicas[name] = options
     return result
 
@@ -106,7 +106,7 @@ def get_clients_inventory(config, default_config, deployment):
         name = get_node_name(client["name"], deployment)
         hostname = get_hostname(client, name, deployment["domain"])
         clients[name] = {"ipaclient_hostname": hostname, **common}
-        clients[name].update(client.get("vars", {}))
+        clients[name].update(dict(client.get("vars", {})))
     return result
 
 
@@ -124,7 +124,8 @@ def gen_inventory_external_nodes(lab_config, lab):
         group = groups.setdefault(
             f"role_{node.get("role", "none")}", {"hosts": {}}
         )
-        group["hosts"][node["name"]] = node.get("vars", None)
+        variables = node.get("vars", {})
+        group["hosts"][node["name"]] = dict(variables) if variables else None
 
 
 def gen_inventory_ipa_deployments(lab_config, lab):
