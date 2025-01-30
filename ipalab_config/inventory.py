@@ -113,17 +113,18 @@ def get_clients_inventory(config, default_config, deployment):
 def gen_inventory_external_nodes(lab_config, lab):
     """Create inventory configuration for IPA external nodes."""
     external = lab_config.get("external", {})
-    if external:
-        lab.setdefault(
-            "children",
-            {
-                "external": {
-                    "hosts": {
-                        node["name"]: None for node in external.get("hosts", [])
-                    }
-                }
-            },
+    if not external.get("hosts"):
+        return
+    children = lab.setdefault("children", {})
+    external_inv = children.setdefault("external", {})
+    if "vars" in external:
+        external_inv["vars"] = external["vars"]
+    groups = external_inv.setdefault("children", {})
+    for node in external["hosts"]:
+        group = groups.setdefault(
+            f"role_{node.get("role", "none")}", {"hosts": {}}
         )
+        group["hosts"][node["name"]] = node.get("vars", None)
 
 
 def gen_inventory_ipa_deployments(lab_config, lab):

@@ -87,8 +87,10 @@ Scenario: External DNS
             ansible_connection: podman
           children:
             external:
-              hosts:
-                nameserver:
+              children:
+                role_dns:
+                  hosts:
+                    nameserver:
             external_dns:
               children:
                 ipaserver:
