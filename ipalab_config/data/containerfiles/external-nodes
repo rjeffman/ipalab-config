@@ -1,0 +1,11 @@
+ARG base_image="fedora:latest"
+
+FROM ${base_image}
+
+ARG packages
+
+RUN dnf update -y
+RUN dnf -y install python3 iproute hostname ${packages}
+RUN dnf clean all
+
+STOPSIGNAL RTMIN+3

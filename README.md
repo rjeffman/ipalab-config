@@ -173,7 +173,34 @@ These are nodes that are not part of the FreeIPA deployment, and may or may not 
 | `role`     | A specific role that will add pre-defined configuration to the node and the environment. Any `role` configuration will overwrite other options. | no | - |
 | `options`  | A dictionary of configurations specific to the available roles. | no | - |
 
-Currently there's only one `role` defined:
+**External Roles**
+
+_Role `addc`_
+
+The node with `role: addc` provides a Samba AD DC server that can be used as a Samab AD DC or to simulate, with the expected limitation, a Windows Active Directory Server. The node is provided with a very basic image, and the Samba AD DC deployment can be performed with the provided Ansible playbook `deploy_addc.yml`.
+
+The available `vars` that can be used to customize the node through the inventory file are:
+
+| Name   | Description       |  Default |
+| :----- | :---------------- | :------- |
+| `forwarder` | Should always de set to one of the available nameservers (Unbound or IPA). | - |
+| `admin_pass` | The "Administrator" password. | Secret123 |
+| `krb5_pass` | Samba KRB5 password. | _same as `admin_pass`_ |
+| `install_packages` | If the default package list for the role is to be installed. | true |
+
+Some other variables are inferred from the node configuration:
+
+* ad domain: Domain part of the host name
+* ad realm: `ad domain`, in uppercase.
+* netbios name: First group of the hostname, in uppercase.
+
+If using the default image configuration, to setup a trust from IPA side, use:
+
+```
+$ ipa dnsforward-zone <ad domain> --forwarder=<addc.ip_address>
+$ ipa trust-add <ad domain> --admin=Administrator --password <<< <admin_pass>
+```
+
 
 _Role `dns`_
 

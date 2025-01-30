@@ -195,6 +195,15 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
                 "${PWD}/unbound:/etc/unbound:Z",
             ],
         },
+        "addc": {
+            "image": "localhost/samba-addc",
+            "build": {
+                "context": "containerfiles",
+                "dockerfile": "external-nodes",
+                "args": {"packages": "systemd"},
+            },
+            "command": "/usr/sbin/init",
+        },
     }
     Network = namedtuple("Network", ["domain", "name", "dns"])
     container_fqdn = lab_config["container_fqdn"]

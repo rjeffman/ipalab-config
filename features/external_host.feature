@@ -138,3 +138,89 @@ Scenario: External DNS
         """
       And the "ipa-lab/unbound" directory was copied
       And the file "unbound/ipa.test" was copied to "ipa-lab/unbound/zones/ipa.test"
+
+
+Scenario: Samba AD DC
+    Given the deployment configuration
+    """
+    lab_name: ipa-ad-trust
+    subnet: "192.168.13.0/24"
+    external:
+      hosts:
+      - name: addc
+        hostname: dc.ad.ipa.test
+        role: addc
+        ip_address: 192.168.13.250
+        options:
+          forwarder: server.linux.ipa.test
+          admin_pass: SomeADp4ass
+          krb5_pass: SomeKRB5pass
+    ipa_deployments:
+      - name: ipa
+        domain: linux.ipa.test
+        admin_password: SomeADMINpassword
+        dm_password: SomeDMpassword
+        cluster:
+          servers:
+            - name: server
+              capabilities: ["DNS", "AD"]
+              vars:
+                ipaserver_netbios_name: IPA
+                ipaserver_idstart: 60000
+                ipaserver_idmax: 62000
+                ipaserver_rid_base: 63000
+                ipaserver_secondary_rid_base: 70000
+    """
+      When I run ipalab-config
+      Then the ipa-ad-trust/compose.yml file is
+        """
+        name: ipa-ad-trust
+        services:
+          addc:
+            container_name: addc
+            systemd: true
+            no_hosts: true
+            restart: never
+            cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+            security_opt:
+            - label:disable
+            hostname: dc.ad.ipa.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.13.250
+            image: localhost/samba-addc
+            build:
+              context: containerfiles
+              dockerfile: external-nodes
+              args:
+                packages: systemd
+            command: /usr/sbin/init
+          server:
+            container_name: server
+            systemd: true
+            no_hosts: true
+            restart: never
+            cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+            security_opt:
+            - label:disable
+            hostname: server.linux.ipa.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.13.2
+            image: localhost/fedora-latest
+            build:
+              context: containerfiles
+              dockerfile: fedora-latest
+        networks:
+          ipanet:
+            name: ipanet-ipa-ad-trust
+            driver: bridge
+            ipam:
+              config:
+              - subnet: 192.168.13.0/24
+        """
+      And the file "samba-addc/deploy_addc.yml" was copied to "ipa-ad-trust/playbooks/deploy_addc.yml"
