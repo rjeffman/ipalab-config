@@ -58,6 +58,20 @@ def copy_extra_files(files, target_dir):
         shutil.copyfile(source, os.path.join(target_dir, filename))
 
 
+def copy_resource_files(files, target_dir):
+    """Copy ipalab-config resource files to target directory."""
+    os.makedirs(target_dir, exist_ok=True)
+    if not isinstance(files, (list, tuple)):
+        files = [files]
+    for source in files:
+        filename = os.path.join(
+            importlib.resources.files("ipalab_config"), "data", source
+        )
+        shutil.copyfile(
+            filename, os.path.join(target_dir, os.path.basename(filename))
+        )
+
+
 def copy_helper_files(base_dir, directory, source=None):
     """Copy directory helper files to target directory"""
     target_dir = os.path.join(base_dir, directory)
