@@ -17,6 +17,7 @@ from ipalab_config.utils import (
 from ipalab_config.compose import gen_compose_data
 from ipalab_config.inventory import gen_inventory_data
 from ipalab_config.unbound import gen_unbound_config
+from ipalab_config.addc import gen_addc_config
 
 
 def parse_arguments():
@@ -116,6 +117,7 @@ def gen_external_node_configuration(lab_config, base_dir, compose_config):
             # update roles
             roles = {
                 "dns": gen_unbound_config,
+                "addc": gen_addc_config,
             }
             config_fn = roles.get(role)
             if config_fn:

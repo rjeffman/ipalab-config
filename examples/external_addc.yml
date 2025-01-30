@@ -1,0 +1,46 @@
+# IPA trust to Samba AD DC.
+#
+# Steps to set trust on 'server':
+#   # kinit admin <<< SomeADMINpassword
+#   # ipa dnsforwardzone-add ad.ipa.test. --forwarder=192.168.13.250
+#   # ipa trust-add ad.ipa.test --type ad --range-type ipa-ad-trust --two-way true --admin=Administrator --password <<< Secret123
+#
+# Create samba user on 'addc':
+#   # samba-tool user create jdoe --given-name John --surname Doe
+#
+# Checking user on IPA server:
+#
+#  # getent passwd jdoe@AD.IPA.TEST
+#  # kinit jdoe@AD.IPA.TEST
+#
+---
+lab_name: ipa-ad-trust
+subnet: "192.168.13.0/24"
+external:
+  hosts:
+  - name: addc
+    hostname: dc.ad.ipa.test
+    role: addc
+    ip_address: 192.168.13.250
+    vars:
+      # 'forwarder' should always be set to the FQDN or IP address
+      # of the nameserver that resolves IPA deployment records.
+      forwarder: server.linux.ipa.test
+      # 'admin_pass': Administrator password, defaults to 'Secret123'
+      # 'krb5_pass': Samba KRB5 password, defaults to 'admin_realm'
+      # 'install_packages': If default package list is to be installed
+ipa_deployments:
+  - name: ipa
+    domain: linux.ipa.test
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities: ["DNS", "AD"]
+          vars:
+            ipaserver_netbios_name: IPA
+            ipaserver_idstart: 60000
+            ipaserver_idmax: 62000
+            ipaserver_rid_base: 63000
+            ipaserver_secondary_rid_base: 70000
