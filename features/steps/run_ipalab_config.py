@@ -71,5 +71,8 @@ def _then_an_error_msg(context, exception, msg):
         getattr(context, "exception", None) is not None
     ), "No exception occurred"
     exception_class = getattr(sys.modules["builtins"], exception, None)
-    assert isinstance(context.exception, exception_class)
+    assert isinstance(context.exception, exception_class), (
+        "Excepiton: Expected: "
+        f"{str(exception_class)} / {type(context.exception)}"
+    )
     assert re.match(re.compile(msg), str(context.exception))
