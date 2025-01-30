@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import sys
 
 from ruamel.yaml import YAML
 
@@ -76,7 +77,11 @@ def parse_arguments():
             "'fedora-latest'."
         ),
     )
-
+    opt_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Run ipalab-config in debug mode.",
+    )
     return opt_parser.parse_args()
 
 
@@ -234,9 +239,12 @@ def generate_ipalab_configuration():
 
 def main():
     """Trap execution exceptions."""
+    debug = "--debug" in sys.argv
     try:
         generate_ipalab_configuration()
-    except (ValueError, FileNotFoundError) as err:  # pragma: no cover\
+    except (ValueError, FileNotFoundError) as err:  # pragma: no cover
+        if debug:
+            raise err from None
         return die(str(err))
     return 0
 
