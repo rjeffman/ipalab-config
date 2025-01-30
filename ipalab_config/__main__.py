@@ -114,8 +114,14 @@ def gen_external_node_configuration(lab_config, base_dir, compose_config):
             else:
                 node_data.pop("dns_search", None)
             # update roles
-            if role == "dns":
-                gen_unbound_config(options, lab_config["subnet"], base_dir)
+            roles = {
+                "dns": gen_unbound_config,
+            }
+            config_fn = roles.get(role)
+            if config_fn:
+                config_fn(lab_config, base_dir, node_data, options)
+            else:
+                raise ValueError(f"Invalid role: '{role}'")
 
 
 def gen_optional_files(lab_config, base_dir, yaml):
