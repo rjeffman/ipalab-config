@@ -190,6 +190,8 @@ def generate_ipalab_configuration():
     """Generate compose and inventory."""
     args = parse_arguments()
     yaml = YAML()
+    yaml.explicit_start = True
+    yaml.indent(mapping=2, sequence=4, offset=2)
 
     # pylint: disable=unspecified-encoding
     with open(args.CONFIG, "r") as config_file:
