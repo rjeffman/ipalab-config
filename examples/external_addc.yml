@@ -25,7 +25,7 @@ external:
     vars:
       # 'forwarder' should always be set to the FQDN or IP address
       # of the nameserver that resolves IPA deployment records.
-      forwarder: server.linux.ipa.test
+      forwarder: 192.168.100.250
       # 'admin_pass': Administrator password, defaults to 'Secret123'
       # 'krb5_pass': Samba KRB5 password, defaults to 'admin_realm'
       # 'install_packages': If default package list is to be installed
@@ -37,6 +37,7 @@ ipa_deployments:
     cluster:
       servers:
         - name: server
+          ip_address: 192.168.13.100
           capabilities: ["DNS", "AD"]
           vars:
             ipaserver_netbios_name: IPA
