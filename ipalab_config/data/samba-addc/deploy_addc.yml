@@ -32,7 +32,7 @@
 
   - name: Set argument addc_ip_address
     ansible.builtin.set_fact:
-      addc_ip_address: "{{ admin_pass | default(ansible_all_ipv4_addresses[0]) }}"
+      addc_ip_address: "{{ ip_address | default(ansible_all_ipv4_addresses[0]) }}"
 
   - name: Set argument addc_admin_pass
     ansible.builtin.set_fact:
