@@ -46,6 +46,10 @@
     ansible.builtin.set_fact:
       addc_install_packages: "{{ install_packages | default(true) | bool }}"
 
+  - name: Set argument addc_ptr_zone
+    ansible.builtin.set_fact:
+      addc_ptr_zone: "{{ '.'.join(addc_ip_address.split('.')[:-1][::-1]) }}.in-addr.arpa."
+
   - name: Display configuration
     debug:
       var: config
@@ -58,6 +62,8 @@
         addc_admin_pass: "{{ addc_admin_pass }}"
         addc_kbr5_pass: "{{ addc_kbr5_pass }}"
         addc_install_packages: "{{ addc_install_packages }}"
+        addc_ptr_zone: "{{ addc_ptr_zone }}"
+        addc_forwarder: "{{ addc_forwarder | default(omit) }}"
 
   - name: Disable systemd-resolved
     ansible.builtin.systemd_service:
@@ -144,3 +150,15 @@
       name: samba
       enabled: false
       state: started
+
+  - name: Configure Samba DNS
+    ansible.builtin.shell:
+      cmd: |
+        samba-tool dns add {{ addc_ip_address }} {{ addc_domain }} \
+            {{ addc_hostname.split('.')[0] }} A {{ addc_ip_address }} \
+            -U Administrator <<< {{ addc_admin_pass }}
+        samba-tool dns zonecreate {{ addc_ip_address }} {{ addc_ptr_zone }} \
+            -U Administrator <<< {{ addc_admin_pass }}
+        samba-tool dns add {{ addc_ip_address }} {{ addc_ptr_zone }} \
+            {{ addc_ip_address.split('.')[-1] }} PTR {{addc_hostname }}. \
+            -U Administrator <<< {{ addc_admin_pass }}
