@@ -177,13 +177,13 @@ These are nodes that are not part of the FreeIPA deployment, and may or may not 
 
 _Role `addc`_
 
-The node with `role: addc` provides a Samba AD DC server that can be used as a Samab AD DC or to simulate, with the expected limitation, a Windows Active Directory Server. The node is provided with a very basic image, and the Samba AD DC deployment can be performed with the provided Ansible playbook `deploy_addc.yml`.
+The node with `role: addc` provides a Samba AD DC server that can be used as a Samba AD DC or to simulate, with the expected limitation, a Windows Active Directory Server. The node is provided with a very basic image, and the Samba AD DC deployment can be performed with the provided Ansible playbook `deploy_addc.yml`.
 
 The available `vars` that can be used to customize the node through the inventory file are:
 
 | Name   | Description       |  Default |
 | :----- | :---------------- | :------- |
-| `forwarder` | Should always de set to one of the available nameservers (Unbound or IPA). | - |
+| `forwarder` | Should always set to one of the available nameservers (Unbound or IPA). | - |
 | `admin_pass` | The "Administrator" password. | Secret123 |
 | `krb5_pass` | Samba KRB5 password. | _same as `admin_pass`_ |
 | `install_packages` | If the default package list for the role is to be installed. | true |
@@ -240,7 +240,7 @@ In the output directory the following files and directories are present:
 | compose.yml | The compose file to use with `podman-compose` |
 | inventory.yml | An Ansible inventory file for the cluster with ansible-freeipa variables |
 | hosts | A list with ip-hostnames pairs no be added to the host `/etc/hosts` so the nodes are accessible by name |
-| requiremenst.yml | The Ansible collection requirements no deploy the cluster |
+| requirements.yml | The Ansible collection requirements no deploy the cluster |
 | containerfiles | A collection of containerfiles for some Linux images where FreeIPA server and/or client is known to work with this configuration |
 | playbooks | A directory where the 'install-cluster.yml' playbook and any additional playbook is stored |
 
