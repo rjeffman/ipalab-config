@@ -125,7 +125,7 @@ These are the available options to configure the first server and the replicas:
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
 | `memory`   | The maximum amount of memory to use defined as an integer number and a unit. The unit can be `b`, `k` or `kb`, `m` or `mb`, or `g` or `gb` (case insensitive). | no |
-| `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check (ansible-freeipa roles documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles] for valid values | no | - |
+| `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check [ansible-freeipa roles documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles) for valid values | no | - |
 
 
 The `clients` attribute is similar the the `servers` attribute, as it can be defined as a list of clients with its attributes, but it may also be defined with a dictionary containing:
@@ -133,7 +133,7 @@ The `clients` attribute is similar the the `servers` attribute, as it can be def
 | Name       | Description                  | Required | Default |
 | :--------- | :--------------------------- | :------: | :------ |
 | `hosts`    | The list of client nodes.    | no | - |
-| `vars` | _Dict_ of variables to use in the deployment of **all** clients. Check (ansible-freeipa ipaclient documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient] for valid values | no | - |
+| `vars` | _Dict_ of variables to use in the deployment of **all** clients. Check [ansible-freeipa ipaclient documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient) for valid values | no | - |
 
 
 To configure the clients, these are the available attributes:
@@ -145,7 +145,7 @@ To configure the clients, these are the available attributes:
 | `distro`   | The containerfile/image to use. | no | `fedora-latest` |
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
-| `vars` | _Dict_ of variables to use in the deployment of this client node. Check (ansible-freeipa ipaclient documentation)[https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient] for valid values | no | - |
+| `vars` | _Dict_ of variables to use in the deployment of this client node. Check [ansible-freeipa ipaclient documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient) for valid values | no | - |
 
 See the available [examples](examples).
 
@@ -267,7 +267,7 @@ The target directory then will contain `somelab/playbooks` as a copy of the `pla
 Contributing
 ------------
 
-Issue tracker and repository are hosted on [Github](http://github.com/rjeffman/ipalab-config).
+Issue tracker and repository are hosted on [Github](https://github.com/rjeffman/ipalab-config).
 
 Use them to report issues or propose changes.
 
