@@ -10,7 +10,7 @@ import importlib.resources
 
 def die(msg, err=1):  # pragma: no cover
     """Display message to stderr stream and exit program with error."""
-    print(msg, file=sys.stderr)
+    print("FATAL:", msg, file=sys.stderr)
     return err
 
 
