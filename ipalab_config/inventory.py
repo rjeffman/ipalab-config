@@ -161,7 +161,7 @@ def gen_inventory_ipa_deployments(lab_config, lab):
             )
             config["children"]["ipaserver"] = {"hosts": server}
             deployment["server"] = next(iter(server.values()))
-            if deployment["server"].get("ipaserver_setup_dns", True):
+            if deployment["server"].get("ipaserver_setup_dns", False):
                 default_config.update(
                     {
                         "ipaclient_cleanup_dns_resolver": True,
