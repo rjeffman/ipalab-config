@@ -245,6 +245,19 @@ In the output directory the following files and directories are present:
 | playbooks | A directory where the 'install-cluster.yml' playbook and any additional playbook is stored |
 
 
+**About the Ansible inventory file**
+
+The nodes in the inventory file are grouped in:
+
+* `external`: All the hosts external to IPA deployments
+* `ipaserver`: All the _first_ servers in each IPA deployment
+* `ipareplicas`: All but the _first_ server in each IPA deployment
+* `ipaclients`: All clients in IPA deployments
+* `<deployment name>`: All IPA nodes in the IPA deployment with `name: <deployment name>`
+
+To select a specific group of clients or server, one can use host filtering in an Ansible Playbook, for example, given two deployments `m1` and `m2`, with nodes with the same `name`, `server-1` and `server-2`, to select the `ipaserver` of deployment `m2` one could set `hosts: "ipasesrver:&m2"` on the playbook, and the playbook would only run on `server-1` of `m2`.
+
+
 Playbooks
 ---------
 

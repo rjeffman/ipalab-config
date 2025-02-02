@@ -88,24 +88,22 @@ Scenario: External DNS
           vars:
             ansible_connection: podman
           children:
-            external:
-              children:
-                role_dns:
-                  hosts:
-                    nameserver:
-            external_dns:
-              children:
-                ipaserver:
-                  hosts:
-                    server:
-                      ipaserver_hostname: server.ipa.test
-                      ipaadmin_password: SomeADMINpassword
-                      ipadm_password: SomeDMpassword
-                      ipaserver_domain: ipa.test
-                      ipaserver_realm: IPA.TEST
-                      ipaclient_no_ntp: false
-                      ipaserver_setup_firewalld: false
-                      ipaserver_no_host_dns: true
+            external: { hosts: { nameserver: } }
+            role_dns: { hosts: { nameserver: } }
+            ipa_deployments: { children: { external_dns: } }
+            external_dns: { hosts: { server: } }
+            ipaserver: { hosts: { server: } }
+          hosts:
+            nameserver:
+            server:
+              ipaserver_hostname: server.ipa.test
+              ipaadmin_password: SomeADMINpassword
+              ipadm_password: SomeDMpassword
+              ipaserver_domain: ipa.test
+              ipaserver_realm: IPA.TEST
+              ipaclient_no_ntp: false
+              ipaserver_setup_firewalld: false
+              ipaserver_no_host_dns: true
         """
       And the ipa-lab/hosts file contains
         """

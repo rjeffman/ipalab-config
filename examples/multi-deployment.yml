@@ -8,7 +8,7 @@
 # hosts are in the range 192.168.X.10 to 192.168.X.254 (in this example, X=7).
 ---
 lab_name: multi-deployment
-container_fqdn: true  # required to have replicas with multiple deployment
+container_fqdn: true  # required with multiple IPA deployments
 subnet: "192.168.7.0/24"
 ipa_deployments:
   - name: origin

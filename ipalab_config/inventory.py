@@ -47,7 +47,7 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
     """Get inventory configuration for the ipaserver"""
     if not replicas_config:
         return {}
-    result = {}
+    replicas = {}
     cap_opts = {
         "DNS": {
             "ipareplica_setup_dns": True,
@@ -73,7 +73,6 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
     server = deployment.get("server")
     if server:
         common["ipareplica_servers"] = server["ipaserver_hostname"]
-    replicas = result.setdefault("hosts", {})
     domain = deployment["domain"]
     for replica in replicas_config:
         name = get_node_name(replica["name"], deployment)
@@ -83,12 +82,12 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
             options.update(cap_opts.get(cap, {}))
         options.update(dict(replica.get("vars", {})))
         replicas[name] = options
-    return result
+    return replicas
 
 
 def get_clients_inventory(config, default_config, deployment):
     """Get inventory configuration for the ipaserver"""
-    result = {}
+    clients = {}
     common = {**default_config}
     server = deployment.get("server")
     if server:
@@ -101,13 +100,12 @@ def get_clients_inventory(config, default_config, deployment):
         client_list = config
     if not client_list:
         return {}
-    clients = result.setdefault("hosts", {})
     for client in client_list or []:
         name = get_node_name(client["name"], deployment)
         hostname = get_hostname(client, name, deployment["domain"])
         clients[name] = {"ipaclient_hostname": hostname, **common}
         clients[name].update(dict(client.get("vars", {})))
-    return result
+    return clients
 
 
 def gen_inventory_external_nodes(lab_config, lab):
@@ -115,31 +113,57 @@ def gen_inventory_external_nodes(lab_config, lab):
     external = lab_config.get("external", {})
     if not external.get("hosts"):
         return
-    children = lab.setdefault("children", {})
-    external_inv = children.setdefault("external", {})
+    hosts = lab.setdefault("hosts", {})
+    external_inv = (
+        lab.setdefault("children", {})
+        .setdefault("external", {})
+        .setdefault("hosts", {})
+    )
     if "vars" in external:
         external_inv["vars"] = external["vars"]
-    groups = external_inv.setdefault("children", {})
     for node in external["hosts"]:
-        group = groups.setdefault(
+        group = lab.setdefault("children", {}).setdefault(
             f"role_{node.get("role", "none")}", {"hosts": {}}
         )
         variables = node.get("vars", {})
-        group["hosts"][node["name"]] = dict(variables) if variables else None
+        hosts[node["name"]] = dict(variables) if variables else None
+        group["hosts"].update({node["name"]: None})
+        external_inv.update({node["name"]: None})
 
 
 def gen_inventory_ipa_deployments(lab_config, lab):
     """Create inventory configuration for IPA deployments."""
-    lab_deployments = lab.setdefault("children", {})
+
+    def add_hosts_to_inventory(lab_name, lab, item, data):
+        # add to host list
+        hosts = lab.setdefault("hosts", {})
+        hosts.update(data)
+        # groups
+        lab_child = lab.setdefault("children", {})
+        # add to group list
+        group = lab_child.setdefault(item, {}).setdefault("hosts", {})
+        group.update({item: None for item in data})
+        # fmt: off
+        # add to deployment list
+        deployment_inv = (
+            lab_child.setdefault(lab_name, {}).setdefault("hosts", {})
+        )
+        # fmt: on
+        deployment_inv.update({item: None for item in data})
+
     ipa_deployments = lab_config.setdefault("ipa_deployments", [])
     deployment_dns = lab_config["deployment_nameservers"]
+    if len(ipa_deployments) > 1 and not lab_config["container_fqdn"]:
+        raise ValueError(
+            "With multiple IPA deployments, "
+            "'container_fqdn' must be set to 'true'."
+        )
     for deployment, nameservers in zip(ipa_deployments, deployment_dns):
         name = deployment["name"]
+        # process deployment
         domain = deployment.setdefault("domain", "ipa.local")
         deployment.setdefault("subnet", lab_config["subnet"])
         deployment.setdefault("container_fqdn", lab_config["container_fqdn"])
-        config = {"children": {}}
-        lab_deployments[name] = config
         default_config = {
             "ipaadmin_password": deployment.get(
                 "admin_password", "SomeADMINpassword"
@@ -159,7 +183,8 @@ def gen_inventory_ipa_deployments(lab_config, lab):
             server = get_server_inventory(
                 servers[0], default_config, deployment
             )
-            config["children"]["ipaserver"] = {"hosts": server}
+            add_hosts_to_inventory(name, lab, "ipaserver", server)
+            # set deployment first server
             deployment["server"] = next(iter(server.values()))
             if deployment["server"].get("ipaserver_setup_dns", False):
                 default_config.update(
@@ -176,7 +201,7 @@ def gen_inventory_ipa_deployments(lab_config, lab):
                 deployment,
             )
             if replicas:
-                config["children"]["ipareplicas"] = replicas
+                add_hosts_to_inventory(name, lab, "ipareplicas", replicas)
         # parse clients
         clients_config = cluster_config.get("clients")
         client_base_config = {
@@ -189,7 +214,7 @@ def gen_inventory_ipa_deployments(lab_config, lab):
             clients_config, client_base_config, deployment
         )
         if clients:
-            config["children"]["ipaclients"] = clients
+            add_hosts_to_inventory(name, lab, "ipaclients", clients)
     return ipa_deployments
 
 
@@ -200,7 +225,7 @@ def gen_inventory_data(lab_config):
     gen_inventory_external_nodes(lab_config, lab)
     gen_inventory_ipa_deployments(lab_config, lab)
     node_names = list(lab_config["ipa_deployments"])
-    node_names.extend(list(lab["children"].get("external", {}).keys()))
+    node_names.extend(list(lab.get("external", {}).keys()))
     if any(
         labname == deployment["name"]
         for deployment in lab_config["ipa_deployments"]
