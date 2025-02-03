@@ -215,6 +215,9 @@ def gen_inventory_ipa_deployments(lab_config, lab):
         )
         if clients:
             add_hosts_to_inventory(name, lab, "ipaclients", clients)
+        # add deployment to inventory
+        lab["children"].setdefault("ipa_deployments", {"children": {}})
+        lab["children"]["ipa_deployments"]["children"][name] = None
     return ipa_deployments
 
 
