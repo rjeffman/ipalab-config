@@ -244,19 +244,19 @@ def generate_ipalab_configuration():
     if "extra_data" in data:
         cwd = os.path.dirname(args.CONFIG)
         for helper in data["extra_data"]:
-            if os.path.isfile(helper):
+            if os.path.isabs(helper):
+                source = os.path.dirname(helper)
+                helper = os.path.basename(helper)
+            else:
+                source = cwd
+            if os.path.isfile(os.path.join(source, helper)):
                 copy_extra_files(
-                    [helper], os.path.join(base_dir, os.path.dirname(helper))
+                    [helper],
+                    os.path.join(base_dir, os.path.dirname(helper)),
+                    source=source,
                 )
             else:
-                if os.path.isabs(helper):
-                    copy_helper_files(
-                        base_dir,
-                        os.path.basename(helper),
-                        source=os.path.dirname(helper),
-                    )
-                else:
-                    copy_helper_files(base_dir, helper, source=cwd)
+                copy_helper_files(base_dir, helper, source=cwd)
 
 
 def main():

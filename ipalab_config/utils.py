@@ -50,12 +50,15 @@ def get_service_ip_address(service):
     return service["networks"]["ipanet"]["ipv4_address"]
 
 
-def copy_extra_files(files, target_dir):
+def copy_extra_files(files, target_dir, source=None):
     """Copy files to the target directory."""
     os.makedirs(target_dir, exist_ok=True)
-    for source in files:
-        filename = os.path.basename(source)
-        shutil.copyfile(source, os.path.join(target_dir, filename))
+    for arg in files:
+        filename = os.path.basename(arg)
+        shutil.copyfile(
+            os.path.join(source or "", arg),
+            os.path.join(target_dir, filename),
+        )
 
 
 def copy_resource_files(files, target_dir):
