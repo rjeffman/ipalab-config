@@ -25,6 +25,8 @@ def patched_execution(fn):
             patch("shutil.copyfile") as copy_file,
             patch("os.makedirs") as make_dirs,
             patch("ruamel.yaml.YAML.dump") as yaml_dump,
+            patch("os.path.isfile"),
+            patch("os.access"),
         ):
             context.patches = {
                 "open_file": open_file,

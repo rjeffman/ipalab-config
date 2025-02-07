@@ -207,6 +207,8 @@ def generate_ipalab_configuration():
     yaml.indent(mapping=2, sequence=4, offset=2)
 
     # pylint: disable=unspecified-encoding
+    if not (os.path.isfile(args.CONFIG) and os.access(args.CONFIG, os.R_OK)):
+        raise RuntimeError(f"Cannot read config file: {args.CONFIG}")
     with open(args.CONFIG, "r") as config_file:
         data = yaml.load(config_file.read())
 
@@ -257,7 +259,11 @@ def main():
     debug = "--debug" in sys.argv
     try:
         generate_ipalab_configuration()
-    except (ValueError, FileNotFoundError) as err:  # pragma: no cover
+    except (  # pragma: no cover
+        ValueError,
+        FileNotFoundError,
+        RuntimeError,
+    ) as err:
         if debug:
             raise err from None
         return die(str(err))
