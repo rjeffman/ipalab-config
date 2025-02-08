@@ -74,6 +74,14 @@ Deploy the cluster with:
 ansible-playbook -i inventory.yml playbooks/install-cluster.yml
 ```
 
+The contents of each container `/var/log` can be found in the `logs/<name>` directory, soexecution can be evaluated even if the containers are offline.
+
+To dispose the environment use:
+
+```
+podman-compose down
+```
+
 
 The configuration file
 ----------------------

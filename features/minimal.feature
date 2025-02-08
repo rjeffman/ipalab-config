@@ -48,6 +48,8 @@ Scenario: Minimal single server
             build:
               context: containerfiles
               dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/server:/var/log:rw
         """
       And the ipa-lab/inventory.yml file is
         """
@@ -122,6 +124,8 @@ Scenario: Minimum IPA cluster
             build:
               context: containerfiles
               dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/server:/var/log:rw
           replica:
             container_name: replica
             systemd: true
@@ -140,6 +144,8 @@ Scenario: Minimum IPA cluster
             build:
               context: containerfiles
               dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/replica:/var/log:rw
           client:
             container_name: client
             systemd: true
@@ -158,6 +164,8 @@ Scenario: Minimum IPA cluster
             build:
               context: containerfiles
               dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/client:/var/log:rw
         """
       And the ipa-lab/inventory.yml file is
         """
@@ -269,6 +277,8 @@ Scenario: FQDN containers and replica capapabilities
             build:
               context: containerfiles
               dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/server.ipa.test:/var/log:rw
           replica.ipa.test:
             container_name: replica.ipa.test
             systemd: true
@@ -287,6 +297,8 @@ Scenario: FQDN containers and replica capapabilities
             build:
               context: containerfiles
               dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/replica.ipa.test:/var/log:rw
           client.ipa.test:
             container_name: client.ipa.test
             systemd: true
@@ -305,6 +317,8 @@ Scenario: FQDN containers and replica capapabilities
             build:
               context: containerfiles
               dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/client.ipa.test:/var/log:rw
         """
       And the ipa-lab/inventory.yml file is
         """

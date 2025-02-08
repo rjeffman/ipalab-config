@@ -94,8 +94,12 @@ def get_compose_config(
             )
         config["dns_search"] = network.domain
 
-        if "volumes" in container:
-            config.update({"volumes": container["volumes"]})
+        if not container.get("nolog", False):
+            volumes = container.get("volumes", [])
+            if not isinstance(volumes, (list, tuple)):
+                volumes = [volumes]
+            volumes.extend([f"${{PWD}}/logs/{name}:/var/log:rw"])
+            config.update({"volumes": volumes})
 
         result[name] = config
     return nodes, result
@@ -236,7 +240,13 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
     for node in ext_nodes:
         role = node.get("role")
         if role and role in config:
+            volumes = config[role].pop("volumes", None)
             services[node["name"]].update(config[role])
+            # Merge volumes with user configuration
+            if volumes:
+                uservol = services[node["name"]].get("volumes", [])
+                uservol.extend(volumes)
+                services[node["name"]]["volumes"] = uservol
         services[node["name"]]["external_node"] = node
         if dns:
             service["dns"] = dns

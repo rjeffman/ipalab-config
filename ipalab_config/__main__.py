@@ -234,6 +234,10 @@ def generate_ipalab_configuration():
     gen_external_node_configuration(data, base_dir, compose_config)
 
     save_data(yaml, base_dir, "compose.yml", compose_config)
+    # create log directories
+    for node in compose_config["services"]:
+        os.makedirs(os.path.join(base_dir, "logs", node), exist_ok=True)
+
     save_data(yaml, base_dir, "inventory.yml", inventory_config)
 
     save_containers_data(data, base_dir, args)

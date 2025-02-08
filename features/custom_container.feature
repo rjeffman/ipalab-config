@@ -49,6 +49,8 @@ Scenario: Deploy server with custom containerfile
             build:
               context: containerfiles
               dockerfile: my-container
+            volumes:
+              - ${PWD}/logs/server:/var/log:rw
         """
     And the file "my-container" is copied to directory "custom_container/containerfiles"
 
@@ -98,5 +100,7 @@ Scenario: Pass container file through the command line
             build:
               context: containerfiles
               dockerfile: my-container
+            volumes:
+              - ${PWD}/logs/server:/var/log:rw
         """
     And the file "my-container" is copied to directory "custom_container/containerfiles"
