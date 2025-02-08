@@ -34,7 +34,7 @@ Scenario: Use an external network
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.ipa.test
             networks:
               external_network:

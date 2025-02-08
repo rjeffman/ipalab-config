@@ -29,7 +29,7 @@ def get_node_base_config(name, hostname, networkname, ipaddr, node_distro):
         "no_hosts": True,
         "restart": "never",
         "cap_add": ["SYS_ADMIN", "DAC_READ_SEARCH"],
-        "security_opt": ["label:disable"],
+        "security_opt": ["label=disable"],
         "hostname": hostname,
         "networks": {networkname: {"ipv4_address": str(ipaddr)}},
         "image": f"localhost/{node_distro}",
@@ -192,7 +192,7 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
             "image": "localhost/unbound",
             "build": {"context": "unbound", "dockerfile": "Containerfile"},
             "volumes": [
-                "${PWD}/unbound:/etc/unbound:Z",
+                "${PWD}/unbound:/etc/unbound:rw",
             ],
         },
         "addc": {
@@ -229,6 +229,8 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
             ip_address = service["networks"][networkname]["ipv4_address"]
             # Use ugly side effect
             dns = lab_config["dns"] = ip_address
+            # Use first nameserver as lab nameserver
+            break
 
     # Udate external nodes
     for node in ext_nodes:

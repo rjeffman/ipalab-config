@@ -39,7 +39,7 @@ Scenario: Minimal single server
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.ipa.test
             networks:
               ipanet:
@@ -113,7 +113,7 @@ Scenario: Minimum IPA cluster
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.ipa.test
             networks:
               ipanet:
@@ -131,7 +131,7 @@ Scenario: Minimum IPA cluster
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: replica.ipa.test
             networks:
               ipanet:
@@ -149,7 +149,7 @@ Scenario: Minimum IPA cluster
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: client.ipa.test
             networks:
               ipanet:
@@ -260,7 +260,7 @@ Scenario: FQDN containers and replica capapabilities
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.ipa.test
             networks:
               ipanet:
@@ -278,7 +278,7 @@ Scenario: FQDN containers and replica capapabilities
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: replica.ipa.test
             networks:
               ipanet:
@@ -296,7 +296,7 @@ Scenario: FQDN containers and replica capapabilities
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: client.ipa.test
             networks:
               ipanet:

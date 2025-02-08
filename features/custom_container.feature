@@ -40,7 +40,7 @@ Scenario: Deploy server with custom containerfile
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.ipa.test
             networks:
               ipanet:
@@ -89,7 +89,7 @@ Scenario: Pass container file through the command line
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.ipa.test
             networks:
               ipanet:

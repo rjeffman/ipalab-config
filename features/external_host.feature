@@ -48,7 +48,7 @@ Scenario: External DNS
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.ipa.test
             networks:
               external_dns:
@@ -68,7 +68,7 @@ Scenario: External DNS
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: unbound.ipa.test
             networks:
               external_dns:
@@ -80,7 +80,7 @@ Scenario: External DNS
             dns: 192.168.53.254
             dns_search: ipa.test
             volumes:
-            - ${PWD}/unbound:/etc/unbound:Z
+            - ${PWD}/unbound:/etc/unbound:rw
         """
       And the ipa-lab/inventory.yml file is
         """
@@ -183,7 +183,7 @@ Scenario: Samba AD DC
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: dc.ad.ipa.test
             networks:
               ipanet:
@@ -204,7 +204,7 @@ Scenario: Samba AD DC
             - SYS_ADMIN
             - DAC_READ_SEARCH
             security_opt:
-            - label:disable
+            - label=disable
             hostname: server.linux.ipa.test
             networks:
               ipanet:
