@@ -35,7 +35,7 @@ Scenario: Deploy server with custom containerfile
             container_name: server
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -86,7 +86,7 @@ Scenario: Pass container file through the command line
             container_name: server
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH

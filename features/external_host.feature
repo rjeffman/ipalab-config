@@ -43,7 +43,7 @@ Scenario: External DNS
             container_name: server
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -65,7 +65,7 @@ Scenario: External DNS
             container_name: nameserver
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -181,7 +181,7 @@ Scenario: Samba AD DC
             container_name: addc
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -204,7 +204,7 @@ Scenario: Samba AD DC
             container_name: server
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
