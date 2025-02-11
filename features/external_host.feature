@@ -229,3 +229,59 @@ Scenario: Samba AD DC
               - subnet: 192.168.13.0/24
         """
       And the file "samba-addc/deploy_addc.yml" was copied to "ipa-ad-trust/playbooks/deploy_addc.yml"
+
+Scenario: External node with custom security_opt
+    Given the deployment configuration
+    """
+    lab_name: ipa-ad-trust
+    subnet: "192.168.13.0/24"
+    external:
+      hosts:
+      - name: addc
+        security_opt:
+          - "no-new-privileges=false"
+        hostname: dc.ad.ipa.test
+        role: addc
+        ip_address: 192.168.13.250
+        options:
+          forwarder: server.linux.ipa.test
+          admin_pass: SomeADp4ass
+          krb5_pass: SomeKRB5pass
+    """
+      When I run ipalab-config
+      Then the ipa-ad-trust/compose.yml file is
+        """
+        name: ipa-ad-trust
+        services:
+          addc:
+            container_name: addc
+            systemd: true
+            no_hosts: true
+            restart: no
+            cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+            security_opt:
+            - label=disable
+            - "no-new-privileges=false"
+            hostname: dc.ad.ipa.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.13.250
+            image: localhost/samba-addc
+            build:
+              context: containerfiles
+              dockerfile: external-nodes
+              args:
+                packages: systemd
+            command: /usr/sbin/init
+            volumes:
+              - ${PWD}/logs/addc:/var/log:rw
+        networks:
+          ipanet:
+            name: ipanet-ipa-ad-trust
+            driver: bridge
+            ipam:
+              config:
+              - subnet: 192.168.13.0/24
+        """

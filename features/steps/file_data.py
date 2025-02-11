@@ -10,17 +10,9 @@ from behave import then
 
 def deep_diff(a, b, ignore=None, level=""):
     """Deep compare two dicts or ruamel.yaml data."""
-
-    def convert_ruamel_data(data):
-        if isinstance(data, CommentedMap):
-            return dict(data)
-        if isinstance(data, CommentedSeq):
-            return list(data)
-        return data
-
-    a = convert_ruamel_data(a)
-    b = convert_ruamel_data(b)
-    if isinstance(a, dict) and isinstance(b, dict):
+    dict_type = (dict, CommentedMap)
+    list_type = (list, tuple, CommentedSeq)
+    if isinstance(a, dict_type) and isinstance(b, dict_type):
         diff_keys = (set(a.keys()) ^ set(b.keys())) - set(ignore or [])
         assert (
             not diff_keys
@@ -29,10 +21,16 @@ def deep_diff(a, b, ignore=None, level=""):
             deep_diff(
                 a[key], b[key], ignore, f"{level}.{key}" if level else key
             )
-    elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
+    elif isinstance(a, list_type) and isinstance(b, list_type):
+        set_types = (dict, list, tuple, CommentedSeq, CommentedMap)
         assert len(a) == len(b), f"List sizes mismatch ({level})\n{a}\n{b}"
+        x = {i for i in a if not isinstance(i, set_types)}
+        y = {i for i in b if not isinstance(i, set_types)}
+        assert bool(x ^ y) is False, f"List itens mismatch: ({level})\n{a}\n{b}"
+        a = [i for i in a if isinstance(i, set_types)]
+        b = [i for i in b if isinstance(i, set_types)]
         for index, (a_v, b_v) in enumerate(zip(a, b)):
-            deep_diff(a_v, b_v, f"{level}.{index}")
+            deep_diff(a_v, b_v, ignore, f"{level}.{index}")
     else:
         assert isinstance(
             b, type(a)

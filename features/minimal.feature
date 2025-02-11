@@ -380,3 +380,52 @@ Scenario: FQDN containers and replica capapabilities
               ipaclient_dns_servers:
                 - 192.168.159.2
         """
+
+Scenario: IPA Server with custom security_opt
+    Given the deployment configuration
+    """
+    ipa_deployments:
+      - name: server_only
+        domain: ipa.test
+        admin_password: SomeADMINpassword
+        dm_password: SomeDMpassword
+        cluster:
+          servers:
+            - name: server
+              security_opt: ["no-new-privileges=false"]
+    """
+      When I run ipalab-config
+      Then the output directory name is "ipa-lab"
+      And the ipa-lab/compose.yml file is
+        """
+        name: ipa-lab
+        networks:
+          ipanet:
+            name: ipanet-ipa-lab
+            driver: bridge
+            ipam:
+              config:
+              - subnet: 192.168.159.0/24
+        services:
+          server:
+            container_name: server
+            systemd: true
+            no_hosts: true
+            restart: no
+            cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+            security_opt:
+            - label=disable
+            - no-new-privileges=false
+            hostname: server.ipa.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.159.2
+            image: localhost/fedora-latest
+            build:
+              context: containerfiles
+              dockerfile: fedora-latest
+            volumes:
+              - ${PWD}/logs/server:/var/log:rw
+        """

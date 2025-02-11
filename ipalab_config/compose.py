@@ -49,6 +49,22 @@ def get_container_name(name, domain, container_fqdn):
     return name
 
 
+def as_list(value):
+    """Ensure 'value' is a list."""
+    if isinstance(value, tuple):
+        return list(value)
+    if not isinstance(value, list):
+        return [value]
+    return value
+
+
+def extended_list(original, value):
+    """Extend the original list by adding 'value', which can be a list."""
+    modified = as_list(original or [])
+    modified.extend(as_list(value))
+    return list(set(modified))
+
+
 def get_compose_config(
     containers, network, distro, container_fqdn, ips=IP_GENERATOR
 ):
@@ -96,12 +112,19 @@ def get_compose_config(
             )
         config["dns_search"] = network.domain
 
+        for item in ["security_opt", "volumes"]:
+            value = container.get(item)
+            if value:
+                config[item] = extended_list(config.get(item), value)
         if not container.get("nolog", False):
-            volumes = container.get("volumes", [])
-            if not isinstance(volumes, (list, tuple)):
-                volumes = [volumes]
-            volumes.extend([f"${{PWD}}/logs/{name}:/var/log:rw"])
-            config.update({"volumes": volumes})
+            config.update(
+                {
+                    "volumes": extended_list(
+                        container.get("volumes"),
+                        f"${{PWD}}/logs/{name}:/var/log:rw",
+                    )
+                }
+            )
 
         result[name] = config
     return nodes, result
@@ -197,9 +220,7 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
         "dns": {
             "image": "localhost/unbound",
             "build": {"context": "unbound", "dockerfile": "Containerfile"},
-            "volumes": [
-                "${PWD}/unbound:/etc/unbound:rw",
-            ],
+            "volumes": ["${PWD}/unbound:/etc/unbound:rw"],
         },
         "addc": {
             "image": "localhost/samba-addc",
@@ -242,13 +263,27 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
     for node in ext_nodes:
         role = node.get("role")
         if role and role in config:
-            volumes = config[role].pop("volumes", None)
+            for item in ["security_opt"]:
+                value = config[role].pop(item, None)
+                if value:
+                    services[node["name"]][item] = extended_list(
+                        services[node["name"]].get(item), value
+                    )
+            # update volumes if "nolog" is not set
+            if not node.get("nolog", False):
+                value = config[role].pop("volumes", None)
+                value = extended_list(
+                    value, f"${{PWD}}/logs/{node['name']}:/var/log:rw"
+                )
+                print("VALUE:", value)
+                print("BEFORE:", services[node["name"]]["volumes"])
+                services[node["name"]]["volumes"] = extended_list(
+                    services[node["name"]].get("volumes"),
+                    value,
+                )
+                print("AFTER:", services[node["name"]]["volumes"])
+            # Update services configuration
             services[node["name"]].update(config[role])
-            # Merge volumes with user configuration
-            if volumes:
-                uservol = services[node["name"]].get("volumes", [])
-                uservol.extend(volumes)
-                services[node["name"]]["volumes"] = uservol
         services[node["name"]]["external_node"] = node
         if dns:
             service["dns"] = dns
