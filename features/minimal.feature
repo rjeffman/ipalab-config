@@ -34,7 +34,7 @@ Scenario: Minimal single server
             container_name: server
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -110,7 +110,7 @@ Scenario: Minimum IPA cluster
             container_name: server
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -130,7 +130,7 @@ Scenario: Minimum IPA cluster
             container_name: replica
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -150,7 +150,7 @@ Scenario: Minimum IPA cluster
             container_name: client
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -263,7 +263,7 @@ Scenario: FQDN containers and replica capapabilities
             container_name: server.ipa.test
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -283,7 +283,7 @@ Scenario: FQDN containers and replica capapabilities
             container_name: replica.ipa.test
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
@@ -303,7 +303,7 @@ Scenario: FQDN containers and replica capapabilities
             container_name: client.ipa.test
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH

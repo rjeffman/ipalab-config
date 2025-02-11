@@ -2,6 +2,8 @@
 
 from collections import namedtuple
 
+from ruamel.yaml.scalarstring import DoubleQuotedScalarString
+
 from ipalab_config.utils import (
     die,
     get_hostname,
@@ -27,7 +29,9 @@ def get_node_base_config(name, hostname, networkname, ipaddr, node_distro):
         "container_name": name,
         "systemd": True,
         "no_hosts": True,
-        "restart": "never",
+        # Use DoubleQuotedScalarString as 'no' without quentos may be
+        # interpreted as boolean False by PyYAML loaders.
+        "restart": DoubleQuotedScalarString("no"),
         "cap_add": ["SYS_ADMIN", "DAC_READ_SEARCH"],
         "security_opt": ["label=disable"],
         "hostname": hostname,

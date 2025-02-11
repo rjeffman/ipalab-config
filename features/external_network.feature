@@ -29,7 +29,7 @@ Scenario: Use an external network
             container_name: server
             systemd: true
             no_hosts: true
-            restart: never
+            restart: no
             cap_add:
             - SYS_ADMIN
             - DAC_READ_SEARCH
