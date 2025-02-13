@@ -74,13 +74,13 @@ Deploy the cluster with:
 ansible-playbook -i inventory.yml playbooks/install-cluster.yml
 ```
 
-The contents of each container `/var/log` can be found in the `logs/<name>` directory, soexecution can be evaluated even if the containers are offline.
-
 To dispose the environment use:
 
 ```
 podman-compose down
 ```
+
+To automatically mount each container `/var/log` to `logs/<name>` directory, so execution can be evaluated even if the containers are offline, either set the attribute `mount_varlog` or use the CLI option `--mount-varlog`.
 
 
 The configuration file
@@ -96,9 +96,10 @@ The configuration file is a YAML file with attributes used to set both the compo
 | `subnet`   | A CIDR representing the subnet to be used for the containers. | no | "192.168.159.0/24" |
 | `containerfiles` | A list of file relative or absolute paths to container files. | no | - |
 | `container_fqdn` | Convert container names to FQDN using deployment domain name. | no | false |
-| `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
 | `external` | A list of nodes external to the FreeIPA deployment. | no | - |
 | `extra_data` | A list of files and folders to copy into the generated target directory. | no | - |
+| `mount_varlog` | Mount containers '/var/log' files to be accessible from the host. | no | False |
+| `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
 
 **ipa_deployments**
 
@@ -133,6 +134,7 @@ These are the available options to configure the first server and the replicas:
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
 | `memory`   | The maximum amount of memory to use defined as an integer number and a unit. The unit can be `b`, `k` or `kb`, `m` or `mb`, or `g` or `gb` (case insensitive). | no |
+| `nolog`      | Do not mount `/var/log` on the host. | no | False |
 | `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check [ansible-freeipa roles documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles) for valid values | no | - |
 
 
@@ -153,6 +155,7 @@ To configure the clients, these are the available attributes:
 | `distro`   | The containerfile/image to use. | no | `fedora-latest` |
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
+| `nolog`      | Do not mount `/var/log` on the host. | no | False |
 | `vars` | _Dict_ of variables to use in the deployment of this client node. Check [ansible-freeipa ipaclient documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient) for valid values | no | - |
 
 See the available [examples](examples).
@@ -179,6 +182,7 @@ These are nodes that are not part of the FreeIPA deployment, and may or may not 
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `role`     | A specific role that will add pre-defined configuration to the node and the environment. Any `role` configuration will overwrite other options. | no | - |
+| `nolog`      | Do not mount `/var/log` on the host. | no | False |
 | `options`  | A dictionary of configurations specific to the available roles. | no | - |
 
 **External Roles**

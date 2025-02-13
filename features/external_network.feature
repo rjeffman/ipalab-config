@@ -43,8 +43,6 @@ Scenario: Use an external network
             build:
               context: containerfiles
               dockerfile: fedora-latest
-            volumes:
-            - ${PWD}/logs/server:/var/log:rw
         """
 
 Scenario: Fail to provide 'subnet' with external network

@@ -79,6 +79,16 @@ def parse_arguments():
         ),
     )
     opt_parser.add_argument(
+        "--mount-varlog",
+        dest="VARLOG",
+        action="store_true",
+        help=(
+            "Associate all nodes '/var/log' to local directories so log "
+            "data is accessible through the host. Use 'nolog: true' on "
+            "a node configuration to disable the behavior for that node."
+        ),
+    )
+    opt_parser.add_argument(
         "--debug",
         action="store_true",
         help="Run ipalab-config in debug mode.",
@@ -223,6 +233,7 @@ def generate_ipalab_configuration():
     else:
         data.setdefault("subnet", "192.168.159.0/24")
     data.setdefault("container_fqdn", False)
+    data.setdefault("mount_varlog", args.VARLOG)
 
     # generate configuration
     compose_config = gen_compose_data(data)

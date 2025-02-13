@@ -59,8 +59,6 @@ Scenario: External DNS
               dockerfile: fedora-latest
             dns: 192.168.53.254
             dns_search: ipa.test
-            volumes:
-              - ${PWD}/logs/server:/var/log:rw
           nameserver:
             container_name: nameserver
             systemd: true
@@ -82,7 +80,6 @@ Scenario: External DNS
             dns: 192.168.53.254
             dns_search: ipa.test
             volumes:
-            - ${PWD}/logs/nameserver:/var/log:rw
             - ${PWD}/unbound:/etc/unbound:rw
         """
       And the ipa-lab/inventory.yml file is
@@ -198,8 +195,6 @@ Scenario: Samba AD DC
               args:
                 packages: systemd
             command: /usr/sbin/init
-            volumes:
-              - ${PWD}/logs/addc:/var/log:rw
           server:
             container_name: server
             systemd: true
@@ -218,8 +213,6 @@ Scenario: Samba AD DC
             build:
               context: containerfiles
               dockerfile: fedora-latest
-            volumes:
-              - ${PWD}/logs/server:/var/log:rw
         networks:
           ipanet:
             name: ipanet-ipa-ad-trust

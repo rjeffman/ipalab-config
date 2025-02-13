@@ -51,9 +51,7 @@ def get_container_name(name, domain, container_fqdn):
     return name
 
 
-def get_compose_config(
-    containers, network, distro, container_fqdn, ips=IP_GENERATOR
-):
+def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
     """Create config for all containers in the list."""
 
     def node_dns_key(hostname):
@@ -65,6 +63,12 @@ def get_compose_config(
         return {}, {}
     result = {}
     nodes = {}
+    network = kwargs.get("network")
+    if network is None:
+        raise RuntimeError("Node network not defined.")
+    container_fqdn = kwargs.get("container_fqdn", False)
+    distro = kwargs.get("distro", "fedora-latest")
+    mount_varlog = kwargs.get("mount_varlog", False)
     for container in containers:
         name = get_container_name(
             container["name"], network.domain, container_fqdn
@@ -98,7 +102,7 @@ def get_compose_config(
             )
         config["dns_search"] = network.domain
 
-        if not container.get("nolog", False):
+        if mount_varlog and not container.get("nolog", False):
             volumes = container.get("volumes", [])
             if not isinstance(volumes, (list, tuple)):
                 volumes = [volumes]
@@ -129,23 +133,26 @@ def get_network_config(lab_config, subnet):
 def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
     """Generate compose configuration for all IPA deployments."""
     Network = namedtuple("Network", ["domain", "name", "dns"])
-    container_fqdn = lab_config["container_fqdn"]
     lab_config.setdefault("deployment_nameservers", [])
     labdns = lab_config.get("dns")
     labdomain = lab_config.get("domain", "ipalab.local")
     services = {}
     for deployment in lab_config.setdefault("ipa_deployments", []):
         domain = deployment.get("domain", labdomain)
-        distro = deployment.get("distro", lab_config["distro"])
         dns = deployment.get("dns", labdns)
         if dns and not is_ip_address(dns):
             # pylint: disable=consider-using-f-string
             dns = "{{{0}}}".format(ensure_fqdn(dns, domain))
-        network = Network(
-            domain,
-            networkname,
-            get_effective_nameserver(dns, domain),
-        )
+        config = {
+            "network": Network(
+                domain,
+                networkname,
+                get_effective_nameserver(dns, domain),
+            ),
+            "container_fqdn": lab_config["container_fqdn"],
+            "distro": deployment.get("distro", lab_config["distro"]),
+            "mount_varlog": lab_config.get("mount_varlog", False),
+        }
         cluster_config = deployment.get("cluster")
         if not cluster_config:
             die(f"Cluster not defined for domain '{domain}'")
@@ -154,11 +161,11 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
         servers = cluster_config.get("servers")
         if servers:
             ips, servers_cfg = get_compose_config(
-                servers, network, distro, container_fqdn, ip_generator
+                servers, ip_generator, **config
             )
             deployment_dns = [
                 "{{{0}}}".format(  # pylint: disable=consider-using-f-string
-                    ensure_fqdn(host["name"], network.domain)
+                    ensure_fqdn(host["name"], domain)
                 )
                 .replace(".", "_")
                 .format(**ips)
@@ -173,9 +180,7 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
             lab_config["deployment_nameservers"].append(None)
         # Get clients configuration
         clients = cluster_config.get("clients")
-        ips, clients_cfg = get_compose_config(
-            clients, network, distro, container_fqdn, ip_generator
-        )
+        ips, clients_cfg = get_compose_config(clients, ip_generator, **config)
         services.update(clients_cfg)
         nodes.update(ips)
         # We must have at lest one node at the end.
@@ -214,18 +219,20 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
         },
     }
     Network = namedtuple("Network", ["domain", "name", "dns"])
-    container_fqdn = lab_config["container_fqdn"]
     external = lab_config.get("external", {})
     services = {}
-    network = Network(
-        external.get("domain", "ipalab.local"),
-        networkname,
-        get_effective_nameserver(lab_config.get("dns", ""), ""),
-    )
+    node_config = {
+        "network": Network(
+            external.get("domain", "ipalab.local"),
+            networkname,
+            get_effective_nameserver(lab_config.get("dns", ""), ""),
+        ),
+        "container_fqdn": lab_config["container_fqdn"],
+        "distro": "fedora-latest",
+        "mount_varlog": lab_config["mount_varlog"],
+    }
     ext_nodes = external.get("hosts", [])
-    nodes, services = get_compose_config(
-        ext_nodes, network, "fedora-latest", container_fqdn, ip_generator
-    )
+    nodes, services = get_compose_config(ext_nodes, ip_generator, **node_config)
     # update nodes list
     lab_config.setdefault("nodes", {}).update(nodes)
 
