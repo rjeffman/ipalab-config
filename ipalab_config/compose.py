@@ -102,11 +102,12 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
             )
         config["dns_search"] = network.domain
 
+        volumes = container.get("volumes", [])
+        if not isinstance(volumes, (list, tuple)):
+            volumes = [volumes]
         if mount_varlog and not container.get("nolog", False):
-            volumes = container.get("volumes", [])
-            if not isinstance(volumes, (list, tuple)):
-                volumes = [volumes]
             volumes.extend([f"${{PWD}}/logs/{name}:/var/log:rw"])
+        if volumes:
             config.update({"volumes": volumes})
 
         result[name] = config
