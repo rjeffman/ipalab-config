@@ -39,10 +39,10 @@ Scenario: Use an external network
             networks:
               external_network:
                 ipv4_address: 192.168.159.2
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
         """
 
 Scenario: Fail to provide 'subnet' with external network

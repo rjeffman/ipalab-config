@@ -1,0 +1,24 @@
+ARG distro_tag=latest
+FROM fedora:${distro_tag}
+
+ENV container=podman
+
+RUN \
+dnf update -y ; \
+dnf -y install \
+    sudo \
+    bash \
+    systemd \
+    procps-ng \
+    hostname \
+    iputils \
+    bind-utils \
+    iproute; \
+    python3-libdnf5 \
+    ; \
+dnf clean all; \
+rm -rf /var/cache/dnf/;
+
+STOPSIGNAL RTMIN+3
+
+CMD ["/usr/sbin/init"]
