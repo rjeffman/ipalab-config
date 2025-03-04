@@ -225,9 +225,9 @@ def generate_ipalab_configuration():
     # set default values
     data.setdefault("distro", "fedora")
     if args.DISTRO:
-        distro, tag = args.DISTRO.split(":", 1)
+        distro, *tag = args.DISTRO.split(":", 1)
         data["distro"] = distro
-        data["tag"] = tag
+        data["tag"] = "".join(tag) if tag else None
     if "network" in data:
         if "subnet" not in data:
             raise ValueError("'subnet' is required for 'external' networks")
