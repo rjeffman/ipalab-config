@@ -144,7 +144,7 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
     Network = namedtuple("Network", ["domain", "name", "dns"])
     lab_config.setdefault("deployment_nameservers", [])
     labdns = lab_config.get("dns")
-    labdomain = lab_config.get("domain", "ipalab.local")
+    labdomain = lab_config.get("domain")
     services = {}
     for deployment in lab_config.setdefault("ipa_deployments", []):
         domain = deployment.get("domain", labdomain)
@@ -233,7 +233,7 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
     services = {}
     node_config = {
         "network": Network(
-            external.get("domain", "ipalab.local"),
+            external.get("domain", lab_config.get("domain", "ipalab.local")),
             networkname,
             get_effective_nameserver(lab_config.get("dns", ""), ""),
         ),

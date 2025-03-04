@@ -235,6 +235,7 @@ def generate_ipalab_configuration():
         data.setdefault("subnet", "192.168.159.0/24")
     data.setdefault("container_fqdn", False)
     data.setdefault("mount_varlog", args.VARLOG)
+    data.setdefault("domain", "ipalab.local")
 
     # generate configuration
     compose_config = gen_compose_data(data)

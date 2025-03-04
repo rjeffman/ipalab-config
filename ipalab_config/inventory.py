@@ -161,7 +161,7 @@ def gen_inventory_ipa_deployments(lab_config, lab):
     for deployment, nameservers in zip(ipa_deployments, deployment_dns):
         name = deployment["name"]
         # process deployment
-        domain = deployment.setdefault("domain", "ipa.local")
+        domain = deployment.setdefault("domain", lab_config.get("domain"))
         deployment.setdefault("subnet", lab_config["subnet"])
         deployment.setdefault("container_fqdn", lab_config["container_fqdn"])
         default_config = {
@@ -169,11 +169,12 @@ def gen_inventory_ipa_deployments(lab_config, lab):
                 "admin_password", "SomeADMINpassword"
             ),
             "ipadm_password": deployment.get("dm_password", "SomeDMpassword"),
-            "ipaserver_domain": domain,
             "ipaserver_realm": deployment.get("realm", domain).upper(),
             "ipaclient_no_ntp": True,
             **deployment.get("vars", {}),
         }
+        if domain and "ipaserver_domain" not in default_config:
+            default_config["ipaserver_domain"] = domain
         cluster_config = deployment.get("cluster")
         if not cluster_config:  # pragma: no cover
             die(f"Cluster not defined for domain '{domain}'")
