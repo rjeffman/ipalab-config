@@ -1,6 +1,7 @@
-ARG base_image="fedora:latest"
+ARG distro_image="fedora"
+ARG distro_tag="latest"
 
-FROM ${base_image}
+FROM ${base_distro}:${distro_tag}
 
 ARG packages
 

@@ -11,12 +11,14 @@ ipa_deployments:
     cluster:
       servers:
         - name: server
-          distro: c10s
+          distro: centos
+          tag: stream10
           capabilities:
             - CA   # optional, first server is always CA
             - DNS
       clients:
         - name: cli-01
-          distro: fedora-latest
+          distro: fedora
+          tag: latest
         - name: cli-02
           distro: ubuntu

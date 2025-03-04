@@ -44,10 +44,10 @@ Scenario: Minimal single server
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
         """
       And the ipa-lab/inventory.yml file is
         """
@@ -70,7 +70,6 @@ Scenario: Minimal single server
               ipaserver_no_host_dns: true
         """
       And the "ipa-lab/containerfiles" directory was copied
-      And the "ipa-lab/playbooks" directory was copied
 
 Scenario: Minimum IPA cluster
     # Note: for a minimal cluster, it is currently required that
@@ -118,10 +117,10 @@ Scenario: Minimum IPA cluster
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
           replica:
             container_name: replica
             systemd: true
@@ -136,10 +135,10 @@ Scenario: Minimum IPA cluster
             networks:
               ipanet:
                 ipv4_address: 192.168.159.3
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
           client:
             container_name: client
             systemd: true
@@ -154,10 +153,10 @@ Scenario: Minimum IPA cluster
             networks:
               ipanet:
                 ipv4_address: 192.168.159.4
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
         """
       And the ipa-lab/inventory.yml file is
         """
@@ -218,7 +217,6 @@ Scenario: Minimum IPA cluster
                 - 192.168.159.2
         """
       And the "ipa-lab/containerfiles" directory was copied
-      And the "ipa-lab/playbooks" directory was copied
 
 Scenario: FQDN containers and replica capapabilities
     Given the deployment configuration
@@ -265,10 +263,10 @@ Scenario: FQDN containers and replica capapabilities
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
           replica.ipa.test:
             container_name: replica.ipa.test
             systemd: true
@@ -283,10 +281,10 @@ Scenario: FQDN containers and replica capapabilities
             networks:
               ipanet:
                 ipv4_address: 192.168.159.3
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
           client.ipa.test:
             container_name: client.ipa.test
             systemd: true
@@ -301,10 +299,10 @@ Scenario: FQDN containers and replica capapabilities
             networks:
               ipanet:
                 ipv4_address: 192.168.159.4
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
         """
       And the ipa-lab/inventory.yml file is
         """

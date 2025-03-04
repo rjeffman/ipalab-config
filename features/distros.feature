@@ -1,13 +1,12 @@
-Feature: Evaluate tests results
-    In order to evaluate test results
+Feature: Use different Linux distros for nodes
+    In order to test IPA against different flavors of Linux
     As a developer
-    I want to have access to container information
+    I want to select different distros and versions
 
-
-Scenario: Mount /var/log in log/<node>
+Scenario: Use CentOS Stream with default tag
     Given the deployment configuration
     """
-    mount_varlog: true
+    distro: centos
     ipa_deployments:
       - name: server_only
         domain: ipa.test
@@ -18,7 +17,8 @@ Scenario: Mount /var/log in log/<node>
             - name: server
     """
       When I run ipalab-config
-      Then the ipa-lab/compose.yml file is
+      Then the output directory name is "ipa-lab"
+      And the ipa-lab/compose.yml file is
         """
         name: ipa-lab
         networks:
@@ -43,18 +43,17 @@ Scenario: Mount /var/log in log/<node>
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
-            image: localhost/fedora:latest
+            image: localhost/centos:latest
             build:
               context: containerfiles
-              dockerfile: fedora
-            volumes:
-              - ${PWD}/logs/server:/var/log:rw
+              dockerfile: centos
         """
 
-Scenario: Do not /var/log in log/<node> for selected nodes
+Scenario: Use CentOS Stream 10
     Given the deployment configuration
     """
-    mount_varlog: true
+    distro: centos
+    tag: stream10
     ipa_deployments:
       - name: server_only
         domain: ipa.test
@@ -63,11 +62,10 @@ Scenario: Do not /var/log in log/<node> for selected nodes
         cluster:
           servers:
             - name: server
-            - name: replica
-              nolog: true
     """
       When I run ipalab-config
-      Then the ipa-lab/compose.yml file is
+      Then the output directory name is "ipa-lab"
+      And the ipa-lab/compose.yml file is
         """
         name: ipa-lab
         networks:
@@ -92,14 +90,42 @@ Scenario: Do not /var/log in log/<node> for selected nodes
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
-            image: localhost/fedora:latest
+            image: localhost/centos:stream10
             build:
               context: containerfiles
-              dockerfile: fedora
-            volumes:
-              - ${PWD}/logs/server:/var/log:rw
-          replica:
-            container_name: replica
+              dockerfile: centos
+              args:
+                distro_tag: stream10
+        """
+Scenario: Use CentOS Stream 9
+    Given the deployment configuration
+    """
+    distro: centos
+    tag: stream9
+    ipa_deployments:
+      - name: server_only
+        domain: ipa.test
+        admin_password: SomeADMINpassword
+        dm_password: SomeDMpassword
+        cluster:
+          servers:
+            - name: server
+    """
+      When I run ipalab-config
+      Then the output directory name is "ipa-lab"
+      And the ipa-lab/compose.yml file is
+        """
+        name: ipa-lab
+        networks:
+          ipanet:
+            name: ipanet-ipa-lab
+            driver: bridge
+            ipam:
+              config:
+              - subnet: 192.168.159.0/24
+        services:
+          server:
+            container_name: server
             systemd: true
             no_hosts: true
             restart: no
@@ -108,12 +134,14 @@ Scenario: Do not /var/log in log/<node> for selected nodes
             - DAC_READ_SEARCH
             security_opt:
             - label=disable
-            hostname: replica.ipa.test
+            hostname: server.ipa.test
             networks:
               ipanet:
-                ipv4_address: 192.168.159.3
-            image: localhost/fedora:latest
+                ipv4_address: 192.168.159.2
+            image: localhost/centos:stream9
             build:
               context: containerfiles
-              dockerfile: fedora
+              dockerfile: centos
+              args:
+                distro_tag: stream9
         """

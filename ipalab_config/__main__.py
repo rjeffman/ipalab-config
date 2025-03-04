@@ -69,13 +69,12 @@ def parse_arguments():
         "--distro",
         dest="DISTRO",
         metavar="DISTRO",
-        default="fedora-latest",
+        default=None,
         nargs="?",
-        choices=["fedora-latest", "fedora-rawhide", "c10s", "c9s", "c8s"],
         help=(
-            "Define default distro. Valid values are 'fedora-latest', "
-            "'fedora-rawhide', 'c10s', 'c9s', 'c8s'. Defaults to "
-            "'fedora-latest'."
+            "Override default '<distro>:<tag>'. Available distros: "
+            "'fedora', 'centos', 'ubuntu'. Any tag supported "
+            "by the original distro can be used (default tag is 'latest')."
         ),
     )
     opt_parser.add_argument(
@@ -190,8 +189,6 @@ def save_containers_data(lab_config, base_dir, args):
 
 def save_ansible_data(_lab_config, base_dir, args):
     """Copy Ansible playbooks to result directory."""
-    copy_helper_files(base_dir, "playbooks")
-
     plays = []
     for play in args.PLAYBOOKS:
         if os.path.isfile(play):
@@ -226,7 +223,11 @@ def generate_ipalab_configuration():
     base_dir = args.OUTPUT or labname
 
     # set default values
-    data.setdefault("distro", args.DISTRO)
+    data.setdefault("distro", "fedora")
+    if args.DISTRO:
+        distro, tag = args.DISTRO.split(":", 1)
+        data["distro"] = distro
+        data["tag"] = tag
     if "network" in data:
         if "subnet" not in data:
             raise ValueError("'subnet' is required for 'external' networks")

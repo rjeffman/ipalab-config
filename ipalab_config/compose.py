@@ -23,9 +23,11 @@ def get_effective_nameserver(nameserver, domain):
     return nameserver
 
 
-def get_node_base_config(name, hostname, networkname, ipaddr, node_distro):
+def get_node_base_config(  # pylint: disable=R0913,R0917
+    name, hostname, networkname, ipaddr, distro, tag=None
+):
     """Returns the basic node configuration."""
-    return {
+    result = {
         "container_name": name,
         "systemd": True,
         "no_hosts": True,
@@ -36,12 +38,15 @@ def get_node_base_config(name, hostname, networkname, ipaddr, node_distro):
         "security_opt": ["label=disable"],
         "hostname": hostname,
         "networks": {networkname: {"ipv4_address": str(ipaddr)}},
-        "image": f"localhost/{node_distro}",
+        "image": f"localhost/{distro}:{'latest' if tag is None else tag}",
         "build": {
             "context": "containerfiles",
-            "dockerfile": f"{node_distro}",
+            "dockerfile": f"{distro}",
         },
     }
+    if tag is not None:
+        result["build"]["args"] = {"distro_tag": tag}
+    return result
 
 
 def get_container_name(name, domain, container_fqdn):
@@ -67,13 +72,15 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
     if network is None:
         raise RuntimeError("Node network not defined.")
     container_fqdn = kwargs.get("container_fqdn", False)
-    distro = kwargs.get("distro", "fedora-latest")
+    distro = kwargs.get("distro", "fedora")
+    tag = kwargs.get("tag")
     mount_varlog = kwargs.get("mount_varlog", False)
     for container in containers:
         name = get_container_name(
             container["name"], network.domain, container_fqdn
         )
         node_distro = container.get("distro", distro)
+        node_tag = container.get("tag", tag)
         hostname = get_hostname(container, name, network.domain)
         ipaddr = container.get("ip_address")
         if not ipaddr:
@@ -85,6 +92,7 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
             network.name,
             str(ipaddr),
             node_distro,
+            node_tag,
         )
         if "memory" in container:
             config.update(
@@ -152,6 +160,7 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
             ),
             "container_fqdn": lab_config["container_fqdn"],
             "distro": deployment.get("distro", lab_config["distro"]),
+            "tag": deployment.get("tag", lab_config.get("tag")),
             "mount_varlog": lab_config.get("mount_varlog", False),
         }
         cluster_config = deployment.get("cluster")
@@ -229,7 +238,7 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
             get_effective_nameserver(lab_config.get("dns", ""), ""),
         ),
         "container_fqdn": lab_config["container_fqdn"],
-        "distro": "fedora-latest",
+        "distro": "external-nodes",
         "mount_varlog": lab_config["mount_varlog"],
     }
     ext_nodes = external.get("hosts", [])

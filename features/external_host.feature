@@ -53,10 +53,10 @@ Scenario: External DNS
             networks:
               external_dns:
                 ipv4_address: 192.168.53.2
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
             dns: 192.168.53.254
             dns_search: ipa.test
           nameserver:
@@ -209,10 +209,10 @@ Scenario: Samba AD DC
             networks:
               ipanet:
                 ipv4_address: 192.168.13.2
-            image: localhost/fedora-latest
+            image: localhost/fedora:latest
             build:
               context: containerfiles
-              dockerfile: fedora-latest
+              dockerfile: fedora
         networks:
           ipanet:
             name: ipanet-ipa-ad-trust
