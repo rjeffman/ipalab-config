@@ -202,8 +202,8 @@ def save_ansible_data(_lab_config, base_dir, args):
                     if name.endswith(".yml") or name.endswith(".yaml")
                 ]
             )
-
-    copy_extra_files(plays, os.path.join(base_dir, "playbooks"))
+    if plays:
+        copy_extra_files(plays, os.path.join(base_dir, "playbooks"))
 
 
 def generate_ipalab_configuration():
