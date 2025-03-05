@@ -206,23 +206,9 @@ def save_ansible_data(_lab_config, base_dir, args):
         copy_extra_files(plays, os.path.join(base_dir, "playbooks"))
 
 
-def generate_ipalab_configuration():
-    """Generate compose and inventory."""
-    args = parse_arguments()
-    yaml = YAML()
-    yaml.explicit_start = True
-    yaml.indent(mapping=2, sequence=4, offset=2)
-
-    # pylint: disable=unspecified-encoding
-    if not (os.path.isfile(args.CONFIG) and os.access(args.CONFIG, os.R_OK)):
-        raise RuntimeError(f"Cannot read config file: {args.CONFIG}")
-    with open(args.CONFIG, "r") as config_file:
-        data = yaml.load(config_file.read())
-
-    labname = data.setdefault("lab_name", "ipa-lab")
-    base_dir = args.OUTPUT or labname
-
-    # set default values
+def set_default_values(data, args):
+    """Ensure sane configuration default values."""
+    data.setdefault("lab_name", "ipa-lab")
     data.setdefault("distro", "fedora")
     if args.DISTRO:
         distro, *tag = args.DISTRO.split(":", 1)
@@ -236,6 +222,24 @@ def generate_ipalab_configuration():
     data.setdefault("container_fqdn", False)
     data.setdefault("mount_varlog", args.VARLOG)
     data.setdefault("domain", "ipalab.local")
+
+
+def generate_ipalab_configuration():
+    """Generate compose and inventory."""
+    args = parse_arguments()
+    yaml = YAML()
+    yaml.explicit_start = True
+    yaml.indent(mapping=2, sequence=4, offset=2)
+
+    # pylint: disable=unspecified-encoding
+    if not (os.path.isfile(args.CONFIG) and os.access(args.CONFIG, os.R_OK)):
+        raise RuntimeError(f"Cannot read config file: {args.CONFIG}")
+    with open(args.CONFIG, "r") as config_file:
+        data = yaml.load(config_file.read())
+
+    set_default_values(data, args)
+
+    base_dir = args.OUTPUT or data["lab_name"]
 
     # generate configuration
     compose_config = gen_compose_data(data)
