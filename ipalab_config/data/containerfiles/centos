@@ -18,16 +18,6 @@ dnf --assumeyes install \
 dnf clean all ; \
 rm -rf /var/cache/dnf/;
 
-# /usr/bin/dnf-3; \
-
-# RUN (cd /lib/systemd/system/; \
-# if [ -e dbus-broker.service ] && [ ! -e dbus.service ]; then \
-#        ln -s dbus-broker.service dbus.service; \
-#     fi \
-# )
-
 STOPSIGNAL RTMIN+3
-
-# VOLUME ["/sys/fs/cgroup"]
 
 CMD ["/usr/sbin/init"]
