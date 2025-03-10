@@ -1,7 +1,7 @@
-ARG distro_image="fedora"
+ARG distro_image="fedora-minimal"
 ARG distro_tag="latest"
 
-FROM ${base_distro}:${distro_tag}
+FROM ${distro_image}:${distro_tag}
 
 ARG packages
 
