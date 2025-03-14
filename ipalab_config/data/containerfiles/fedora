@@ -1,11 +1,13 @@
+ARG distro_image=fedora
 ARG distro_tag=latest
-FROM fedora:${distro_tag}
+FROM ${distro_image}:${distro_tag}
 
 ENV container=podman
 
 RUN \
 dnf update -y ; \
 dnf -y install \
+    python3 \
     sudo \
     bash \
     systemd \
@@ -13,7 +15,7 @@ dnf -y install \
     hostname \
     iputils \
     bind-utils \
-    iproute; \
+    iproute \
     python3-libdnf5 \
     ; \
 dnf clean all; \
