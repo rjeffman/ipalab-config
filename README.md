@@ -31,7 +31,7 @@ To create the configuration files simply invoke the tool with the path to the co
 ipalab-config mycluster.yaml
 ```
 
-For example, `mycluster.yaml` could define a cluster with three hosts, a primary server, a replica and a client, all using the default (_fedora-latest_) distro:
+For example, `mycluster.yaml` could define a cluster with three hosts, a primary server, a replica and a client, all using the default distro:
 
 ```yaml
 ---
@@ -112,7 +112,7 @@ Each entry in the `ipa-deployments` list define a FreeIPA cluster. All defined h
 | `realm`    | The realm for the cluster. | no | Uppercase `domain` |
 | `admin_password` | The FreeIPA admin password. | no | "SomeADMINpassword" |
 | `dm_password` | The FreeIPA LDAP Directory Manager password. | no | "SomeDMpassword" |
-| `distro`   | The containerfile/image to use by default, on this deployment. | no | `fedora-latest` |
+| `distro`   | The containerfile/image to use by default, on this deployment. | no | `fedora` |
 | `cluster`  | A _dict_ with the configuration for the nodes of the cluster. (See `Cluster Nodes`.) | yes | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 
@@ -129,7 +129,7 @@ These are the available options to configure the first server and the replicas:
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The name of the server. | yes | - |
 | `hostname` | The server hostname. | no | _<server name>_._<domain>_ |
-| `distro`   | The containerfile/image to use. | no | `fedora-latest` |
+| `distro`   | The containerfile/image to use. | no | `fedora` |
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
@@ -152,7 +152,7 @@ To configure the clients, these are the available attributes:
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The name of the client node. | yes | - |
 | `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
-| `distro`   | The containerfile/image to use. | no | `fedora-latest` |
+| `distro`   | The containerfile/image to use. | no | `fedora` |
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `nolog`      | Do not mount `/var/log` on the host. | no | False |
@@ -178,7 +178,7 @@ These are nodes that are not part of the FreeIPA deployment, and may or may not 
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The name of the node.        | yes | - |
 | `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
-| `distro`   | The containerfile/image to use. | no | `fedora-latest` |
+| `distro`   | The containerfile/image to use. | no | `fedora` |
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `role`     | A specific role that will add pre-defined configuration to the node and the environment. Any `role` configuration will overwrite other options. | no | - |
