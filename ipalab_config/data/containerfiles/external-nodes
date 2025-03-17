@@ -6,7 +6,7 @@ FROM ${distro_image}:${distro_tag}
 ARG packages
 
 RUN dnf update -y
-RUN dnf -y install python3 python3-libdnf5 iproute hostname ${packages}
+RUN dnf -y install python3 python3-libdnf5 iproute hostname sudo ${packages}
 RUN dnf clean all
 
 STOPSIGNAL RTMIN+3
