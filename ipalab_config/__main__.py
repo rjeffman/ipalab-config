@@ -13,11 +13,10 @@ from ipalab_config.utils import (
     copy_helper_files,
     save_file,
     get_service_ip_address,
+    import_external_role_module,
 )
 from ipalab_config.compose import gen_compose_data
 from ipalab_config.inventory import gen_inventory_data
-from ipalab_config.unbound import gen_unbound_config
-from ipalab_config.addc import gen_addc_config
 
 
 def parse_arguments():
@@ -107,8 +106,6 @@ def gen_external_node_configuration(lab_config, base_dir, compose_config):
     for _, node_data in compose_config["services"].items():
         external_data = node_data.pop("external_node", None)
         if external_data:
-            role = external_data.get("role", "none").lower()
-            options = external_data.get("options", {})
             # update dns on nodes
             if "dns" in node_data:
                 dns = node_data["dns"]
@@ -124,15 +121,20 @@ def gen_external_node_configuration(lab_config, base_dir, compose_config):
             else:
                 node_data.pop("dns_search", None)
             # update roles
-            roles = {
-                "dns": gen_unbound_config,
-                "addc": gen_addc_config,
-            }
-            config_fn = roles.get(role)
-            if config_fn:
-                config_fn(lab_config, base_dir, node_data, options)
-            else:
-                raise ValueError(f"Invalid role: '{role}'")
+            role = external_data.get("role")
+            if role:
+                options = external_data.get("options", {})
+                try:
+                    module = import_external_role_module(role)
+                    config_fn = getattr(module, "gen_config", None)
+                except ImportError:
+                    config_fn = None
+                if config_fn:
+                    config_fn(lab_config, base_dir, node_data, options)
+                else:
+                    raise ValueError(
+                        f"Role does not provide 'gen_config': '{role}'"
+                    )
 
 
 def gen_optional_files(lab_config, base_dir, yaml):

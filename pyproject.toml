@@ -40,15 +40,13 @@ release = [
 ]
 
 [tool.setuptools]
-packages = ["ipalab_config"]
+packages = ["ipalab_config", "ipalab_config.external_role"]
 
 [tool.setuptools.package-data]
 ipalab_config = [
     "data/containerfiles/*",
     "data/playbooks/*.yml",
-    "data/containerfiles/system-service/*",
     "data/unbound/*",
-    "data/samba-addc/*",
 ]
 
 [tool.setuptools.dynamic]

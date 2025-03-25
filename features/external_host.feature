@@ -221,4 +221,4 @@ Scenario: Samba AD DC
               config:
               - subnet: 192.168.13.0/24
         """
-      And the file "samba-addc/deploy_addc.yml" was copied to "ipa-ad-trust/playbooks/deploy_addc.yml"
+      And the file "playbooks/deploy_addc.yml" was copied to "ipa-ad-trust/playbooks/deploy_addc.yml"

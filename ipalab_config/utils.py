@@ -5,7 +5,9 @@ import shutil
 import sys
 import socket
 import ipaddress
+import importlib
 import importlib.resources
+import functools
 
 
 def die(msg, err=1):  # pragma: no cover
@@ -93,3 +95,10 @@ def save_file(base_dir, filename, data):
     # pylint: disable=unspecified-encoding
     with open(os.path.join(base_dir, filename), "w") as out:
         out.write(data)
+
+
+@functools.cache
+def import_external_role_module(role):
+    """Import an external role module."""
+    role_mod = f"ipalab_config.external_role.{role}"
+    return importlib.import_module(role_mod)

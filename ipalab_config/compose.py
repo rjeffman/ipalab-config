@@ -10,10 +10,14 @@ from ipalab_config.utils import (
     is_ip_address,
     ensure_fqdn,
     get_ip_address_generator,
+    import_external_role_module,
 )
 
 
 IP_GENERATOR = get_ip_address_generator()
+
+# Use namedtuple as a class
+Network = namedtuple("Network", ["domain", "name", "dns"])
 
 
 def get_effective_nameserver(nameserver, domain):
@@ -141,7 +145,6 @@ def get_network_config(lab_config, subnet):
 
 def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
     """Generate compose configuration for all IPA deployments."""
-    Network = namedtuple("Network", ["domain", "name", "dns"])
     lab_config.setdefault("deployment_nameservers", [])
     labdns = lab_config.get("dns")
     labdomain = lab_config.get("domain")
@@ -210,25 +213,6 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
 
 def get_external_hosts_configuration(lab_config, networkname, ip_generator):
     """Generate configuration for hosts external to IPA deployments."""
-    config = {
-        "dns": {
-            "image": "localhost/unbound",
-            "build": {"context": "unbound", "dockerfile": "Containerfile"},
-            "volumes": [
-                "${PWD}/unbound:/etc/unbound:rw",
-            ],
-        },
-        "addc": {
-            "image": "localhost/samba-addc",
-            "build": {
-                "context": "containerfiles",
-                "dockerfile": "external-nodes",
-                "args": {"packages": "systemd"},
-            },
-            "command": "/usr/sbin/init",
-        },
-    }
-    Network = namedtuple("Network", ["domain", "name", "dns"])
     external = lab_config.get("external", {})
     services = {}
     node_config = {
@@ -260,15 +244,21 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
     # Udate external nodes
     for node in ext_nodes:
         role = node.get("role")
-        if role and role in config:
-            volumes = config[role].pop("volumes", None)
-            services[node["name"]].update(config[role])
-            # Merge volumes with user configuration
-            if volumes:
-                uservol = services[node["name"]].get("volumes", [])
-                uservol.extend(volumes)
-                services[node["name"]]["volumes"] = uservol
-        services[node["name"]]["external_node"] = node
+        if not role:
+            continue
+        try:
+            module = import_external_role_module(role)
+        except ImportError:
+            raise RuntimeError(f"Invalid external role: {role}") from None
+        service = services[node["name"]]
+        service.update(getattr(module, "base_config", {}))
+        volumes = service.pop("volumes", None)
+        # Merge volumes with user configuration
+        if volumes:
+            uservol = service.get("volumes", [])
+            uservol.extend(volumes)
+            service["volumes"] = uservol
+        service["external_node"] = node
         if dns:
             service["dns"] = dns
 
