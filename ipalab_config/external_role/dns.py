@@ -7,7 +7,16 @@ import textwrap
 from ipalab_config.utils import copy_helper_files, copy_extra_files, save_file
 
 
-def gen_unbound_config(lab_config, base_dir, _node, options):
+base_config = {
+    "image": "localhost/unbound",
+    "build": {"context": "unbound", "dockerfile": "Containerfile"},
+    "volumes": [
+        "${PWD}/unbound:/etc/unbound:rw",
+    ],
+}
+
+
+def gen_config(lab_config, base_dir, _node, options):
     """Generate configuration for external DNS container."""
     subnet = lab_config["subnet"]
     domains = []
