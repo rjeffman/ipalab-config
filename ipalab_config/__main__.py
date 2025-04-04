@@ -6,6 +6,13 @@ import sys
 
 from ruamel.yaml import YAML
 
+try:
+    from jinja2 import Environment
+
+    HAS_JINJA = True
+except ImportError:
+    HAS_JINJA = False
+
 from ipalab_config import __version__
 from ipalab_config.utils import (
     die,
@@ -236,8 +243,12 @@ def generate_ipalab_configuration():
     # pylint: disable=unspecified-encoding
     if not (os.path.isfile(args.CONFIG) and os.access(args.CONFIG, os.R_OK)):
         raise RuntimeError(f"Cannot read config file: {args.CONFIG}")
+
     with open(args.CONFIG, "r") as config_file:
-        data = yaml.load(config_file.read())
+        source = config_file.read()
+        if HAS_JINJA:
+            source = Environment().from_string(source).render(ENV=os.environ)
+        data = yaml.load(source)
 
     set_default_values(data, args)
 

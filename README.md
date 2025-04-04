@@ -289,6 +289,20 @@ extra_data:
 
 The target directory then will contain `somelab/playbooks` as a copy of the `playbooks` folder of the source directory.
 
+
+jinja2 templating
+-----------------
+
+There is optional support for jinja2 templating, it will be available if jinja2 is available on the host.
+
+**Custom Filters**
+
+* `ENV`:
+    * Dictionary providing access to environment variables.
+    * Accessing the value of an environment variable: `{{ ENV["PWD"] }}`
+    * Accessing the value of an environment variable, with a default value in case the variable is not set: `{{ ENV.get("CONFIG_DIR", "path/to/default") }}`
+
+
 Contributing
 ------------
 
