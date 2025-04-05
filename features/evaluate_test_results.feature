@@ -31,8 +31,6 @@ Scenario: Mount /var/log in log/<node>
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -80,8 +78,6 @@ Scenario: Do not /var/log in log/<node> for selected nodes
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -100,8 +96,6 @@ Scenario: Do not /var/log in log/<node> for selected nodes
               - ${PWD}/logs/server:/var/log:rw
           replica:
             container_name: replica
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN

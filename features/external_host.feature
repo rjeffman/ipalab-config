@@ -41,8 +41,6 @@ Scenario: External DNS
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -61,8 +59,6 @@ Scenario: External DNS
             dns_search: ipa.test
           nameserver:
             container_name: nameserver
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -176,8 +172,6 @@ Scenario: Samba AD DC
         services:
           addc:
             container_name: addc
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -197,8 +191,6 @@ Scenario: Samba AD DC
             command: /usr/sbin/init
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN

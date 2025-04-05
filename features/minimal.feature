@@ -32,8 +32,6 @@ Scenario: Minimal single server
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -105,8 +103,6 @@ Scenario: Minimum IPA cluster
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -123,8 +119,6 @@ Scenario: Minimum IPA cluster
               dockerfile: fedora
           replica:
             container_name: replica
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -141,8 +135,6 @@ Scenario: Minimum IPA cluster
               dockerfile: fedora
           client:
             container_name: client
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -251,8 +243,6 @@ Scenario: FQDN containers and replica capapabilities
         services:
           server.ipa.test:
             container_name: server.ipa.test
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -269,8 +259,6 @@ Scenario: FQDN containers and replica capapabilities
               dockerfile: fedora
           replica.ipa.test:
             container_name: replica.ipa.test
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -287,8 +275,6 @@ Scenario: FQDN containers and replica capapabilities
               dockerfile: fedora
           client.ipa.test:
             container_name: client.ipa.test
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN

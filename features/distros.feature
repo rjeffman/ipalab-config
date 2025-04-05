@@ -31,8 +31,6 @@ Scenario: Use CentOS Stream with default tag
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -78,8 +76,6 @@ Scenario: Use CentOS Stream 10
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -126,8 +122,6 @@ Scenario: Use CentOS Stream 9
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN

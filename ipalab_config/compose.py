@@ -33,8 +33,6 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
     """Returns the basic node configuration."""
     result = {
         "container_name": name,
-        "systemd": True,
-        "no_hosts": True,
         # Use DoubleQuotedScalarString as 'no' without quentos may be
         # interpreted as boolean False by PyYAML loaders.
         "restart": DoubleQuotedScalarString("no"),

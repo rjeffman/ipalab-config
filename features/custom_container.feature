@@ -33,8 +33,6 @@ Scenario: Deploy server with custom containerfile
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
@@ -82,8 +80,6 @@ Scenario: Pass container file through the command line
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN

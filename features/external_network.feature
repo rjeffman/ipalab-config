@@ -27,8 +27,6 @@ Scenario: Use an external network
         services:
           server:
             container_name: server
-            systemd: true
-            no_hosts: true
             restart: no
             cap_add:
             - SYS_ADMIN
