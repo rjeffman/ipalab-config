@@ -295,6 +295,12 @@ jinja2 templating
 
 There is optional support for jinja2 templating, it will be available if jinja2 is available on the host.
 
+The Jinja2 dependency is part of the extra `opt`, and can be installed with
+
+```
+pip install ipalab-config[opt]
+```
+
 **Custom Filters**
 
 * `ENV`:
