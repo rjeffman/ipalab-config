@@ -91,6 +91,7 @@ Scenario: Use CentOS Stream 10
               context: containerfiles
               dockerfile: centos
               args:
+                distro_image: centos
                 distro_tag: stream10
         """
 Scenario: Use CentOS Stream 9
@@ -137,5 +138,6 @@ Scenario: Use CentOS Stream 9
               context: containerfiles
               dockerfile: centos
               args:
+                distro_image: centos
                 distro_tag: stream9
         """
