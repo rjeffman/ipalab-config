@@ -305,8 +305,9 @@ pip install ipalab-config[opt]
 
 * `ENV`:
     * Dictionary providing access to environment variables.
-    * Accessing the value of an environment variable: `{{ ENV["PWD"] }}`
-    * Accessing the value of an environment variable, with a default value in case the variable is not set: `{{ ENV.get("CONFIG_DIR", "path/to/default") }}`
+    * Accessing the value of an environment variable: `'{{ ENV["PWD"] }}'`
+    * Accessing the value of an environment variable, with a default value in case the variable is not set: `'{{ ENV.get("CONFIG_DIR", "path/to/default") }}'`
+    * If the environment variable is not set an empty value will be returned, if `get` is not used
 
 
 Contributing
