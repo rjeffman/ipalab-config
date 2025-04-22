@@ -3,6 +3,7 @@
 from collections import namedtuple
 
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
+from ruamel.yaml.comments import CommentedMap
 
 from ipalab_config.utils import (
     die,
@@ -31,7 +32,8 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
     name, hostname, networkname, ipaddr, distro, tag=None
 ):
     """Returns the basic node configuration."""
-    result = {
+    # fmt: off
+    result = CommentedMap({
         "container_name": name,
         # Use DoubleQuotedScalarString as 'no' without quentos may be
         # interpreted as boolean False by PyYAML loaders.
@@ -45,9 +47,24 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
             "context": "containerfiles",
             "dockerfile": f"{distro}",
         },
-    }
-    if tag is not None:
-        result["build"]["args"] = {"distro_tag": tag}
+    })
+    # fmt: on
+    supported_distros = {"fedora", "centos", "external-nodes", "ubuntu"}
+    if tag is not None and distro in supported_distros:
+        args = {"distro_image": distro, "distro_tag": tag}
+        result["build"]["args"] = args
+    else:
+        # If no tag is given, and distro is one of the ipalab-config
+        # provided ones, add a commented our "args" option to "build".
+        if distro in supported_distros:
+            result.yaml_set_comment_before_after_key(
+                "build",
+                after=(
+                    "You may set the desired distro/version setting:\n"
+                    f"args: {{distro_image: {distro}, distro_tag: latest}}"
+                ),
+                after_indent=6,
+            )
     return result
 
 
