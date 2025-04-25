@@ -1,0 +1,43 @@
+---
+name: Deploy FreeIPA with ansible-freeipa
+"on":
+  - push
+  # - pull_request
+jobs:
+  deploy_ipa:
+    name: Deploy ansible-freeipa cluster
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        distro:
+          - fedora:latest
+          - fedora:41
+          - centos:stream9
+          - centos:stream10
+    steps:
+      - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5.1.0
+        with:
+          python-version: "3.x"
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install '.[opt]'
+          python3 -m pip install ansible-core podman-compose
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install freeipa.ansible_freeipa containers.podman
+      - name: Create configuration files
+        run: ipalab-config -o COMPOSE_DIR -d ${{ matrix.distro }} examples/simple-cluster.yml
+      - name: Start environment and deploy FreeIPA cluster
+        working-directory: ./COMPOSE_DIR
+        run: |
+          podman-compose up -d --build
+          # workaround for running 'sudo' on Github Ubuntu 24.04 runners
+          for container in server replica client
+          do
+              podman exec "${container}" chmod u+r /etc/shadow
+          done
+          ansible-playbook -i inventory.yml \
+              ${HOME}/.ansible/collections/ansible_collections/freeipa/ansible_freeipa/playbooks/install-cluster.yml
