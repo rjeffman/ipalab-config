@@ -24,4 +24,4 @@ ipa_deployments:
       clients:
         - name: cli-01  # wil use deployment distro
         - name: cli-02
-          distro: fedora-latest  # will override the deployment distro
+          distro: fedora # will override the deployment distro

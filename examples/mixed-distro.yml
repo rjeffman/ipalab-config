@@ -1,4 +1,4 @@
-# By default, the distro used is 'fedora-latest'.
+# By default, the distro used is 'fedora'.
 ---
 lab_name: mixed-distro
 subnet: "192.168.6.0/24"

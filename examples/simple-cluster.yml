@@ -7,7 +7,7 @@
 #
 # Client has no special settings.
 #
-# By default, the ditro used is 'fedora-latest'.
+# By default, the ditro used is 'fedora'.
 ---
 lab_name: simple-cluster
 subnet: "192.168.8.0/24"
