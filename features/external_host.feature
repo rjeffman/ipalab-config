@@ -100,6 +100,11 @@ Scenario: External DNS
               ipaclient_no_ntp: false
               ipaserver_setup_firewalld: false
               ipaserver_no_host_dns: true
+              ipaserver_idstart: 60001
+              ipaserver_idmax: 62000
+              ipaserver_rid_base: 63000
+              ipaserver_secondary_rid_base: 65000
+
         """
       And the ipa-lab/hosts file contains
         """

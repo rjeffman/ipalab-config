@@ -66,6 +66,10 @@ Scenario: Minimal single server
               ipaclient_no_ntp: false
               ipaserver_setup_firewalld: false
               ipaserver_no_host_dns: true
+              ipaserver_idstart: 60001
+              ipaserver_idmax: 62000
+              ipaserver_rid_base: 63000
+              ipaserver_secondary_rid_base: 65000
         """
       And the "ipa-lab/containerfiles" directory was copied
 
@@ -183,6 +187,10 @@ Scenario: Minimum IPA cluster
               ipaserver_forward_policy: first
               ipaserver_no_dnssec_validation: true
               ipaserver_auto_reverse: true
+              ipaserver_idstart: 60001
+              ipaserver_idmax: 62000
+              ipaserver_rid_base: 63000
+              ipaserver_secondary_rid_base: 65000
             replica:
               ipareplica_hostname: replica.ipa.test
               ipaadmin_password: SomeADMINpassword
@@ -323,6 +331,10 @@ Scenario: FQDN containers and replica capapabilities
               ipaserver_forward_policy: first
               ipaserver_no_dnssec_validation: true
               ipaserver_auto_reverse: true
+              ipaserver_idstart: 60001
+              ipaserver_idmax: 62000
+              ipaserver_rid_base: 63000
+              ipaserver_secondary_rid_base: 65000
             replica.ipa.test:
               ipareplica_hostname: replica.ipa.test
               ipaadmin_password: SomeADMINpassword

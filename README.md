@@ -130,11 +130,12 @@ These are the available options to configure the first server and the replicas:
 | `name`     | The name of the server. | yes | - |
 | `hostname` | The server hostname. | no | _<server name>_._<domain>_ |
 | `distro`   | The containerfile/image to use. | no | `fedora` |
-| `volumes`   | A list of bind volume specifications. | no | - |
+| `volumes`  | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
 | `memory`   | The maximum amount of memory to use defined as an integer number and a unit. The unit can be `b`, `k` or `kb`, `m` or `mb`, or `g` or `gb` (case insensitive). | no |
-| `nolog`      | Do not mount `/var/log` on the host. | no | False |
+| `nolog`    | Do not mount `/var/log` on the host. | no | False |
+| `no_limit_uid` | Do not automatically limit deployment idrange to safe values for rootless containers. Only evaluated on the first server of the deployment. | no | false |
 | `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check [ansible-freeipa roles documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles) for valid values | no | - |
 
 
