@@ -29,7 +29,17 @@ def get_server_inventory(config, default_config, deployment):
 
     name = get_node_name(config["name"], deployment)
     hostname = get_hostname(config, name, deployment["domain"])
-    options = {"ipaserver_hostname": hostname, **default_config}
+    options = (
+        {}
+        if config.get("no_limit_uid")
+        else {
+            "ipaserver_idstart": 60001,
+            "ipaserver_idmax": 62000,
+            "ipaserver_rid_base": 63000,
+            "ipaserver_secondary_rid_base": 65000,
+        }
+    )
+    options.update({"ipaserver_hostname": hostname, **default_config})
     for cap in config.get("capabilities", []):
         options.update(cap_opts.get(cap, {}))
     options.update(
