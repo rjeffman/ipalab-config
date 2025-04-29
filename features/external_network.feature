@@ -1,7 +1,7 @@
 Feature: Allow usage of pre-exising container networks
     In order to have full control of DNS entries
-    As a developer os sysadmin
-    I want to be able so use a previously configured container network.
+    As a developer or sysadmin
+    I want to be able to use a previously configured container network.
 
 Scenario: Use an external network
     Given the deployment configuration
