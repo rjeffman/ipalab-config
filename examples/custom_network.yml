@@ -1,0 +1,13 @@
+---
+network:
+    name: custom_network
+    subnet: "192.168.159.0/24"
+    no_dns: true
+ipa_deployments:
+  - name: server_only
+    domain: ipa.test
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server

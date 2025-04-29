@@ -141,20 +141,42 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
     return nodes, result
 
 
-def get_network_config(lab_config, subnet):
+def get_network_config(lab_config):
     """Generate the compose "networks" configuration."""
-    if "network" in lab_config:
-        networkname = lab_config["network"]
+    subnet = lab_config.get("subnet")
+    network = lab_config.get("network") or {}
+    if isinstance(network, str):
+        networkname = network
         config = {networkname: {"external": True}}
     else:
-        networkname = "ipanet"
+        networkname = network.get("name", "ipanet")
+        name = network.get("name", f"ipanet-{lab_config['lab_name']}")
+        subnet = network.get("subnet", subnet or "192.168.159.0/24")
         config = {
-            "ipanet": {
-                "name": f"ipanet-{lab_config['lab_name']}",
-                "driver": "bridge",
+            networkname: {
+                "name": name,
+                "driver": network.get("driver", "bridge"),
                 "ipam": {"config": [{"subnet": subnet}]},
             }
         }
+        no_dns = network.get("no_dns", False)
+        if network.get("external"):
+            config[networkname]["external"] = True
+        if no_dns or "dns" in network:
+            print("WARNING: DNS options require 'podman-compose > 1.3.0'")
+        if no_dns:
+            config[networkname]["x-podman.disable_dns"] = True
+        if "dns" in network:
+            dns = network["dns"]
+            if not dns:
+                raise ValueError("'network.dns' must not be empty")
+            if not isinstance(dns, (str, list)):
+                raise ValueError("'network.dns' must be a string or a list")
+            config[networkname]["x-podman.dns"] = dns
+    # Ensure subnet is correctly set
+    if config[networkname].get("external", False) and subnet is None:
+        raise ValueError("'subnet' is required for 'external' networks")
+    lab_config.setdefault("subnet", subnet)
     return networkname, config
 
 
@@ -285,9 +307,8 @@ def gen_compose_data(lab_config):
     config = {"name": lab_config["lab_name"]}
     config.setdefault("services", {})
 
-    subnet = lab_config["subnet"]
-    ip_generator = get_ip_address_generator(subnet)
-    networkname, config["networks"] = get_network_config(lab_config, subnet)
+    networkname, config["networks"] = get_network_config(lab_config)
+    ip_generator = get_ip_address_generator(lab_config["subnet"])
 
     # Add external hosts
     config["services"].update(
