@@ -100,6 +100,20 @@ The configuration file is a YAML file with attributes used to set both the compo
 | `extra_data` | A list of files and folders to copy into the generated target directory. | no | - |
 | `mount_varlog` | Mount containers '/var/log' files to be accessible from the host. | no | False |
 | `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
+| `network` | The name of an external network or a dict with the network configuration. | no | - |
+
+**network**
+
+The `network` may be defined as a string representing an external network name, and in this case, the global attribute `subnet` must be explicitly set. If the value holds a dictionary, no option is required, altought at least one value must be set.
+
+| Name       |  Description                 | Default |
+| :--------- | :--------------------------- | :------ |
+| `name`     | The name of the network.     | "ipanet" |
+| `subnet`   | A CIDR representing the subnet to be used for the containers. | "192.168.159.0/24" |
+| `external` | When set to `true`, an external network will be used for the compose | False |
+| `driver`   | The network driver to use.   | "bridge" |
+| `no_dns`   | When set to `true` disables the network DNS plugin. | false |
+| `dns`      | Set the address (str) or addresses (list) of DNS nameserver the network will use. | - |
 
 **ipa_deployments**
 
@@ -213,7 +227,6 @@ If using the default image configuration, to setup a trust from IPA side, use:
 $ ipa dnsforward-zone <ad domain> --forwarder=<addc.ip_address>
 $ ipa trust-add <ad domain> --admin=Administrator --password <<< <admin_pass>
 ```
-
 
 _Role `dns`_
 

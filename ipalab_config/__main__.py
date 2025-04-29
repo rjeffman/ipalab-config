@@ -223,11 +223,6 @@ def set_default_values(data, args):
         distro, *tag = args.DISTRO.split(":", 1)
         data["distro"] = distro
         data["tag"] = "".join(tag) if tag else None
-    if "network" in data:
-        if "subnet" not in data:
-            raise ValueError("'subnet' is required for 'external' networks")
-    else:
-        data.setdefault("subnet", "192.168.159.0/24")
     data.setdefault("container_fqdn", False)
     data.setdefault("mount_varlog", args.VARLOG)
     data.setdefault("domain", "ipalab.local")
