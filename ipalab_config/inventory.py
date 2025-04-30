@@ -74,7 +74,7 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
         "HIDDEN": {"ipareplica_hidden_replica": True},
     }
 
-    # commom options
+    # common options
     common = {
         "ipareplica_setup_firewalld": False,
         "ipareplica_no_host_dns": True,

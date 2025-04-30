@@ -53,7 +53,7 @@ ipa_deployments:
         - name: client
 ```
 
-The output is a directory `simple-cluster` (defined by the attribute `lab_name`) containing a compose configuration file (`compose.yml`), compatible with Docker and Podman, an inventory file (`inventory.yml`), customized for the created environment, a `containerfiles` directory with the container files recipes to allow FreeIPA deployment in containers, and a requirements file (`requirements.yml`) for Ansible if one wants to use `ansible-freeipa` to deploy the nodes.
+The output is a directory `simple-cluster` (defined by the attribute `lab_name`) containing a compose configuration file (`compose.yml`), compatible with Docker and Podman, an inventory file (`inventory.yml`) customized for the created environment, a `containerfiles` directory with the container files recipes to allow FreeIPA deployment in containers, and a requirements file (`requirements.yml`) for Ansible if one wants to use `ansible-freeipa` to deploy the nodes.
 
 To bring up the compose, use podman compose tool. Native `podman-compose` is provided in a separate package (`podman-compose` on Fedora) which needs to be installed in advance. Once the package is available, run:
 
@@ -103,7 +103,7 @@ The configuration file is a YAML file with attributes used to set both the compo
 
 **ipa_deployments**
 
-Each entry in the `ipa-deployments` list define a FreeIPA cluster. All defined hosts will be composed in the same _pod_.
+Each entry in the `ipa-deployments` list defines a FreeIPA cluster. All defined hosts will be composed in the same _pod_.
 
 | Name       | Description                  | Required | Default |
 | :--------- | :--------------------------- | :------: | :------ |
@@ -119,7 +119,7 @@ Each entry in the `ipa-deployments` list define a FreeIPA cluster. All defined h
 
 **Cluster Nodes**
 
-The cluster nodes are defined for each deployment, and may have `servers` or `clients`. At least one 'server' should always be defined. If no server or client is defined, an error is returned.
+The cluster nodes are defined for each deployment, and may have `servers` or `clients`. At least one "server" should always be defined. If no server or client is defined, an error is returned.
 
 The `servers` list is a list of the servers for the deployment. The order is important, as the first server configuration will be used as the initial server, and will always have `CA` capabilities. It will also be the initial `CA renewal` server of the deployment. The other servers can have any configuration, and will be considered `replicas` (in ansible-freeipa idiom).
 
@@ -196,7 +196,7 @@ The available `vars` that can be used to customize the node through the inventor
 
 | Name   | Description       |  Default |
 | :----- | :---------------- | :------- |
-| `forwarder` | Should always set to one of the available nameservers (Unbound or IPA). | - |
+| `forwarder` | Should always be set to one of the available nameservers (Unbound or IPA). | - |
 | `admin_pass` | The "Administrator" password. | Secret123 |
 | `krb5_pass` | Samba KRB5 password. | _same as `admin_pass`_ |
 | `install_packages` | If the default package list for the role is to be installed. | true |
@@ -252,10 +252,9 @@ In the output directory the following files and directories are present:
 | :---------- | :--------------------------- |
 | compose.yml | The compose file to use with `podman-compose` |
 | inventory.yml | An Ansible inventory file for the cluster with ansible-freeipa variables |
-| hosts | A list with ip-hostnames pairs no be added to the host `/etc/hosts` so the nodes are accessible by name |
-| requirements.yml | The Ansible collection requirements no deploy the cluster |
+| hosts | A list with ip-hostnames pairs to be added to the host `/etc/hosts` so the nodes are accessible by name |
+| requirements.yml | The Ansible collection requirements to deploy the cluster |
 | containerfiles | A collection of containerfiles for some Linux images where FreeIPA server and/or client is known to work with this configuration |
-| playbooks | A directory where the 'install-cluster.yml' playbook and any additional playbook is stored |
 
 
 **About the Ansible inventory file**
@@ -274,9 +273,9 @@ To select a specific group of clients or server, one can use host filtering in a
 Playbooks
 ---------
 
-It is possible to provide a set of Ansible playbooks along with the configurations files by using the `-p/--playbook` command line option. This will a any file to the output `playbooks` directory.
+It is possible to provide a set of Ansible playbooks along with the configurations files by using the `-p/--playbook` command line option. This will add any file to the output `playbooks` directory.
 
-If pass a directory as argument to `-p` the directory will be searched recursively for `*.yml` and `*.yaml` files and add them to the `playbooks` directory.
+If passing directory as an argument to `-p`, the directory will be searched recursively for `*.yml` and `*.yaml` files and add them to the `playbooks` directory.
 
 Note that the `playbooks` directory is flat, so if your files share the same file name, the last file will overwrite the other files with the same name.
 
@@ -294,9 +293,9 @@ The target directory then will contain `somelab/playbooks` as a copy of the `pla
 jinja2 templating
 -----------------
 
-There is optional support for jinja2 templating, it will be available if jinja2 is available on the host.
+There is optional support for jinja2 templating, it's available if jinja2 is available on the host.
 
-The Jinja2 dependency is part of the extra `opt`, and can be installed with
+The jinja2 dependency is part of the extra `opt`, and can be installed with
 
 ```
 pip install ipalab-config[opt]

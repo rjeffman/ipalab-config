@@ -75,7 +75,7 @@ Scenario: Minimal single server
 
 Scenario: Minimum IPA cluster
     # Note: for a minimal cluster, it is currently required that
-    # the first server provides a DNS nameserver, or that contairers
+    # the first server provides a DNS nameserver, or that containers
     # names are FQDN.
     Given the deployment configuration
     """
@@ -218,7 +218,7 @@ Scenario: Minimum IPA cluster
         """
       And the "ipa-lab/containerfiles" directory was copied
 
-Scenario: FQDN containers and replica capapabilities
+Scenario: FQDN containers and replica capabilities
     Given the deployment configuration
     """
     container_fqdn: true

@@ -1,4 +1,4 @@
-"""Helper funcitions to generate a podman compose file."""
+"""Helper functions to generate a podman compose file."""
 
 from collections import namedtuple
 
@@ -35,7 +35,7 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
     # fmt: off
     result = CommentedMap({
         "container_name": name,
-        # Use DoubleQuotedScalarString as 'no' without quentos may be
+        # Use DoubleQuotedScalarString as 'no' without quotes may be
         # interpreted as boolean False by PyYAML loaders.
         "restart": DoubleQuotedScalarString("no"),
         "cap_add": ["SYS_ADMIN", "DAC_READ_SEARCH"],
