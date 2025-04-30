@@ -1,4 +1,4 @@
-Feature: Allow usage of pre-exising container networks
+Feature: Allow usage of pre-existing container networks
     In order to have full control of DNS entries
     As a developer or sysadmin
     I want to be able to use a previously configured container network.

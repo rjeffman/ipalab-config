@@ -3,7 +3,7 @@
 # configured is a way that may not work for FreeIPA deployment.
 #
 # This is the reason the provided containerfiles in ipalab-config use some
-# helper scripts to circunvent these issues and limitations.
+# helper scripts to circumvent these issues and limitations.
 #
 # Another option, that is more dependent on the user environment, is to
 # use '--dns' with podman CLI or 'dns' in the compose file.
@@ -18,7 +18,7 @@
 ---
 lab_name: custom-containerfile-with-dns
 containerfiles: ["containerfiles/custom_distro"]
-container_fqdn: true  # required to deploy replicas on multiple doamins
+container_fqdn: true  # required to deploy replicas on multiple domains
 subnet: "192.168.1.0/24"
 ipa_deployments:
   - name: origin

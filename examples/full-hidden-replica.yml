@@ -4,7 +4,7 @@ subnet: "192.168.4.0/24"
 ipa_deployments:
   - name: cluster
     domain: ipa.test
-    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
+    realm: IPA.TEST  # optional, by default it is domain in uppercase
     admin_password: SomeADMINpassword
     dm_password: SomeDMpassword
     cluster:

@@ -4,7 +4,7 @@ subnet: "192.168.11.0/24"
 ipa_deployments:
   - name: cluster
     domain: ipa.test
-    realm: IPA.TEST  # optional, by defaul it is domain in uppercase
+    realm: IPA.TEST  # optional, by default it is domain in uppercase
     admin_password: SomeADMINpassword
     dm_password: SomeDMpassword
     cluster:
@@ -20,7 +20,7 @@ ipa_deployments:
           ipaclient_mkhomedir: true
         hosts:
           - name: cli-01
-            vars:  # Apply onnly to cli-01
+            vars:  # Apply only to cli-01
               ipaclient_install_packages: true
           - name: cli-02
           - name: cli-03

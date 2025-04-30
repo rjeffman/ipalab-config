@@ -31,7 +31,7 @@ def parse_arguments():
     opt_parser = argparse.ArgumentParser(
         prog="ipa-lab-config",
         description=(
-            "Generate compose and inventory conifguration for FreeIPA lab."
+            "Generate compose and inventory configuration for FreeIPA lab."
         ),
     )
     opt_parser.add_argument("CONFIG", help="Lab description")
