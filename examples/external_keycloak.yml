@@ -1,0 +1,22 @@
+# Use the available scripts to add users and an OIDC to Keycloak.
+---
+lab_name: ipa-idp-keycloak
+subnet: "192.168.14.0/24"
+container_fqdn: false
+external:
+  hosts:
+  - name: keycloak
+    hostname: keycloak.external.test
+    role: keycloak
+    options:
+      # admin_username: defaults to "admin"
+      # admin_password: defaults to "secret123"
+ipa_deployments:
+  - name: ipa
+    domain: ipa.test
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          # capabilities: ["DNS"]

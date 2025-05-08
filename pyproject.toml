@@ -48,6 +48,7 @@ ipalab_config = [
     "data/containerfiles/*",
     "data/playbooks/*.yml",
     "data/unbound/*",
+    "data/keycloak/*",
 ]
 
 [tool.setuptools.dynamic]

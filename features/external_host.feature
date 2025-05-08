@@ -219,3 +219,81 @@ Scenario: Samba AD DC
               - subnet: 192.168.13.0/24
         """
       And the file "playbooks/deploy_addc.yml" was copied to "ipa-ad-trust/playbooks/deploy_addc.yml"
+
+
+Scenario: Keycloak
+    Given the deployment configuration
+    """
+    lab_name: ipa-idp
+    subnet: "192.168.14.0/24"
+    external:
+      hosts:
+      - name: keycloak
+        hostname: keycloak.external.test
+        role: keycloak
+        ip_address: 192.168.14.10
+        options:
+          admin_username: administrator
+          admin_password: SomeKCpass
+    ipa_deployments:
+      - name: ipa
+        domain: linux.ipa.test
+        admin_password: SomeADMINpassword
+        dm_password: SomeDMpassword
+        cluster:
+          servers:
+            - name: server
+    """
+      When I run ipalab-config
+      Then the ipa-idp/compose.yml file is
+        """
+        name: ipa-idp
+        services:
+          keycloak:
+            container_name: keycloak
+            restart: no
+            cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+            security_opt:
+            - label=disable
+            hostname: keycloak.external.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.14.10
+            image: localhost/keycloak
+            build:
+              context: keycloak
+              dockerfile: Containerfile
+              args:
+                hostname: keycloak.external.test
+            entrypoint: /opt/keycloak/bin/kc.sh start
+            environment:
+              KC_BOOTSTRAP_ADMIN_USERNAME: administrator
+              KC_BOOTSTRAP_ADMIN_PASSWORD: SomeKCpass
+              KC_HOSTNAME: keycloak.external.test
+          server:
+            container_name: server
+            restart: no
+            cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+            security_opt:
+            - label=disable
+            hostname: server.linux.ipa.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.14.2
+            image: localhost/fedora:latest
+            build:
+              context: containerfiles
+              dockerfile: fedora
+        networks:
+          ipanet:
+            name: ipanet-ipa-idp
+            driver: bridge
+            ipam:
+              config:
+              - subnet: 192.168.14.0/24
+        """
+        And the "ipa-idp/keycloak" directory was copied
