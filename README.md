@@ -255,6 +255,18 @@ Example using zone volumes:
   volumes: ["/hostPath:/etc/unbound:Z"]
 ```
 
+_Role Keycloak_
+
+The node with `role: keycloak` provides a node with a Keycloak deployment.
+
+Some scripts are provided under the `keycloak` directory to aid the configuration for using the node as an external identity provider (_external IdP_) for the IPA deployment. The available scripts are:
+
+* `trust_keycloak.sh`: Must be called on all IPA nodes so that the Keycloak self-signed certificate is trusted by the node.
+* `keycloak_add_oidc_client.sh`: Add on OIDC client to the Keycloak `master` realm. Requires the IPA primary server hostname, the OIDC client ID and the OIDC client password.
+*  `keycloak_add_user.sh`: Add a user to the Keycloak `master` realm, given its username, email and password.
+
+The Keycloak HTTPS server runs on port `8443` and it must be reflected on the IPA IDP configuration (`base-url`).
+
 
 Output Files
 ------------

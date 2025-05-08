@@ -1,0 +1,50 @@
+FROM alpine:latest AS cert
+
+ARG hostname=keycloak.external.test
+
+RUN apk add openssl
+
+RUN openssl req -x509 -newkey rsa:4096 -keyout /key.pem -out /cert.pem \
+        -sha256 -days 3650 -nodes \
+        -subj "/CN=${hostname}" \
+            -addext "subjectAltName=DNS:${hostname},DNS:*.${hostname},DNS:${hostname}"
+
+RUN echo -e "password\npassword" | openssl pkcs12 -export \
+        -in /cert.pem -inkey /key.pem \
+        -out /certificate.p12 -name "keycloak"
+
+FROM quay.io/keycloak/keycloak:latest AS builder
+
+ARG hostname=keycloak.external.test
+
+COPY --from=cert --chown=keycloak /cert.pem /opt/keycloak/conf
+COPY --from=cert --chown=keycloak /key.pem /opt/keycloak/conf
+COPY --from=cert --chown=keycloak /certificate.p12 /opt/keycloak/conf
+
+RUN ls /opt/keycloak/conf
+
+WORKDIR /opt/keycloak
+RUN \
+    keytool -importkeystore \
+        -storepass password \
+        -srcstorepass password \
+        -storetype PKCS12 \
+        -srckeystore /opt/keycloak/conf/certificate.p12 \
+        -destkeystore /opt/keycloak/conf/server.keystore \
+    ;
+
+RUN /opt/keycloak/bin/kc.sh build \
+    ;
+
+RUN /opt/keycloak/bin/kc.sh show-config \
+    ;
+
+FROM quay.io/keycloak/keycloak:latest
+COPY --from=builder /opt/keycloak/ /opt/keycloak/
+
+ARG hostname=keycloak.external.test
+ENV KC_HOSTNAME=${hostname}
+
+RUN echo "Hostname: ${KC_HOSTNAME}"
+
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
