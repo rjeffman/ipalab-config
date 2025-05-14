@@ -68,10 +68,14 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
     return result
 
 
-def get_container_name(name, domain, container_fqdn):
+def get_container_name(container, domain, container_fqdn):
     """Ensure proper creation of container name."""
+    name = container["name"]
     if container_fqdn:
-        name = ensure_fqdn(name, domain)
+        if container.get("hostname"):
+            name = ensure_fqdn(container["hostname"], domain)
+        else:
+            name = ensure_fqdn(name, domain)
     return name
 
 
@@ -95,9 +99,7 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
     tag = kwargs.get("tag")
     mount_varlog = kwargs.get("mount_varlog", False)
     for container in containers:
-        name = get_container_name(
-            container["name"], network.domain, container_fqdn
-        )
+        name = get_container_name(container, network.domain, container_fqdn)
         node_distro = container.get("distro", distro)
         node_tag = container.get("tag", tag)
         hostname = get_hostname(container, name, network.domain)
@@ -281,21 +283,31 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
     # Udate external nodes
     for node in ext_nodes:
         role = node.get("role")
-        if not role:
-            continue
-        try:
-            module = import_external_role_module(role)
-        except ImportError:
-            raise RuntimeError(f"Invalid external role: {role}") from None
-        service = services[node["name"]]
-        service.update(getattr(module, "base_config", {}))
-        volumes = service.pop("volumes", None)
+
+        def service_from_node(services, node):
+            if node["name"] in services:
+                return services[node["name"]]
+            if node.get("hostname") in services:
+                return services[node.get("hostname")]
+            return None
+
+        service = service_from_node(services, node)
+        if role:
+            # Use defaults for choosen role
+            try:
+                module = import_external_role_module(role)
+            except ImportError:
+                raise RuntimeError(f"Invalid external role: {role}") from None
+            service.update(getattr(module, "base_config", {}))
         # Merge volumes with user configuration
+        volumes = service.pop("volumes", None)
         if volumes:
             uservol = service.get("volumes", [])
             uservol.extend(volumes)
             service["volumes"] = uservol
+        # save node original configuration
         service["external_node"] = node
+        # setup node DNS
         if dns:
             service["dns"] = dns
 
