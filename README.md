@@ -143,7 +143,8 @@ These are the available options to configure the first server and the replicas:
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The name of the server. | yes | - |
 | `hostname` | The server hostname. | no | _<server name>_._<domain>_ |
-| `distro`   | The containerfile/image to use. | no | `fedora` |
+| `distro`   | The containerfile or local image to use. | no | `fedora` |
+| `image`    | The container image to use. (Overrides `distro`.) | no | - |
 | `volumes`  | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
@@ -167,8 +168,9 @@ To configure the clients, these are the available attributes:
 | :--------- | :--------------------------- | :------: | :------ |
 | `name`     | The name of the client node. | yes | - |
 | `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
-| `distro`   | The containerfile/image to use. | no | `fedora` |
-| `volumes`   | A list of bind volume specifications. | no | - |
+| `distro`   | The containerfile or local image to use. | no | `fedora` |
+| `image`    | The container image to use. (Overrides `distro`.) | no | - |
+| `volumes`  | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `nolog`      | Do not mount `/var/log` on the host. | no | False |
 | `vars` | _Dict_ of variables to use in the deployment of this client node. Check [ansible-freeipa ipaclient documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles/ipaclient) for valid values | no | - |

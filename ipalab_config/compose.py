@@ -29,9 +29,24 @@ def get_effective_nameserver(nameserver, domain):
 
 
 def get_node_base_config(  # pylint: disable=R0913,R0917
-    name, hostname, networkname, ipaddr, distro, tag=None
+    name, hostname, networkname, ipaddr, distro=None, tag=None, image=None
 ):
     """Returns the basic node configuration."""
+    node_image = {}
+    if distro is None and image is None:
+        distro = "fedora"
+    if distro:
+        node_image = {
+            "image": f"localhost/{distro}:{'latest' if tag is None else tag}",
+            "build": {
+                "context": "containerfiles",
+                "dockerfile": f"{distro}",
+            },
+        }
+    print("image:", image)
+    if image:
+        node_image = {"image": image}
+
     # fmt: off
     result = CommentedMap({
         "container_name": name,
@@ -42,29 +57,26 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
         "security_opt": ["label=disable"],
         "hostname": hostname,
         "networks": {networkname: {"ipv4_address": str(ipaddr)}},
-        "image": f"localhost/{distro}:{'latest' if tag is None else tag}",
-        "build": {
-            "context": "containerfiles",
-            "dockerfile": f"{distro}",
-        },
+        **node_image
     })
     # fmt: on
     supported_distros = {"fedora", "centos", "external-nodes", "ubuntu"}
-    if tag is not None and distro in supported_distros:
-        args = {"distro_image": distro, "distro_tag": tag}
-        result["build"]["args"] = args
-    else:
-        # If no tag is given, and distro is one of the ipalab-config
-        # provided ones, add a commented our "args" option to "build".
-        if distro in supported_distros:
-            result.yaml_set_comment_before_after_key(
-                "build",
-                after=(
-                    "You may set the desired distro/version setting:\n"
-                    f"args: {{distro_image: {distro}, distro_tag: latest}}"
-                ),
-                after_indent=6,
-            )
+    if "build" in result:
+        if tag is not None and distro in supported_distros:
+            args = {"distro_image": distro, "distro_tag": tag}
+            result["build"]["args"] = args
+        else:
+            # If no tag is given, and distro is one of the ipalab-config
+            # provided ones, add a commented our "args" option to "build".
+            if distro in supported_distros:
+                result.yaml_set_comment_before_after_key(
+                    "build",
+                    after=(
+                        "You may set the desired distro/version setting:\n"
+                        f"args: {{distro_image: {distro}, distro_tag: latest}}"
+                    ),
+                    after_indent=6,
+                )
     return result
 
 
@@ -102,6 +114,7 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
         name = get_container_name(container, network.domain, container_fqdn)
         node_distro = container.get("distro", distro)
         node_tag = container.get("tag", tag)
+        node_image = container.get("image")
         hostname = get_hostname(container, name, network.domain)
         ipaddr = container.get("ip_address")
         if not ipaddr:
@@ -114,6 +127,7 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
             str(ipaddr),
             node_distro,
             node_tag,
+            node_image,
         )
         if "memory" in container:
             config.update(
@@ -291,6 +305,8 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
                 return services[node.get("hostname")]
             return None
 
+        print("\n".join(services.keys()))
+        print(node.get("name"), node.get("hostname"))
         service = service_from_node(services, node)
         if role:
             # Use defaults for choosen role
@@ -299,6 +315,10 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
             except ImportError:
                 raise RuntimeError(f"Invalid external role: {role}") from None
             service.update(getattr(module, "base_config", {}))
+        # Use provided node image
+        if node.get("image"):
+            service.pop("distro", None)
+            service["image"] = node.get("image")
         # Merge volumes with user configuration
         volumes = service.pop("volumes", None)
         if volumes:
