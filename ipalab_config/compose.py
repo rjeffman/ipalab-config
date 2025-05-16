@@ -5,6 +5,7 @@ from collections import namedtuple
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 from ruamel.yaml.comments import CommentedMap
 
+from ipalab_config.logger import logger
 from ipalab_config.utils import (
     die,
     get_hostname,
@@ -178,7 +179,7 @@ def get_network_config(lab_config):
         if network.get("external"):
             config[networkname]["external"] = True
         if no_dns or "dns" in network:
-            print("WARNING: DNS options require 'podman-compose > 1.3.0'")
+            logger.warning("DNS options require 'podman-compose > 1.3.0'")
         if no_dns:
             config[networkname]["x-podman.disable_dns"] = True
         if "dns" in network:
@@ -241,7 +242,10 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
             services.update(servers_cfg)
             nodes.update(ips)
         else:
-            print(f"Warning: No servers defined for domain '{domain}'")
+            logger.warning(
+                "No servers defined for domain '%(domain)s'",
+                domain=domain,
+            )
             lab_config["deployment_nameservers"].append(None)
         # Get clients configuration
         clients = cluster_config.get("clients")

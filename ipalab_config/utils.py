@@ -2,17 +2,18 @@
 
 import os
 import shutil
-import sys
 import socket
 import ipaddress
 import importlib
 import importlib.resources
 import functools
 
+from ipalab_config.logger import logger
+
 
 def die(msg, err=1):  # pragma: no cover
     """Display message to stderr stream and exit program with error."""
-    print("FATAL:", msg, file=sys.stderr)
+    logger.critical(msg)
     return err
 
 
