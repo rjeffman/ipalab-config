@@ -43,7 +43,6 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
                 "dockerfile": f"{distro}",
             },
         }
-    print("image:", image)
     if image:
         node_image = {"image": image}
 
@@ -305,8 +304,6 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
                 return services[node.get("hostname")]
             return None
 
-        print("\n".join(services.keys()))
-        print(node.get("name"), node.get("hostname"))
         service = service_from_node(services, node)
         if role:
             # Use defaults for choosen role
