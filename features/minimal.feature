@@ -42,6 +42,8 @@ Scenario: Minimal single server
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -117,6 +119,8 @@ Scenario: Minimum IPA cluster
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -133,6 +137,8 @@ Scenario: Minimum IPA cluster
             networks:
               ipanet:
                 ipv4_address: 192.168.159.3
+            extra_hosts:
+              - replica.ipa.test:192.168.159.3
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -149,6 +155,8 @@ Scenario: Minimum IPA cluster
             networks:
               ipanet:
                 ipv4_address: 192.168.159.4
+            extra_hosts:
+              - client.ipa.test:192.168.159.4
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -261,6 +269,8 @@ Scenario: FQDN containers and replica capabilities
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -277,6 +287,8 @@ Scenario: FQDN containers and replica capabilities
             networks:
               ipanet:
                 ipv4_address: 192.168.159.3
+            extra_hosts:
+              - replica.ipa.test:192.168.159.3
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -293,6 +305,8 @@ Scenario: FQDN containers and replica capabilities
             networks:
               ipanet:
                 ipv4_address: 192.168.159.4
+            extra_hosts:
+              - client.ipa.test:192.168.159.4
             image: localhost/fedora:latest
             build:
               context: containerfiles

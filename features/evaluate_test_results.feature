@@ -41,6 +41,8 @@ Scenario: Mount /var/log in log/<node>
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -88,6 +90,8 @@ Scenario: Do not /var/log in log/<node> for selected nodes
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -106,6 +110,8 @@ Scenario: Do not /var/log in log/<node> for selected nodes
             networks:
               ipanet:
                 ipv4_address: 192.168.159.3
+            extra_hosts:
+              - replica.ipa.test:192.168.159.3
             image: localhost/fedora:latest
             build:
               context: containerfiles

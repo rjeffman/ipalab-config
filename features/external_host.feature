@@ -51,6 +51,8 @@ Scenario: External DNS
             networks:
               external_dns:
                 ipv4_address: 192.168.53.2
+            extra_hosts:
+              - server.ipa.test:192.168.53.2
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -69,6 +71,8 @@ Scenario: External DNS
             networks:
               external_dns:
                 ipv4_address: 192.168.53.254
+            extra_hosts:
+              - unbound.ipa.test:192.168.53.254
             image: localhost/unbound
             build:
               context: unbound
@@ -187,6 +191,8 @@ Scenario: Samba AD DC
             networks:
               ipanet:
                 ipv4_address: 192.168.13.250
+            extra_hosts:
+              - dc.ad.ipa.test:192.168.13.250
             image: localhost/samba-addc
             build:
               context: containerfiles
@@ -206,6 +212,8 @@ Scenario: Samba AD DC
             networks:
               ipanet:
                 ipv4_address: 192.168.13.2
+            extra_hosts:
+              - server.linux.ipa.test:192.168.13.2
             image: localhost/fedora:latest
             build:
               context: containerfiles
@@ -261,6 +269,8 @@ Scenario: Keycloak
             networks:
               ipanet:
                 ipv4_address: 192.168.14.10
+            extra_hosts:
+              - keycloak.external.test:192.168.14.10
             image: localhost/keycloak
             build:
               context: keycloak
@@ -284,6 +294,8 @@ Scenario: Keycloak
             networks:
               ipanet:
                 ipv4_address: 192.168.14.2
+            extra_hosts:
+              - server.linux.ipa.test:192.168.14.2
             image: localhost/fedora:latest
             build:
               context: containerfiles

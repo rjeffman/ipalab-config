@@ -43,6 +43,8 @@ Scenario: Deploy server with custom containerfile
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/my-container:latest
             build:
               context: containerfiles
@@ -90,6 +92,8 @@ Scenario: Pass container file through the command line
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/my-container:latest
             build:
               context: containerfiles

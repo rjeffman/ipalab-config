@@ -56,6 +56,7 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
         "cap_add": ["SYS_ADMIN", "DAC_READ_SEARCH"],
         "security_opt": ["label=disable"],
         "hostname": hostname,
+        "extra_hosts": [f"{hostname}:{str(ipaddr)}"],
         "networks": {networkname: {"ipv4_address": str(ipaddr)}},
         **node_image
     })

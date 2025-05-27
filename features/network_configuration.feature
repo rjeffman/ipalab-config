@@ -44,6 +44,8 @@ Scenario: Configure the pod network
             networks:
               custom_network:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/fedora:latest
             build:
               context: containerfiles

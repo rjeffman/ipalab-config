@@ -41,6 +41,8 @@ Scenario: Use CentOS Stream with default tag
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/centos:latest
             build:
               context: containerfiles
@@ -86,6 +88,8 @@ Scenario: Use CentOS Stream 10
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/centos:stream10
             build:
               context: containerfiles
@@ -133,6 +137,8 @@ Scenario: Use CentOS Stream 9
             networks:
               ipanet:
                 ipv4_address: 192.168.159.2
+            extra_hosts:
+              - server.ipa.test:192.168.159.2
             image: localhost/centos:stream9
             build:
               context: containerfiles
