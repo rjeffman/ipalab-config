@@ -269,6 +269,7 @@ def generate_ipalab_configuration():
     save_containers_data(data, base_dir, args)
     save_ansible_data(data, base_dir, args)
     gen_optional_files(data, base_dir, yaml)
+    copy_helper_files(base_dir, "scripts")
 
     # process user extra_data
     if "extra_data" in data:
