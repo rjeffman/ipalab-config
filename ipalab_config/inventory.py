@@ -66,9 +66,7 @@ def get_replicas_inventory(replicas_config, default_config, deployment):
             "ipareplica_no_dnssec_validation": True,
             "ipareplica_auto_reverse": True,
         },
-        "KRA": {
-            "ipareplica_setup_dns": True,
-        },
+        "KRA": {"ipareplica_setup_kra": True},
         "AD": {"ipareplica_setup_adtrust": True},
         "CA": {"ipareplica_setup_ca": True},
         "HIDDEN": {"ipareplica_hidden_replica": True},
