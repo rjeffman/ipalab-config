@@ -1,13 +1,11 @@
-ansible-freeipa Experimentation Lab
-===================================
+# FreeIPA Testing Lab Configuration
 
-The goal of this project is to provide a tool to create the necessary configuration to experiment with [FreeIPA](https://freeipa.org) and [ansible-freeipa](https://github.com/freeipa/ansible-freeipa) using containers.
+The goal of this project is to provide a tool to create the necessary configuration to experiment with [FreeIPA](https://freeipa.org) scenarios using containers.
 
-The tool `ipalab-config` generates the necessary files to create a compose of containers (using, for example, `podman compose`) and deploy FreeIPA on it using the ansible-freeipa collection.
+The tool `ipalab-config` generates the necessary files to create a compose of containers (using, for example, `podman-compose`) and deploy FreeIPA on it using the [ansible-freeipa](https://github.com/freeipa/ansible-freeipa) collection.
 
 
-Installation and Usage
-----------------------
+## Installation and Usage
 
 The tool can be installed through `pip`:
 
@@ -23,7 +21,9 @@ pip install git+https://github.com/rjeffman/ipalab-config
 
 Usage of Python's virtual environment is encouraged.
 
-The only dependency for the tool is [ruamel.yaml](https://pypi.org/project/ruamel.yaml), but `ansible-core` will be required to run ansible-freeipa playbooks.
+The only dependency for the tool is [ruamel.yaml](https://pypi.org/project/ruamel.yaml). An optional dependency is [Jinja2](https://pypi.org/project/Jinja2) (use `ipalab-config[opt]` to install it).
+
+Although not a dependency, `ansible-core` will be required to run ansible-freeipa playbooks.
 
 To create the configuration files simply invoke the tool with the path to the configuration file:
 
@@ -31,13 +31,13 @@ To create the configuration files simply invoke the tool with the path to the co
 ipalab-config mycluster.yaml
 ```
 
-For example, `mycluster.yaml` could define a cluster with three hosts, a primary server, a replica and a client, all using the default distro:
+For example, `mycluster.yaml` could define a cluster with three hosts, a primary server, a replica, and a client, all using the default distro:
 
 ```yaml
 ---
-lab_name: simple-cluster
+lab_name: simple_cluster
 ipa_deployments:
-  - name: cluster
+  - name: ipa_cluster
     domain: ipa.test
     realm:  IPA.TEST
     admin_password: SomeADMINpassword
@@ -53,12 +53,12 @@ ipa_deployments:
         - name: client
 ```
 
-The output is a directory `simple-cluster` (defined by the attribute `lab_name`) containing a compose configuration file (`compose.yml`), compatible with Docker and Podman, an inventory file (`inventory.yml`) customized for the created environment, a `containerfiles` directory with the container files recipes to allow FreeIPA deployment in containers, and a requirements file (`requirements.yml`) for Ansible if one wants to use `ansible-freeipa` to deploy the nodes.
+The output is a directory `simple_cluster` (defined by the attribute `lab_name`) containing a compose configuration file (`compose.yml`), compatible with `podman-compose` (you may have to tweak it to use Docker compose), an inventory file (`inventory.yml`) customized for the created environment, a `containerfiles` directory with the container files recipes to allow FreeIPA deployment in containers, and a requirements file (`requirements.yml`) for Ansible if one wants to use `ansible-freeipa` to deploy the nodes.
 
-To bring up the compose, use podman compose tool. Native `podman-compose` is provided in a separate package (`podman-compose` on Fedora) which needs to be installed in advance. Once the package is available, run:
+To build and start the compose, use `podman-compose`:
 
 ```
-podman-compose up -d
+podman-compose up -d --build
 ```
 
 To run the deployment playbook you'll need Ansible and the two collections: containers.podman, to communicate with podman, and ansible-freeipa collection (again, a virtual environment is encouraged):
@@ -83,12 +83,11 @@ podman-compose down
 To automatically mount each container `/var/log` to `logs/<name>` directory, so execution can be evaluated even if the containers are offline, either set the attribute `mount_varlog` or use the CLI option `--mount-varlog`.
 
 
-The configuration file
-----------------------
+## The configuration file
 
 The configuration file is a YAML file with attributes used to set both the compose and inventory files.
 
-**Global attributes**
+### Global attributes
 
 | Name       | Description                  | Required | Default |
 | :--------- | :--------------------------- | :------: | :------ |
@@ -102,9 +101,9 @@ The configuration file is a YAML file with attributes used to set both the compo
 | `ipa_deployments` | A list of FreeIPA deployments. (See `ipa-deployments`.) | yes | - |
 | `network` | The name of an external network or a dict with the network configuration. | no | - |
 
-**network**
+### network
 
-The `network` may be defined as a string representing an external network name, and in this case, the global attribute `subnet` must be explicitly set. If the value holds a dictionary, no option is required, altought at least one value must be set.
+The `network` may be defined as a string representing an external network name, and in this case, the global attribute `subnet` must be explicitly set. If the value holds a dictionary, no option is required, although at least one value must be set.
 
 | Name       |  Description                 | Default |
 | :--------- | :--------------------------- | :------ |
@@ -115,9 +114,9 @@ The `network` may be defined as a string representing an external network name, 
 | `no_dns`   | When set to `true` disables the network DNS plugin. | false |
 | `dns`      | Set the address (str) or addresses (list) of DNS nameserver the network will use. | - |
 
-**ipa_deployments**
+### ipa\_deployments
 
-Each entry in the `ipa-deployments` list defines a FreeIPA cluster. All defined hosts will be composed in the same _pod_.
+Each entry in the `ipa_deployments` list defines a FreeIPA cluster. All defined hosts will be composed in the same _pod_.
 
 | Name       | Description                  | Required | Default |
 | :--------- | :--------------------------- | :------: | :------ |
@@ -131,7 +130,7 @@ Each entry in the `ipa-deployments` list defines a FreeIPA cluster. All defined 
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 
 
-**Cluster Nodes**
+#### Cluster Nodes
 
 The cluster nodes are defined for each deployment, and may have `servers` or `clients`. At least one "server" should always be defined. If no server or client is defined, an error is returned.
 
@@ -147,14 +146,14 @@ These are the available options to configure the first server and the replicas:
 | `image`    | The container image to use. (Overrides `distro`.) | no | - |
 | `volumes`  | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
-| `capabilities` | A list of capabilities to be deployed on the server. Available option are `CA`, `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
+| `capabilities` | A list of capabilities to be deployed on the server. Available options are `CA` (certificate authority), `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (Random Serial Numbered certificates, server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
 | `memory`   | The maximum amount of memory to use defined as an integer number and a unit. The unit can be `b`, `k` or `kb`, `m` or `mb`, or `g` or `gb` (case insensitive). | no |
 | `nolog`    | Do not mount `/var/log` on the host. | no | False |
 | `no_limit_uid` | Do not automatically limit deployment idrange to safe values for rootless containers. Only evaluated on the first server of the deployment. | no | false |
 | `vars` | _Dict_ of variables to use in the deployment of the server or replica. Check [ansible-freeipa roles documentation](https://github.com/freeipa/ansible-freeipa/tree/master/roles) for valid values | no | - |
 
 
-The `clients` attribute is similar the the `servers` attribute, as it can be defined as a list of clients with its attributes, but it may also be defined with a dictionary containing:
+The `clients` attribute is similar to the `servers` attribute, as it can be defined as a list of clients with its attributes, but it may also be defined with a dictionary containing:
 
 | Name       | Description                  | Required | Default |
 | :--------- | :--------------------------- | :------: | :------ |
@@ -177,7 +176,8 @@ To configure the clients, these are the available attributes:
 
 See the available [examples](examples).
 
-**external**
+
+### external
 
 Used to define nodes external to the FreeIPA deployment.
 
@@ -187,7 +187,7 @@ Used to define nodes external to the FreeIPA deployment.
 | `hosts`  | The list of external nodes. (See `External Nodes`) | no | - |
 
 
-**External Nodes**
+#### External Nodes
 
 These are nodes that are not part of the FreeIPA deployment, and may or may not have a specific role in the environment. The following options are available:
 
@@ -198,13 +198,17 @@ These are nodes that are not part of the FreeIPA deployment, and may or may not 
 | `distro`   | The containerfile/image to use. | no | `fedora` |
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
-| `role`     | A specific role that will add pre-defined configuration to the node and the environment. Any `role` configuration will overwrite other options. | no | - |
+| `role`     | A specific role that will add predefined configuration to the node and the environment. Any `role` configuration will overwrite other options. | no | - |
 | `nolog`      | Do not mount `/var/log` on the host. | no | False |
 | `options`  | A dictionary of configurations specific to the available roles. | no | - |
 
-**External Roles**
 
-_Role `addc`_
+#### External Roles
+
+External nodes with a defined _role_ can have a set of specific attributes set.
+
+
+##### Role `addc`
 
 The node with `role: addc` provides a Samba AD DC server that can be used as a Samba AD DC or to simulate, with the expected limitation, a Windows Active Directory Server. The node is provided with a very basic image, and the Samba AD DC deployment can be performed with the provided Ansible playbook `deploy_addc.yml`.
 
@@ -230,11 +234,11 @@ $ ipa dnsforward-zone <ad domain> --forwarder=<addc.ip_address>
 $ ipa trust-add <ad domain> --admin=Administrator --password <<< <admin_pass>
 ```
 
-_Role `dns`_
+##### Role `dns`
 
-The node with `role: dns` provides a nameserver for the whole environment, and all the nodes in the environment will have DNS search set to use this node. The node provides the Unbound nameserver. The container accepts a volume containing the unbound configuration mounted at `/etc/unbound`. Note that the name of the main configuration file must be `unbound.conf`.
+The node with `role: dns` provides a nameserver for the whole environment, and all the nodes in the environment will have DNS search set to use this node. The node uses Alpine Linux, and provides the [Unbound nameserver](https://unbound.docs.nlnetlabs.nl/en/latest/index.html). The container accepts a volume containing the unbound configuration mounted at `/etc/unbound`. Note that the name of the main configuration file must be `unbound.conf`.
 
-The available options for _dns_ is the `zones`, a list of zone configuration that must have a `file` attribute, with the path to a zone file, and a `name` attribute with the zone name. For _arpa zones_ (reverse zones with PTR records), instead of `name` the attribute `reverse_ip` with a network CIDR value can be used and the reverse zone name is automatically generated.
+The available options for _dns_ are the `zones`, a list of zone configuration that must have a `file` attribute, with the path to a zone file, and a `name` attribute with the zone name. For _arpa zones_ (reverse zones with PTR records), instead of `name` the attribute `reverse_ip` with a network CIDR value can be used and the reverse zone name is automatically generated.
 
 Example using zone files:
 
@@ -257,21 +261,20 @@ Example using zone volumes:
   volumes: ["/hostPath:/etc/unbound:Z"]
 ```
 
-_Role Keycloak_
+#### Role Keycloak
 
 The node with `role: keycloak` provides a node with a Keycloak deployment.
 
 Some scripts are provided under the `keycloak` directory to aid the configuration for using the node as an external identity provider (_external IdP_) for the IPA deployment. The available scripts are:
 
 * `trust_keycloak.sh`: Must be called on all IPA nodes so that the Keycloak self-signed certificate is trusted by the node.
-* `keycloak_add_oidc_client.sh`: Add on OIDC client to the Keycloak `master` realm. Requires the IPA primary server hostname, the OIDC client ID and the OIDC client password.
+* `keycloak_add_oidc_client.sh`: Add an OIDC client to the Keycloak `master` realm. Requires the IPA primary server hostname, the OIDC client ID and the OIDC client password.
 *  `keycloak_add_user.sh`: Add a user to the Keycloak `master` realm, given its username, email and password.
 
 The Keycloak HTTPS server runs on port `8443` and it must be reflected on the IPA IDP configuration (`base-url`).
 
 
-Output Files
-------------
+## Output Files
 
 In the output directory the following files and directories are present:
 
@@ -284,7 +287,7 @@ In the output directory the following files and directories are present:
 | containerfiles | A collection of containerfiles for some Linux images where FreeIPA server and/or client is known to work with this configuration |
 
 
-**About the Ansible inventory file**
+### About the Ansible inventory file
 
 The nodes in the inventory file are grouped in:
 
@@ -294,15 +297,14 @@ The nodes in the inventory file are grouped in:
 * `ipaclients`: All clients in IPA deployments
 * `<deployment name>`: All IPA nodes in the IPA deployment with `name: <deployment name>`
 
-To select a specific group of clients or server, one can use host filtering in an Ansible Playbook, for example, given two deployments `m1` and `m2`, with nodes with the same `name`, `server-1` and `server-2`, to select the `ipaserver` of deployment `m2` one could set `hosts: "ipasesrver:&m2"` on the playbook, and the playbook would only run on `server-1` of `m2`.
+To select a specific group of clients or server, one can use host filtering in an Ansible Playbook, for example, given two deployments `m1` and `m2`, with nodes with the same `name`, `server-1` and `server-2`, to select the `ipaserver` of deployment `m2` one could set `hosts: "ipaserver:&m2"` on the playbook, and the playbook would only run on `server-1` of `m2`.
 
 
-Playbooks
----------
+## Playbooks
 
 It is possible to provide a set of Ansible playbooks along with the configurations files by using the `-p/--playbook` command line option. This will add any file to the output `playbooks` directory.
 
-If passing directory as an argument to `-p`, the directory will be searched recursively for `*.yml` and `*.yaml` files and add them to the `playbooks` directory.
+If passing a directory as an argument to `-p`, the directory will be searched recursively for `*.yml` and `*.yaml` files and add them to the `playbooks` directory.
 
 Note that the `playbooks` directory is flat, so if your files share the same file name, the last file will overwrite the other files with the same name.
 
@@ -317,10 +319,9 @@ extra_data:
 The target directory then will contain `somelab/playbooks` as a copy of the `playbooks` folder of the source directory.
 
 
-jinja2 templating
------------------
+## jinja2 templating
 
-There is optional support for jinja2 templating, it's available if jinja2 is available on the host.
+There is optional support for Jinja2 templating, which is enabled if Jinja2 is available on the host.
 
 The jinja2 dependency is part of the extra `opt`, and can be installed with
 
@@ -336,29 +337,145 @@ pip install ipalab-config[opt]
     * Accessing the value of an environment variable, with a default value in case the variable is not set: `'{{ ENV.get("CONFIG_DIR", "path/to/default") }}'`
     * If the environment variable is not set an empty value will be returned, if `get` is not used
 
+## Examples
 
-Contributing
-------------
+These are some simple configuration examples. More examples can be found on the [examples](examples) directory.
+
+### A simple cluster with a server and a replica
+
+This example provides an initial server with embedded DNS nameserver, and a replica with KRA support.
+
+```yaml
+---
+lab_name: simple_cluster
+ipa_deployments:
+  - name: server_replica_cluster
+    domain: ipa.test
+    realm: IPA.TEST
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities:
+            - CA   # optional, first server is always CA
+            - DNS
+        - name: replica
+          capabilities:
+            - KRA
+```
+
+### Testing Active Directory Trust
+
+This example provides a single IPA server and an external node running Samba AD DC so that most trust operations can be tested. It is important, in this case, to define the network subnet and the node IP addresses, to ease environment deployment.
+
+Note that when setting up a trust, it is easier to have the right configuration if you use different subdomains for the AD DC and IPA nodes.
+
+Ideally, the subdomains would use different networks, but this is not yet supported by `ipalab-config`.
+
+```yaml
+---
+lab_name: ipa-ad-trust
+subnet: "192.168.13.0/24"
+external:
+  hosts:
+    - name: addc
+      hostname: dc.ad.ipa.test
+      role: addc
+      ip_address: 192.168.13.250
+      vars:
+        forwarder: 192.168.13.100
+        admin_pass: "Secret123"
+        krb5_pass: "admin_realm"  # Samba KRB5 password
+ipa_deployments:
+  - name: ipa
+    domain: linux.ipa.test
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          ip_address: 192.168.13.100
+          capabilities: ["DNS", "AD"]
+          vars:
+            ipaserver_netbios_name: IPA
+```
+
+### Testing with an external DNS nameserver
+
+This example uses an external to provide a DNS nameserver, and does not use the IPA embedded nameserver. The DNS role for an external node uses Unbound as the nameserver.
+
+```yaml
+---
+lab_name: external-dns
+network: external_dns
+subnet: "192.168.53.0/24"
+domain: ipa.test
+external:
+  hosts:
+  - name: nameserver
+    hostname: unbound.ipa.test
+    role: dns
+    options:
+      zones:
+        - name: ipa.test
+          file: "examples/unbound/ipa.test.zone"
+        - reverse_ip: "192.168.53.0/24"
+          file: "examples/unbound/53.168.192.in-addr.arpa.zone"
+ipa_deployments:
+  - name: ipacluster_external_dns
+    realm: IPA.TEST
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+        - name: replica
+      clients:
+        - name: client
+```
+
+### Environment with an IPA server and a non-enrolled host
+
+If you need to have an IPA server, and a generic host that will be configured later, you can use this example:
+
+```yaml
+---
+lab_name: external-generic
+external:
+  hosts:
+  - name: nameserver
+    hostname: generic.example.com
+    distro: centos
+ipa_deployments:
+  - name: ipacluster_external_dns
+    domain: ipa.test
+    realm: IPA.TEST
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities: ["DNS"]
+```
+
+## Contributing
 
 Issue tracker and repository are hosted on [Github](https://github.com/rjeffman/ipalab-config).
 
 Use them to report issues or propose changes.
 
 
-Known Issues
-------------
+## Known Issues
 
 See [ISSUES.md](ISSUES.md)
 
 
-License
--------
+## License
 
 The code is released under the [0BSD](https://spdx.org/licenses/0BSD.html) (BSD Zero Clause License).
 
 
-Author
-------
+## Author
 
 Rafael Jeffman ([@rjeffman](https://github.com/rjeffman))
-
