@@ -134,6 +134,8 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
             config.update(
                 {"mem_limit": container["memory"].lower(), "memory_swap": -1}
             )
+        if container.get("publish_ports"):
+            config["ports"] = container["publish_ports"]
         # DNS
         effective_dns = get_effective_nameserver(
             container.get("dns", network.dns), network.domain
