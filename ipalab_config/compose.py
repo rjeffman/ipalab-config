@@ -12,11 +12,10 @@ from ipalab_config.utils import (
     is_ip_address,
     ensure_fqdn,
     get_ip_address_generator,
+    clear_ip_generators,
     import_external_role_module,
 )
 
-
-IP_GENERATOR = get_ip_address_generator()
 
 # Use namedtuple as a class
 Network = namedtuple("Network", ["domain", "name", "dns"])
@@ -92,7 +91,7 @@ def get_container_name(container, domain, container_fqdn):
     return name
 
 
-def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
+def get_compose_config(containers, subnet=None, **kwargs):
     """Create config for all containers in the list."""
 
     def node_dns_key(hostname):
@@ -111,6 +110,8 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
     distro = kwargs.get("distro", "fedora")
     tag = kwargs.get("tag")
     mount_varlog = kwargs.get("mount_varlog", False)
+    # Get the IP generator for this subnet (cached by subnet string)
+    ips = get_ip_address_generator(subnet)
     for container in containers:
         name = get_container_name(container, network.domain, container_fqdn)
         node_distro = container.get("distro", distro)
@@ -160,16 +161,37 @@ def get_compose_config(containers, ips=IP_GENERATOR, **kwargs):
     return nodes, result
 
 
-def get_network_config(lab_config):
-    """Generate the compose "networks" configuration."""
+def get_network_config(  # pylint: disable=R0912
+    lab_config, network_def=None, network_suffix=None
+):
+    """Generate the compose "networks" configuration.
+
+    Args:
+        lab_config: The lab configuration dictionary
+        network_def: Optional network definition for per-deployment
+        network_suffix: Suffix for network name (default: lab name)
+
+    Returns:
+        tuple: (networkname, subnet, network_config_dict)
+    """
     subnet = lab_config.get("subnet")
-    network = lab_config.get("network") or {}
+    # Use provided network_def or fall back to global network
+    network = network_def or (lab_config.get("network") or {})
+    # Use provided suffix or fall back to lab name
+    if network_suffix is None:
+        network_suffix = lab_config["lab_name"]
+
     if isinstance(network, str):
         networkname = network
         config = {networkname: {"external": True}}
     else:
-        networkname = network.get("name", "ipanet")
-        name = network.get("name", f"ipanet-{lab_config['lab_name']}")
+        # For per-deployment networks, use unique name if not set
+        if network_def is not None and "name" not in network:
+            # Use suffix as part of networkname for uniqueness
+            networkname = f"ipanet-{network_suffix}"
+        else:
+            networkname = network.get("name", "ipanet")
+        name = network.get("name", f"ipanet-{network_suffix}")
         subnet = network.get("subnet", subnet or "192.168.159.0/24")
         config = {
             networkname: {
@@ -195,12 +217,26 @@ def get_network_config(lab_config):
     # Ensure subnet is correctly set
     if config[networkname].get("external", False) and subnet is None:
         raise ValueError("'subnet' is required for 'external' networks")
-    lab_config.setdefault("subnet", subnet)
-    return networkname, config
+    # # Only set global subnet if we're processing the global network
+    if network_def is None:
+        lab_config.setdefault("subnet", subnet)
+    return networkname, subnet, config
 
 
-def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
-    """Generate compose configuration for all IPA deployments."""
+def get_ipa_deployments_configuration(
+    lab_config, global_networkname, global_subnet, networks_config
+):
+    """Generate compose configuration for all IPA deployments.
+
+    Args:
+        lab_config: The lab configuration dictionary
+        global_networkname: The global network name to use as fallback
+        global_subnet: Subnet CIDR for global network
+        networks_config: Dictionary to accumulate network configs
+
+    Returns:
+        dict: Services configuration for all deployments
+    """
     lab_config.setdefault("deployment_nameservers", [])
     labdns = lab_config.get("dns")
     labdomain = lab_config.get("domain")
@@ -211,10 +247,29 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
         if dns and not is_ip_address(dns):
             # pylint: disable=consider-using-f-string
             dns = "{{{0}}}".format(ensure_fqdn(dns, domain))
+
+        # Check if deployment has its own network configuration
+        deployment_network = deployment.get("network")
+        if deployment_network is not None:
+            # Create a separate network for this deployment
+            deployment_name = deployment.get("name", domain.split(".")[0])
+            net_name, net_subnet, net_config = get_network_config(
+                lab_config, deployment_network, deployment_name
+            )
+            # Add to networks configuration
+            networks_config.update(net_config)
+            # Use deployment-specific network and subnet
+            current_networkname = net_name
+            current_subnet = net_subnet
+        else:
+            # Use global network
+            current_networkname = global_networkname
+            current_subnet = global_subnet
+
         config = {
             "network": Network(
                 domain,
-                networkname,
+                current_networkname,
                 get_effective_nameserver(dns, domain),
             ),
             "container_fqdn": lab_config["container_fqdn"],
@@ -230,7 +285,7 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
         servers = cluster_config.get("servers")
         if servers:
             ips, servers_cfg = get_compose_config(
-                servers, ip_generator, **config
+                servers, current_subnet, **config
             )
             deployment_dns = [
                 "{{{0}}}".format(  # pylint: disable=consider-using-f-string
@@ -252,7 +307,7 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
             lab_config["deployment_nameservers"].append(None)
         # Get clients configuration
         clients = cluster_config.get("clients")
-        ips, clients_cfg = get_compose_config(clients, ip_generator, **config)
+        ips, clients_cfg = get_compose_config(clients, current_subnet, **config)
         services.update(clients_cfg)
         nodes.update(ips)
         # We must have at lest one node at the end.
@@ -270,7 +325,7 @@ def get_ipa_deployments_configuration(lab_config, networkname, ip_generator):
     return services
 
 
-def get_external_hosts_configuration(lab_config, networkname, ip_generator):
+def get_external_hosts_configuration(lab_config, networkname, subnet):
     """Generate configuration for hosts external to IPA deployments."""
     external = lab_config.get("external", {})
     services = {}
@@ -285,7 +340,7 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
         "mount_varlog": lab_config["mount_varlog"],
     }
     ext_nodes = external.get("hosts", [])
-    nodes, services = get_compose_config(ext_nodes, ip_generator, **node_config)
+    nodes, services = get_compose_config(ext_nodes, subnet, **node_config)
     # update nodes list
     lab_config.setdefault("nodes", {}).update(nodes)
 
@@ -340,19 +395,33 @@ def get_external_hosts_configuration(lab_config, networkname, ip_generator):
 
 def gen_compose_data(lab_config):
     """Generate podamn compose file based on provided configuration."""
+    # Clear IP generator cache for fresh start
+    clear_ip_generators()
+
     config = {"name": lab_config["lab_name"]}
     config.setdefault("services", {})
 
-    networkname, config["networks"] = get_network_config(lab_config)
-    ip_generator = get_ip_address_generator(lab_config["subnet"])
+    # Always get global network config to set lab_config["subnet"]
+    # This is needed by inventory generation and other components
+    networkname, subnet, networks_config = get_network_config(lab_config)
+
+    # Check if global network is actually used
+    has_external = bool(lab_config.get("external", {}).get("hosts"))
+    deployments = lab_config.get("ipa_deployments", [])
+    needs_global = has_external or any("network" not in d for d in deployments)
+
+    # Only add global network to compose if it's used
+    config["networks"] = networks_config if needs_global else {}
 
     # Add external hosts
     config["services"].update(
-        get_external_hosts_configuration(lab_config, networkname, ip_generator)
+        get_external_hosts_configuration(lab_config, networkname, subnet)
     )
-    # Add IPA deployments
+    # Add IPA deployments (may add networks to networks_config)
     config["services"].update(
-        get_ipa_deployments_configuration(lab_config, networkname, ip_generator)
+        get_ipa_deployments_configuration(
+            lab_config, networkname, subnet, config["networks"]
+        )
     )
 
     return config
