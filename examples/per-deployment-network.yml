@@ -1,0 +1,46 @@
+# This example creates two IPA deployments with separate networks.
+#
+# The first deployment (origin) uses its own dedicated network with subnet 192.168.10.0/24
+# The second deployment (target) uses the global network with subnet 192.168.7.0/24
+#
+# This allows for network isolation between deployments when needed.
+---
+lab_name: per-deployment-network
+container_fqdn: true  # required with multiple IPA deployments
+subnet: "192.168.7.0/24"  # Global network subnet
+
+ipa_deployments:
+  # First deployment with its own dedicated network
+  - name: origin
+    domain: origin.ipa.test
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    network:
+      subnet: "192.168.10.0/24"
+      no_dns: false
+    cluster:
+      servers:
+        - name: server
+          capabilities:
+            - DNS
+        - name: replica
+          capabilities:
+            - CA
+      clients:
+        - name: cli-01
+
+  # Second deployment using the global network (no network specified)
+  - name: target
+    domain: target.ipa.test
+    admin_password: SomeOtherADMINpassword
+    dm_password: SomeOtherDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities:
+            - DNS
+        - name: replica
+          capabilities:
+            - CA
+      clients:
+        - name: cli-01

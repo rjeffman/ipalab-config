@@ -40,12 +40,38 @@ def is_ip_address(addr):
     return True
 
 
+# Cache for IP address generators by CIDR
+_IP_GENERATORS = {}
+
+
+def clear_ip_generators():
+    """Clear the IP address generator cache.
+
+    This should be called when starting a new configuration generation
+    to ensure IP addresses start from the beginning of each network.
+    """
+    _IP_GENERATORS.clear()
+
+
 def get_ip_address_generator(for_cidr=None):
-    """Create an IP address generator given a network CIDR."""
-    network = ipaddress.IPv4Interface(for_cidr or "192.168.159.0/24").network
-    generator = network.hosts()
-    next(generator)  # assume first IP is the gateway IP address.
-    return generator
+    """Return an IP address generator for a given network CIDR.
+
+    Generators are cached by CIDR string to ensure the same generator
+    is returned for subsequent calls with the same CIDR.
+
+    Args:
+        for_cidr: Network CIDR string (default: "192.168.159.0/24")
+
+    Returns:
+        Generator yielding IP addresses from the network
+    """
+    cidr = for_cidr or "192.168.159.0/24"
+    if cidr not in _IP_GENERATORS:
+        network = ipaddress.IPv4Interface(cidr).network
+        generator = network.hosts()
+        next(generator)  # assume first IP is the gateway IP address.
+        _IP_GENERATORS[cidr] = generator
+    return _IP_GENERATORS[cidr]
 
 
 def get_service_ip_address(service):

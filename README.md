@@ -128,6 +128,7 @@ Each entry in the `ipa_deployments` list defines a FreeIPA cluster. All defined 
 | `distro`   | The containerfile/image to use by default, on this deployment. | no | `fedora` |
 | `cluster`  | A _dict_ with the configuration for the nodes of the cluster. (See `Cluster Nodes`.) | yes | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
+| `network`  | The name of an external network or a dict with the network configuration for this deployment. Overrides the global `network` definition. | no | - |
 
 
 #### Cluster Nodes
