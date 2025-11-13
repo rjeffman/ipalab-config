@@ -55,7 +55,7 @@ ipa_deployments:
 
 The output is a directory `simple_cluster` (defined by the attribute `lab_name`) containing a compose configuration file (`compose.yml`), compatible with `podman-compose` (you may have to tweak it to use Docker compose), an inventory file (`inventory.yml`) customized for the created environment, a `containerfiles` directory with the container files recipes to allow FreeIPA deployment in containers, and a requirements file (`requirements.yml`) for Ansible if one wants to use `ansible-freeipa` to deploy the nodes.
 
-To build and start the compose, use `podman-compose`:
+To build and start the compose, change to the folder `simple_cluster` (or whatever name is defined in the `lab_name` attribute) and use `podman-compose`:
 
 ```
 podman-compose up -d --build
