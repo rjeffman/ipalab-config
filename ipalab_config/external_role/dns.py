@@ -6,7 +6,6 @@ import textwrap
 
 from ipalab_config.utils import copy_helper_files, copy_extra_files, save_file
 
-
 base_config = {
     "image": "localhost/unbound",
     "build": {"context": "unbound", "dockerfile": "Containerfile"},
@@ -23,15 +22,13 @@ def gen_config(lab_config, base_dir, _node, options):
     networks = [ipaddress.IPv4Interface(subnet).network]
     zone_files = []
 
-    zone_template = textwrap.dedent(
-        """\
+    zone_template = textwrap.dedent("""\
     auth-zone:
         name: {name}
         zonefile: /etc/unbound/zones/{filename}
         for-downstream: yes
         for-upstream: no
-    """
-    )
+    """)
 
     copy_helper_files(base_dir, "unbound")
 
