@@ -1,0 +1,54 @@
+# WireGuard VPN External Node Example
+#
+# This example demonstrates how to set up a WireGuard VPN node as an
+# external host alongside an IPA deployment.
+#
+# Prerequisites:
+# 1. Generate WireGuard key pairs on your host machine:
+#    wg genkey > wg-container.key
+#    wg pubkey < wg-container.key > wg-container.pub
+#    wg genkey > wg-peer.key
+#    wg pubkey < wg-peer.key > wg-peer.pub
+#
+# 2. Install wireguard-tools on your host:
+#    sudo dnf install wireguard-tools
+#
+# 3. Load the wireguard kernel module:
+#    sudo modprobe wireguard
+#
+# The WireGuard node will act as a VPN endpoint that can be used to
+# securely connect to the lab network.
+#
+# Note: Replace the private_key and public_key values below with your
+# actual generated keys.
+---
+lab_name: wireguard-vpn
+subnet: "192.168.60.0/24"
+container_fqdn: false
+external:
+  hosts:
+  - name: vpn
+    hostname: vpn.external.test
+    role: wireguard
+    options:
+      # Private key for this WireGuard container (from wg-container.key)
+      private_key: "CONTAINER_PRIVATE_KEY_HERE"
+      # Public key of the peer that will connect (from wg-peer.pub)
+      public_key: "PEER_PUBLIC_KEY_HERE"
+      # IP addresses/networks allowed through the VPN tunnel
+      # Use 0.0.0.0/0 to allow all traffic, or specify specific networks
+      allowed_ip: "192.168.60.0/24"
+      # WireGuard listen port (default: 51822)
+      listen_port: 51822
+ipa_deployments:
+  - name: ipacluster
+    domain: ipa.test
+    realm: IPA.TEST
+    admin_password: SomeADMINpassword
+    dm_password: SomeDMpassword
+    cluster:
+      servers:
+        - name: server
+          capabilities: ["DNS"]
+      clients:
+        - name: client
