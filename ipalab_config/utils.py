@@ -84,7 +84,7 @@ def copy_extra_files(files, target_dir, source=None):
     os.makedirs(target_dir, exist_ok=True)
     for arg in files:
         filename = os.path.basename(arg)
-        shutil.copyfile(
+        shutil.copy(
             os.path.join(source or "", arg),
             os.path.join(target_dir, filename),
         )
