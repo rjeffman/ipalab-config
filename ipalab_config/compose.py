@@ -60,7 +60,13 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
         **node_image
     })
     # fmt: on
-    supported_distros = {"fedora", "centos", "external-nodes", "ubuntu"}
+    supported_distros = {
+        "fedora",
+        "centos",
+        "external-nodes",
+        "ubuntu",
+        "rocky",
+    }
     if "build" in result:
         if tag is not None and distro in supported_distros:
             args = {"distro_image": distro, "distro_tag": tag}

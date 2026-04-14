@@ -1,0 +1,23 @@
+ARG distro_tag=latest
+FROM quay.io/rockylinux/rockylinux:${distro_tag}
+
+ENV container=podman
+
+RUN \
+dnf update -y ; \
+dnf --assumeyes install \
+    sudo \
+    bash \
+    systemd \
+    procps-ng \
+    hostname \
+    iputils \
+    bind-utils \
+    iproute \
+    ; \
+dnf clean all ; \
+rm -rf /var/cache/dnf/;
+
+STOPSIGNAL RTMIN+3
+
+CMD ["/usr/sbin/init"]
