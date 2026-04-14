@@ -5,6 +5,7 @@ from collections import namedtuple
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 from ruamel.yaml.comments import CommentedMap
 
+from ipalab_config import supported_distros
 from ipalab_config.logger import logger
 from ipalab_config.utils import (
     die,
@@ -60,14 +61,6 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
         **node_image
     })
     # fmt: on
-    supported_distros = {
-        "fedora",
-        "centos",
-        "external-nodes",
-        "ubuntu",
-        "rocky",
-        "alma",
-    }
     if "build" in result:
         if tag is not None and distro in supported_distros:
             args = {"distro_image": distro, "distro_tag": tag}

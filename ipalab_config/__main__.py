@@ -13,7 +13,7 @@ try:
 except ImportError:
     HAS_JINJA = False
 
-from ipalab_config import __version__
+from ipalab_config import __version__, supported_distros
 from ipalab_config.utils import (
     die,
     copy_extra_files,
@@ -79,8 +79,9 @@ def parse_arguments():
         nargs="?",
         help=(
             "Override default '<distro>:<tag>'. Available distros: "
-            "'fedora', 'centos', 'ubuntu'. Any tag supported "
-            "by the original distro can be used (default tag is 'latest')."
+            f"'{"', '".join(supported_distros - {'external-nodes'})}'. "
+            "Any tag supported by the original distro can be used "
+            "(default tag is 'latest')."
         ),
     )
     opt_parser.add_argument(
