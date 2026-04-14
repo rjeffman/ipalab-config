@@ -66,6 +66,7 @@ def get_node_base_config(  # pylint: disable=R0913,R0917
         "external-nodes",
         "ubuntu",
         "rocky",
+        "alma",
     }
     if "build" in result:
         if tag is not None and distro in supported_distros:
