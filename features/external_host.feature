@@ -309,3 +309,91 @@ Scenario: Keycloak
               - subnet: 192.168.14.0/24
         """
         And the "ipa-idp/keycloak" directory was copied
+
+
+Scenario: WireGuard VPN
+    Given the deployment configuration
+    """
+    lab_name: ipa-wireguard
+    subnet: "192.168.15.0/24"
+    external:
+      hosts:
+      - name: vpn
+        hostname: vpn.external.test
+        role: wireguard
+        ip_address: 192.168.15.10
+        options:
+          private_key: test_private_key_12345
+          public_key: test_public_key_67890
+          allowed_ip: 10.0.0.0/24
+          listen_port: 51822
+    ipa_deployments:
+      - name: ipa
+        domain: ipa.test
+        admin_password: SomeADMINpassword
+        dm_password: SomeDMpassword
+        cluster:
+          servers:
+            - name: server
+    """
+      When I run ipalab-config
+      Then the ipa-wireguard/compose.yml file is
+        """
+        name: ipa-wireguard
+        services:
+          vpn:
+            container_name: vpn
+            restart: no
+            cap_add:
+            - NET_RAW
+            - NET_ADMIN
+            security_opt:
+            - label=disable
+            hostname: vpn.external.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.15.10
+            extra_hosts:
+              - vpn.external.test:192.168.15.10
+            image: docker.io/procustodibus/wireguard
+            volumes:
+            - ${PWD}/wireguard:/etc/wireguard:Z
+          server:
+            container_name: server
+            restart: no
+            cap_add:
+            - SYS_ADMIN
+            - DAC_READ_SEARCH
+            security_opt:
+            - label=disable
+            hostname: server.ipa.test
+            networks:
+              ipanet:
+                ipv4_address: 192.168.15.2
+            extra_hosts:
+              - server.ipa.test:192.168.15.2
+            image: localhost/fedora:latest
+            build:
+              context: containerfiles
+              dockerfile: fedora
+        networks:
+          ipanet:
+            name: ipanet-ipa-wireguard
+            driver: bridge
+            ipam:
+              config:
+              - subnet: 192.168.15.0/24
+        """
+      And the ipa-wireguard/wireguard/wg0.conf file content is exactly
+        """
+        [Interface]
+        PrivateKey = test_private_key_12345
+        Address = 192.168.15.10/32
+        ListenPort = 51822
+
+        PreUp = iptables -t nat -A POSTROUTING ! -o %i -j MASQUERADE
+
+        [Peer]
+        PublicKey = test_public_key_67890
+        AllowedIPs = 10.0.0.0/24
+        """

@@ -55,7 +55,7 @@ def _then_file_contents(context, filename):
             if call.args[0] == filename:
                 assert (
                     re.match(re.compile(context.text), observed) is not None
-                ), f"Expected:\n{context.text}\nObserved:\n{observed}\n"
+                ), f"Expected:\n{context.text}\n---\nObserved:\n{observed}\n"
                 break
     else:
         raise AssertionError("File not written.")
@@ -87,3 +87,28 @@ def _then_yaml_file_contents(context, filename):
     assert (
         called[index] == filename
     ), f"Data was created in the wrong file: {called[index]}"
+
+
+@then("the {filename} file content is exactly")  # pylint: disable=E1102
+def _then_file_contents_is_exactly(context, filename):
+    write_calls = iter(context.patches["open_file"]().write.call_args_list)
+    for call in context.patches["open_file"].call_args_list:
+        if call.args and call.args[1].startswith("w"):
+            if call.args[0] == filename:
+                try:
+                    # file data
+                    observed = "".join(next(write_calls)[0]).strip()
+                except StopIteration:
+                    raise AssertionError("Not enough writes to files") from None
+                assert len(context.text) == len(
+                    observed
+                ), "File size mismatches"
+                for i, (a, b) in enumerate(zip(context.text, observed)):
+                    assert a == b, (
+                        f"At index {i}: {a}({ord(a)}) {b}({ord(b)}) \n"
+                        f"Expected:\n{context.text[:i+1]}\n---\n"
+                        f"Observed:\n{observed[:i+1]}\n"
+                    )
+                break
+    else:
+        raise AssertionError(f"File {filename} was never written.")

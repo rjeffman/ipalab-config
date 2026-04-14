@@ -17,7 +17,6 @@ from ipalab_config.utils import (
     import_external_role_module,
 )
 
-
 # Use namedtuple as a class
 Network = namedtuple("Network", ["domain", "name", "dns"])
 

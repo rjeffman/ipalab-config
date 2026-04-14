@@ -276,6 +276,32 @@ Some scripts are provided under the `keycloak` directory to aid the configuratio
 The Keycloak HTTPS server runs on port `8443` and it must be reflected on the IPA IDP configuration (`base-url`).
 
 
+#### Role wireguard
+
+The node with `role: wireguard` provides a WireGuard VPN endpoint that can be used for secure network connectivity testing. The role uses a [`bridge network` configuration](https://www.procustodibus.com/blog/2022/10/wireguard-in-podman/#use-for-bridge-network) so that the changes to the configuration files can be minimal.
+
+The available options for _wireguard_ are:
+
+| Name          | Description                  | Required | Default |
+| :------------ | :--------------------------- | :------: | :------ |
+| `private_key` | The WireGuard private key for this node. | yes | - |
+| `public_key`  | The WireGuard public key of the peer. | yes | - |
+| `allowed_ip`  | The allowed IP range for the peer. | no | "0.0.0.0/0" |
+| `listen_port` | The UDP port to listen on. | no | 51822 |
+
+Example:
+
+```yaml
+- name: vpn
+  role: wireguard
+  options:
+    private_key: "generated_private_key_here"
+    public_key: "peer_public_key_here"
+    allowed_ip: "10.0.0.0/24"
+    listen_port: 51822
+```
+
+
 ## Output Files
 
 In the output directory the following files and directories are present:
