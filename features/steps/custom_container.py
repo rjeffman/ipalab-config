@@ -18,7 +18,10 @@ def _given_cli_args(context, cli_args):
 def _then_directory_contains_file(context, directory, filename):
     source = os.path.join(os.getcwd(), filename)
     dest = os.path.join(directory, os.path.basename(filename))
+    # Check both copy and copyfile as code may use either
+    copy_calls = context.patches["copy"].call_args_list
+    copyfile_calls = context.patches["copy_file"].call_args_list
     assert any(
-        (source, dest) == call.args or (filename, dest)
-        for call in context.patches["copy_file"].call_args_list
+        (source, dest) == call.args or (filename, dest) == call.args
+        for call in copy_calls + copyfile_calls
     ), f"File '{filename}' was not copied to '{directory}'"

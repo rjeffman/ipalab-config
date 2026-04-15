@@ -23,6 +23,7 @@ def patched_execution(fn):
             ) as open_file,
             patch("shutil.copytree") as copy_tree,
             patch("shutil.copyfile") as copy_file,
+            patch("shutil.copy") as copy,
             patch("os.makedirs") as make_dirs,
             patch("ruamel.yaml.YAML.dump") as yaml_dump,
             patch("os.path.isfile"),
@@ -32,6 +33,7 @@ def patched_execution(fn):
                 "open_file": open_file,
                 "copy_tree": copy_tree,
                 "copy_file": copy_file,
+                "copy": copy,
                 "make_dirs": make_dirs,
                 "yaml_dump": yaml_dump,
             }

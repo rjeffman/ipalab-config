@@ -33,7 +33,10 @@ def _then_directory_contains(context, directory):
 
 @then('the file "{src}" was copied to "{dest}"')  # pylint: disable=E1102
 def _then_file_was_copied(context, src, dest):
+    # Check both copy and copyfile as code may use either
+    copy_calls = context.patches["copy"].call_args_list
+    copyfile_calls = context.patches["copy_file"].call_args_list
     assert any(
         call.args[0].endswith(src) and call.args[1].endswith(dest)
-        for call in context.patches["copy_file"].call_args_list
+        for call in copy_calls + copyfile_calls
     ), f"File {src} was not copied to {dest}"
