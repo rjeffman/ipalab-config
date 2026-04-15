@@ -22,6 +22,6 @@ def _then_directory_contains_file(context, directory, filename):
     copy_calls = context.patches["copy"].call_args_list
     copyfile_calls = context.patches["copy_file"].call_args_list
     assert any(
-        (source, dest) == call.args or (filename, dest) == call.args
+        call.args in ((source, dest), (filename, dest))
         for call in copy_calls + copyfile_calls
     ), f"File '{filename}' was not copied to '{directory}'"

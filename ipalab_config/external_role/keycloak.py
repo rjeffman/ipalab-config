@@ -52,8 +52,7 @@ def gen_config(_lab_config, base_dir, node, options):
 
     copy_helper_files(base_dir, "keycloak")
 
-    keycloak_config = textwrap.dedent(
-        f"""\
+    keycloak_config = textwrap.dedent(f"""\
     ADMIN="{defaults['admin_username']}"
     PASSWORD="{defaults['admin_password']}"
     OIDCPASSWORD="{defaults['oidc_password']}"
@@ -62,7 +61,6 @@ def gen_config(_lab_config, base_dir, node, options):
 
     KEYCLOAK_URL="https://${{KEYCLOAK}}:8443"
     TRUSTPASSWORD="password"
-    """
-    )
+    """)
 
     save_file(base_dir, "keycloak/keycloak_config.sh", keycloak_config)
