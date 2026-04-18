@@ -28,6 +28,7 @@ def patched_execution(fn):
             patch("ruamel.yaml.YAML.dump") as yaml_dump,
             patch("os.path.isfile"),
             patch("os.access"),
+            patch("ipalab_config.logger.logger.warning") as logger_warning,
         ):
             context.patches = {
                 "open_file": open_file,
@@ -36,6 +37,7 @@ def patched_execution(fn):
                 "copy": copy,
                 "make_dirs": make_dirs,
                 "yaml_dump": yaml_dump,
+                "logger_warning": logger_warning,
             }
             fn(context, *args, **kwargs)
 
@@ -80,3 +82,25 @@ def _then_an_error_msg(context, exception, msg):
         f"{str(exception_class)} / {type(context.exception)}"
     )
     assert re.match(re.compile(msg), str(context.exception))
+
+
+@then(
+    "a warning message is displayed about no servers defined for domain"
+)  # pylint: disable=E1102
+def _then_warning_no_servers(context):
+    logger_warning = context.patches.get("logger_warning")
+    assert logger_warning is not None, "Logger warning patch not found"
+    assert logger_warning.called, "No warning was logged"
+
+    # Check if any warning message contains "No servers defined for domain"
+    warning_found = False
+    for call in logger_warning.call_args_list:
+        args, _ = call
+        if args and "No servers defined for domain" in args[0]:
+            warning_found = True
+            break
+
+    assert warning_found, (
+        f"Expected warning about 'No servers defined for domain' but got: "
+        f"{[call[0] for call in logger_warning.call_args_list]}"
+    )

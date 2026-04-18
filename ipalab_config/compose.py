@@ -299,10 +299,7 @@ def get_ipa_deployments_configuration(
             services.update(servers_cfg)
             nodes.update(ips)
         else:
-            logger.warning(
-                "No servers defined for domain '%(domain)s'",
-                domain=domain,
-            )
+            logger.warning(f"No servers defined for domain '{domain}'")
             lab_config["deployment_nameservers"].append(None)
         # Get clients configuration
         clients = cluster_config.get("clients")
