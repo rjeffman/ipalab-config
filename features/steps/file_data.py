@@ -87,3 +87,21 @@ def _then_yaml_file_contents(context, filename):
     assert (
         called[index] == filename
     ), f"Data was created in the wrong file: {called[index]}"
+
+
+@then(
+    'the compose file contains service "{service_name}"'
+)  # pylint: disable=E1102
+def _then_compose_file_contains_service(context, service_name):
+    """Verify that a service exists in the generated compose file."""
+    # Find the compose.yml file in yaml_dump calls
+    for call in context.patches["yaml_dump"].call_args_list:
+        compose_data = call.args[0]
+        if "services" in compose_data:
+            services = compose_data["services"]
+            assert service_name in services, (
+                f"Service '{service_name}' not found in compose file. "
+                f"Available services: {list(services.keys())}"
+            )
+            return
+    raise AssertionError("No compose file with services was generated.")

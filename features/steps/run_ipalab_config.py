@@ -104,3 +104,25 @@ def _then_warning_no_servers(context):
         f"Expected warning about 'No servers defined for domain' but got: "
         f"{[call[0] for call in logger_warning.call_args_list]}"
     )
+
+
+@then(
+    "a warning message is displayed about no IPA deployments"
+)  # pylint: disable=E1102
+def _then_warning_no_ipa_deployments(context):
+    logger_warning = context.patches.get("logger_warning")
+    assert logger_warning is not None, "Logger warning patch not found"
+    assert logger_warning.called, "No warning was logged"
+
+    # Check if any warning message contains "No IPA deployment will be created"
+    warning_found = False
+    for call in logger_warning.call_args_list:
+        args, _ = call
+        if args and "No IPA deployment will be created" in args[0]:
+            warning_found = True
+            break
+
+    assert warning_found, (
+        f"Expected warning about 'No IPA deployment will be created' but got: "
+        f"{[call[0] for call in logger_warning.call_args_list]}"
+    )

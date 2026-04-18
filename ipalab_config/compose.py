@@ -342,9 +342,12 @@ def get_external_hosts_configuration(lab_config, networkname, subnet):
 
     # Handle DNS specially
     dns = None
+    domain = node_config["network"].domain
+    container_fqdn = lab_config["container_fqdn"]
     for node in ext_nodes:
         if node.get("role") == "dns":
-            service = services[node["name"]]
+            service_name = get_container_name(node, domain, container_fqdn)
+            service = services[service_name]
             ip_address = service["networks"][networkname]["ipv4_address"]
             # Use ugly side effect
             dns = lab_config["dns"] = ip_address
@@ -354,15 +357,9 @@ def get_external_hosts_configuration(lab_config, networkname, subnet):
     # Udate external nodes
     for node in ext_nodes:
         role = node.get("role")
-
-        def service_from_node(services, node):
-            if node["name"] in services:
-                return services[node["name"]]
-            if node.get("hostname") in services:
-                return services[node.get("hostname")]
-            return None
-
-        service = service_from_node(services, node)
+        # Get the service using the same naming logic as when it was created
+        service_name = get_container_name(node, domain, container_fqdn)
+        service = services.get(service_name)
         if role:
             # Use defaults for choosen role
             try:
@@ -405,6 +402,13 @@ def gen_compose_data(lab_config):
     has_external = bool(lab_config.get("external", {}).get("hosts"))
     deployments = lab_config.get("ipa_deployments", [])
     needs_global = has_external or any("network" not in d for d in deployments)
+
+    # Warn if no IPA deployments are configured
+    if not deployments:
+        logger.warning(
+            "No IPA deployment will be created. "
+            "Only non-IPA nodes will be available."
+        )
 
     # Only add global network to compose if it's used
     config["networks"] = networks_config if needs_global else {}
