@@ -84,9 +84,8 @@ def _then_an_error_msg(context, exception, msg):
     assert re.match(re.compile(msg), str(context.exception))
 
 
-@then(
-    "a warning message is displayed about no servers defined for domain"
-)  # pylint: disable=E1102
+# pylint: disable=E1102
+@then("a warning message is displayed about no servers defined for domain")
 def _then_warning_no_servers(context):
     logger_warning = context.patches.get("logger_warning")
     assert logger_warning is not None, "Logger warning patch not found"
@@ -106,9 +105,8 @@ def _then_warning_no_servers(context):
     )
 
 
-@then(
-    "a warning message is displayed about no IPA deployments"
-)  # pylint: disable=E1102
+# pylint: disable=E1102
+@then("a warning message is displayed about no IPA deployments")
 def _then_warning_no_ipa_deployments(context):
     logger_warning = context.patches.get("logger_warning")
     assert logger_warning is not None, "Logger warning patch not found"

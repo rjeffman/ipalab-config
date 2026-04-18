@@ -89,9 +89,8 @@ def _then_yaml_file_contents(context, filename):
     ), f"Data was created in the wrong file: {called[index]}"
 
 
-@then(
-    'the compose file contains service "{service_name}"'
-)  # pylint: disable=E1102
+# pylint: disable=E1102
+@then('the compose file contains service "{service_name}"')
 def _then_compose_file_contains_service(context, service_name):
     """Verify that a service exists in the generated compose file."""
     # Find the compose.yml file in yaml_dump calls
