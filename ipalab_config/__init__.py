@@ -1,6 +1,6 @@
 """ipalab_config module."""
 
-__version__ = "0.15.2"
+__version__ = "0.16.0"
 
 # List of supported disto containerfiles
 supported_distros = {
