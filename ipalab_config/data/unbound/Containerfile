@@ -1,7 +1,9 @@
 FROM alpine:latest
 
+ARG extra_packages=""
+
 RUN apk update
-RUN apk add --no-cache unbound bind-tools iputils
+RUN apk add --no-cache unbound bind-tools iputils ${extra_packages}
 
 RUN mkdir -p /etc/unbound
 RUN chown root:unbound /etc/unbound

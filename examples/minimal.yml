@@ -8,3 +8,5 @@ ipa_deployments:
     cluster:
       servers:
         - name: server
+          extra_packages:
+            - vim

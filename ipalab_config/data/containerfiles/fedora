@@ -2,6 +2,8 @@ ARG distro_image=fedora
 ARG distro_tag=latest
 FROM ${distro_image}:${distro_tag}
 
+ARG extra_packages=""
+
 ENV container=podman
 
 RUN \
@@ -17,6 +19,7 @@ dnf -y install \
     bind-utils \
     iproute \
     python3-libdnf5 \
+    ${extra_packages} \
     ; \
 dnf clean all; \
 rm -rf /var/cache/dnf/;

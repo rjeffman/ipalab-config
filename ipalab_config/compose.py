@@ -28,6 +28,28 @@ def get_effective_nameserver(nameserver, domain):
     return nameserver
 
 
+def add_extra_packages(build_config, extra_packages):
+    """Add extra packages to a node's container image build arguments."""
+    if extra_packages is None:
+        return
+    if not isinstance(extra_packages, list) or any(
+        not isinstance(package, str)
+        or not package.strip()
+        or any(character.isspace() for character in package)
+        for package in extra_packages
+    ):
+        raise ValueError("'extra_packages' must be a list of package names")
+    if not extra_packages:
+        return
+    if "build" not in build_config:
+        raise ValueError(
+            "'extra_packages' requires a node image built from a Containerfile"
+        )
+    build_config["build"].setdefault("args", {})["extra_packages"] = " ".join(
+        extra_packages
+    )
+
+
 def get_node_base_config(  # pylint: disable=R0913,R0917
     name, hostname, networkname, ipaddr, distro=None, tag=None, image=None
 ):
@@ -130,6 +152,7 @@ def get_compose_config(containers, subnet=None, **kwargs):
             node_tag,
             node_image,
         )
+        add_extra_packages(config, container.get("extra_packages"))
         if "memory" in container:
             config.update(
                 {"mem_limit": container["memory"].lower(), "memory_swap": -1}
@@ -371,6 +394,7 @@ def get_external_hosts_configuration(lab_config, networkname, subnet):
         if node.get("image"):
             service.pop("distro", None)
             service["image"] = node.get("image")
+        add_extra_packages(service, node.get("extra_packages"))
         # Merge volumes with user configuration
         volumes = service.pop("volumes", None)
         if volumes:

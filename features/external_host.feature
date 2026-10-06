@@ -16,6 +16,7 @@ Scenario: External DNS
         hostname: unbound.ipa.test
         ip_address: 192.168.53.254
         role: dns
+        extra_packages: [bind-utils]
         options:
           zones:
             - name: ipa.test
@@ -77,6 +78,8 @@ Scenario: External DNS
             build:
               context: unbound
               dockerfile: Containerfile
+              args:
+                extra_packages: bind-utils
             dns: 192.168.53.254
             dns_search: ipa.test
             volumes:
@@ -154,6 +157,7 @@ Scenario: Samba AD DC
         hostname: dc.ad.ipa.test
         role: addc
         ip_address: 192.168.13.250
+        extra_packages: [samba-client]
         options:
           forwarder: server.linux.ipa.test
           admin_pass: SomeADp4ass
@@ -199,6 +203,7 @@ Scenario: Samba AD DC
               dockerfile: external-nodes
               args:
                 packages: systemd
+                extra_packages: samba-client
             command: /usr/sbin/init
           server:
             container_name: server
@@ -240,6 +245,7 @@ Scenario: Keycloak
         hostname: keycloak.external.test
         role: keycloak
         ip_address: 192.168.14.10
+        extra_packages: [curl]
         options:
           admin_username: administrator
           admin_password: SomeKCpass
@@ -277,6 +283,7 @@ Scenario: Keycloak
               dockerfile: Containerfile
               args:
                 hostname: keycloak.external.test
+                extra_packages: curl
             entrypoint: /opt/keycloak/bin/kc.sh start
             environment:
               KC_BOOTSTRAP_ADMIN_USERNAME: administrator

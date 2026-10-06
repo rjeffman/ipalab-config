@@ -145,6 +145,7 @@ These are the available options to configure the first server and the replicas:
 | `hostname` | The server hostname. | no | _<server name>_._<domain>_ |
 | `distro`   | The containerfile or local image to use. | no | `fedora` |
 | `image`    | The container image to use. (Overrides `distro`.) | no | - |
+| `extra_packages` | A list of additional distro package names to install in the node image during the build. | no | - |
 | `volumes`  | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `capabilities` | A list of capabilities to be deployed on the server. Available options are `CA` (certificate authority), `DNS` (nameserver), `KRA`, `AD` (AD trust), `RSN` (Random Serial Numbered certificates, server only) and `HIDDEN` (replicas only). | no | For the first server `CA` is set. |
@@ -171,6 +172,7 @@ To configure the clients, these are the available attributes:
 | `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
 | `distro`   | The containerfile or local image to use. | no | `fedora` |
 | `image`    | The container image to use. (Overrides `distro`.) | no | - |
+| `extra_packages` | A list of additional distro package names to install in the node image during the build. | no | - |
 | `volumes`  | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `nolog`      | Do not mount `/var/log` on the host. | no | False |
@@ -198,11 +200,19 @@ These are nodes that are not part of the FreeIPA deployment, and may or may not 
 | `name`     | The name of the node.        | yes | - |
 | `hostname` | The node hostname. | no | _<server name>_._<domain>_ |
 | `distro`   | The containerfile/image to use. | no | `fedora` |
+| `extra_packages` | A list of additional distro package names to install in the node image during the build. | no | - |
 | `volumes`   | A list of bind volume specifications. | no | - |
 | `dns`      | An IP address or a node hostname to use as nameserver. | no | - |
 | `role`     | A specific role that will add predefined configuration to the node and the environment. Any `role` configuration will overwrite other options. | no | - |
 | `nolog`      | Do not mount `/var/log` on the host. | no | False |
 | `options`  | A dictionary of configurations specific to the available roles. | no | - |
+
+For example, add `extra_packages: [jq, tmux]` to a server, client, or external
+host to install those packages in its built image. Package names must be valid
+for the node's distro. This requires a Containerfile build; nodes using an
+existing `image` cannot install additional packages through this option.
+Custom Containerfiles must declare and install the `extra_packages` build
+argument themselves.
 
 
 #### External Roles

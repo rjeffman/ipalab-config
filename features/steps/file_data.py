@@ -104,3 +104,28 @@ def _then_compose_file_contains_service(context, service_name):
             )
             return
     raise AssertionError("No compose file with services was generated.")
+
+
+@then("the compose services have build args")  # pylint: disable=E1102
+def _then_compose_services_have_build_args(context):
+    """Verify selected Compose services have the expected build args."""
+    expected = YAML(pure=True).load(context.text)
+    for call in context.patches["yaml_dump"].call_args_list:
+        compose_data = call.args[0]
+        if "services" not in compose_data:
+            continue
+        services = compose_data["services"]
+        for service_name, expected_args in expected.items():
+            assert service_name in services, (
+                f"Service '{service_name}' not found in compose file. "
+                f"Available services: {list(services.keys())}"
+            )
+            actual_args = (
+                services[service_name].get("build", {}).get("args", {})
+            )
+            assert actual_args == expected_args, (
+                f"Unexpected build args for '{service_name}': "
+                f"{actual_args} != {expected_args}"
+            )
+        return
+    raise AssertionError("No compose file with services was generated.")

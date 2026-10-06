@@ -1,6 +1,8 @@
 ARG distro_tag=latest
 FROM quay.io/rockylinux/rockylinux:${distro_tag}
 
+ARG extra_packages=""
+
 ENV container=podman
 
 RUN \
@@ -14,6 +16,7 @@ dnf --assumeyes install \
     iputils \
     bind-utils \
     iproute \
+    ${extra_packages} \
     ; \
 dnf clean all ; \
 rm -rf /var/cache/dnf/;

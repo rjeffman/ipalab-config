@@ -1,10 +1,14 @@
 ARG distro_tag=latest
 FROM ubuntu:${distro_tag}
+ARG extra_packages=""
 ENV container=podman
 
 RUN apt-get update
 RUN apt-get upgrade -y
-RUN apt-get install -y systemd systemd-sysv dbus dbus-user-session sudo less vim iputils-ping
+RUN apt-get install -y \
+    systemd systemd-sysv dbus dbus-user-session sudo less vim iputils-ping \
+    ${extra_packages} \
+    && rm -rf /var/lib/apt/lists/*
 
 # disable systemd-resolved
 RUN rm -f /etc/systemd/system/sysinit.target.wants/systemd-resolved.service
