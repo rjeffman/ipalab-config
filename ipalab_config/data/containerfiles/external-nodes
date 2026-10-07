@@ -5,11 +5,20 @@ FROM ${distro_image}:${distro_tag}
 
 ARG packages=""
 ARG extra_packages=""
+ARG extra_repositories_b64=""
+
+COPY configure_repositories.py /usr/local/sbin/configure-repositories
 
 RUN dnf update -y
 RUN dnf -y install \
-    python3 python3-libdnf5 iproute hostname sudo \
-    ${packages} ${extra_packages}
-RUN dnf clean all
+    python3 python3-libdnf5 iproute hostname sudo ${packages}
+RUN if [ -n "${extra_repositories_b64}" ]; then \
+        printf '%s' "${extra_repositories_b64}" | base64 -d | \
+            python3 /usr/local/sbin/configure-repositories dnf; \
+    fi && \
+    if [ -n "${extra_packages}" ]; then \
+        dnf -y install ${extra_packages}; \
+    fi && \
+    dnf clean all
 
 STOPSIGNAL RTMIN+3

@@ -1,0 +1,12 @@
+---
+lab_name: fedora-updates-testing
+ipa_deployments:
+  - name: ipa
+    domain: ipa.test
+    cluster:
+      servers:
+        - name: server
+          distro: fedora
+          extra_repositories:
+            - type: dnf
+              repo_id: updates-testing

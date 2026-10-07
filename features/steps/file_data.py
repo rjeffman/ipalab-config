@@ -1,5 +1,7 @@
 """Test steps that deal with file data"""
 
+import base64
+import json
 import re
 
 from ruamel.yaml import YAML
@@ -126,6 +128,38 @@ def _then_compose_services_have_build_args(context):
             assert actual_args == expected_args, (
                 f"Unexpected build args for '{service_name}': "
                 f"{actual_args} != {expected_args}"
+            )
+        return
+    raise AssertionError("No compose file with services was generated.")
+
+
+@then(
+    "the compose services have repository build args"
+)  # pylint: disable=E1102
+def _then_compose_services_have_repository_build_args(context):
+    """Verify encoded repository definitions in Compose build arguments."""
+    expected = YAML(pure=True).load(context.text)
+    for call in context.patches["yaml_dump"].call_args_list:
+        compose_data = call.args[0]
+        if "services" not in compose_data:
+            continue
+        services = compose_data["services"]
+        for service_name, repositories in expected.items():
+            assert service_name in services, (
+                f"Service '{service_name}' not found in compose file. "
+                f"Available services: {list(services.keys())}"
+            )
+            encoded = (
+                services[service_name]
+                .get("build", {})
+                .get("args", {})
+                .get("extra_repositories_b64")
+            )
+            assert encoded, f"No repository build arg for '{service_name}'"
+            actual = json.loads(base64.b64decode(encoded))
+            assert actual == repositories, (
+                f"Unexpected repositories for '{service_name}': "
+                f"{actual} != {repositories}"
             )
         return
     raise AssertionError("No compose file with services was generated.")

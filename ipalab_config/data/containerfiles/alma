@@ -2,24 +2,36 @@ ARG distro_tag=latest
 FROM docker.io/almalinux/almalinux:${distro_tag}
 
 ARG extra_packages=""
+ARG extra_repositories_b64=""
 
 ENV container=podman
+
+COPY configure_repositories.py /usr/local/sbin/configure-repositories
 
 RUN \
 dnf update -y ; \
 dnf --assumeyes install \
     sudo \
     bash \
+    python3 \
     systemd \
     procps-ng \
     hostname \
     iputils \
     bind-utils \
     iproute \
-    ${extra_packages} \
     ; \
 dnf clean all ; \
 rm -rf /var/cache/dnf/;
+
+RUN if [ -n "${extra_repositories_b64}" ]; then \
+        printf '%s' "${extra_repositories_b64}" | base64 -d | \
+            python3 /usr/local/sbin/configure-repositories dnf; \
+    fi && \
+    if [ -n "${extra_packages}" ]; then \
+        dnf -y install ${extra_packages}; \
+    fi && \
+    dnf clean all && rm -rf /var/cache/dnf/
 
 STOPSIGNAL RTMIN+3
 

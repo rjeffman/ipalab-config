@@ -214,6 +214,83 @@ existing `image` cannot install additional packages through this option.
 Custom Containerfiles must declare and install the `extra_packages` build
 argument themselves.
 
+#### `extra_repositories`
+
+This per-node option enables additional repositories during the image build.
+Set it on an IPA server, client, or external host entry. Repositories are
+configured before any `extra_packages` are installed. It requires a
+Containerfile build and is distribution-specific:
+
+* Fedora and the default Fedora-based external-node image accept COPR projects
+  (`type: copr`, `project: owner/project`), existing DNF repo IDs
+  (`type: dnf`, `repo_id: ...`), and signed DNF repositories (`type: rpm`, with
+  `name`, `baseurl`, and `gpgkey`). CentOS, AlmaLinux, and Rocky Linux accept
+  existing DNF repo IDs and signed DNF repositories.
+* Ubuntu accepts APT repositories (`type: apt`, with `name`, `uris`, `suites`,
+  `components`, and an HTTPS `key_url`). Repository signing remains enabled;
+  APT keys are scoped to their source with `Signed-By`.
+
+For example, Fedora images that include the repository can enable the
+`updates-testing` repository like this:
+
+```yaml
+extra_repositories:
+  - type: dnf
+    repo_id: updates-testing
+```
+
+See the complete lab configuration in
+[`examples/fedora-updates-testing.yml`](examples/fedora-updates-testing.yml).
+
+For example, a Fedora node can enable a COPR before installing its packages:
+
+```yaml
+extra_repositories:
+  - type: copr
+    project: owner/project
+```
+
+An Ubuntu node can configure a signed APT source:
+
+```yaml
+extra_repositories:
+  - type: apt
+    name: vendor
+    uris: [https://packages.example.test/apt]
+    suites: [stable]
+    components: [main]
+    key_url: https://packages.example.test/repository-key.asc
+```
+
+For custom Containerfiles in the generated `containerfiles` build context,
+consume the generated `extra_repositories_b64` build argument with the bundled
+`configure_repositories.py` helper. For example, a Fedora-based custom recipe
+can do this before installing its extra packages:
+
+```Dockerfile
+FROM fedora:latest
+ARG extra_repositories_b64=""
+ARG extra_packages=""
+COPY configure_repositories.py /usr/local/sbin/configure-repositories
+RUN dnf -y install python3
+RUN if [ -n "${extra_repositories_b64}" ]; then \
+        printf '%s' "${extra_repositories_b64}" | base64 -d | \
+            python3 /usr/local/sbin/configure-repositories dnf; \
+    fi
+RUN if [ -n "${extra_packages}" ]; then \
+        dnf -y install ${extra_packages}; \
+    fi
+```
+
+For an APT-based custom image, pass `apt` instead of `dnf` to the helper, ensure
+Python 3 and CA certificates are installed first, then run `apt-get update`
+before installing packages. Repository definitions must all use the same
+package-manager backend in a custom recipe.
+
+Prebuilt images and role images whose package manager has not been implemented
+reject `extra_repositories`. The built-in Debian-family recipe is Ubuntu; there
+is no standalone Debian recipe currently.
+
 
 #### External Roles
 

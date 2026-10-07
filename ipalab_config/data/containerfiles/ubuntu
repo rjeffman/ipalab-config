@@ -1,14 +1,28 @@
 ARG distro_tag=latest
 FROM ubuntu:${distro_tag}
 ARG extra_packages=""
+ARG extra_repositories_b64=""
 ENV container=podman
 
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y \
-    systemd systemd-sysv dbus dbus-user-session sudo less vim iputils-ping \
-    ${extra_packages} \
-    && rm -rf /var/lib/apt/lists/*
+COPY configure_repositories.py /usr/local/sbin/configure-repositories
+
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
+        systemd systemd-sysv dbus dbus-user-session sudo less vim iputils-ping \
+        python3 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN if [ -n "${extra_repositories_b64}" ]; then \
+        printf '%s' "${extra_repositories_b64}" | base64 -d | \
+            python3 /usr/local/sbin/configure-repositories apt; \
+    fi && \
+    if [ -n "${extra_repositories_b64}${extra_packages}" ]; then \
+        apt-get update; \
+    fi && \
+    if [ -n "${extra_packages}" ]; then \
+        apt-get install -y ${extra_packages}; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
 
 # disable systemd-resolved
 RUN rm -f /etc/systemd/system/sysinit.target.wants/systemd-resolved.service

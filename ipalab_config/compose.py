@@ -7,6 +7,7 @@ from ruamel.yaml.comments import CommentedMap
 
 from ipalab_config import supported_distros
 from ipalab_config.logger import logger
+from ipalab_config.repositories import encode_extra_repositories
 from ipalab_config.utils import (
     die,
     get_hostname,
@@ -43,11 +44,33 @@ def add_extra_packages(build_config, extra_packages):
         return
     if "build" not in build_config:
         raise ValueError(
-            "'extra_packages' requires a node image built from a Containerfile"
+            "'extra_packages' requires a node image built from "
+            "a Containerfile"
         )
     build_config["build"].setdefault("args", {})["extra_packages"] = " ".join(
         extra_packages
     )
+
+
+def add_extra_repositories(build_config, extra_repositories):
+    """Add validated, encoded repository configuration to build arguments."""
+    if extra_repositories is None or extra_repositories == []:
+        return
+    if "build" not in build_config:
+        raise ValueError(
+            "'extra_repositories' requires a node image built from "
+            "a Containerfile"
+        )
+    encoded_repositories = encode_extra_repositories(
+        extra_repositories,
+        build_config["build"].get("dockerfile"),
+        build_config["build"].get("context"),
+    )
+    if encoded_repositories is None:
+        return
+    build_config["build"].setdefault("args", {})[
+        "extra_repositories_b64"
+    ] = encoded_repositories
 
 
 def get_node_base_config(  # pylint: disable=R0913,R0917
@@ -112,7 +135,9 @@ def get_container_name(container, domain, container_fqdn):
     return name
 
 
-def get_compose_config(containers, subnet=None, **kwargs):
+def get_compose_config(
+    containers, subnet=None, include_extra_repositories=True, **kwargs
+):
     """Create config for all containers in the list."""
 
     def node_dns_key(hostname):
@@ -153,6 +178,8 @@ def get_compose_config(containers, subnet=None, **kwargs):
             node_image,
         )
         add_extra_packages(config, container.get("extra_packages"))
+        if include_extra_repositories:
+            add_extra_repositories(config, container.get("extra_repositories"))
         if "memory" in container:
             config.update(
                 {"mem_limit": container["memory"].lower(), "memory_swap": -1}
@@ -359,7 +386,12 @@ def get_external_hosts_configuration(lab_config, networkname, subnet):
         "mount_varlog": lab_config["mount_varlog"],
     }
     ext_nodes = external.get("hosts", [])
-    nodes, services = get_compose_config(ext_nodes, subnet, **node_config)
+    nodes, services = get_compose_config(
+        ext_nodes,
+        subnet,
+        include_extra_repositories=False,
+        **node_config,
+    )
     # update nodes list
     lab_config.setdefault("nodes", {}).update(nodes)
 
@@ -395,6 +427,7 @@ def get_external_hosts_configuration(lab_config, networkname, subnet):
             service.pop("distro", None)
             service["image"] = node.get("image")
         add_extra_packages(service, node.get("extra_packages"))
+        add_extra_repositories(service, node.get("extra_repositories"))
         # Merge volumes with user configuration
         volumes = service.pop("volumes", None)
         if volumes:
